@@ -34,25 +34,19 @@ float2 sres
 > = {0.0,0.0};
 /*
    palette type:
-    -2 : Standard VGA 256-color palette
     -1 : disable
      0 : CGA (320x200 4-color, or 640x200 monochrome)
      1 : EGA (320x200, 16 colors)
      2 : RGB2 (64-color quarter VGA palette, used in AOS)
-     3 : RGB323 (8-bit RGB, I don't think this was a real thing)
-     4 : VGA (256 colors, standard palette)
-     5 : Doom (256 colors, does not cover a lot)
-     6 : Quake I (256 colors, covers even less)
-     7 : RGB4 (4bpc, I also don't think this was ever used in real hardware)
-     8 : RGB565 (ol' 16-bit "true color")
-     9 : RGB6 (typical screens incapable of 8bpc)
+     3 : VGA (256 colors)
+     4 : RGB565 (ol' 16-bit "true color")
 */
 int paltype
 <
 	string UIName = "Palette Type";
 	string UIWidget = "Spinner";
 	int UIMin = -1;
-	int UIMax = 9;
+	int UIMax = 4;
 > = {1};
 /*
    CGA palette to use:
@@ -82,6 +76,32 @@ int egapal
 	string UIWidget = "Spinner";
 	int UIMin = 0;
 	int UIMax = 1;
+> = {0};
+/*
+    VGA palette to use:
+     0 : Standard VGA
+     1 : Amulets & Armor
+     2 : Blood
+     3 : Doom
+     4 : Duke Nukem 3D
+     5 : Hacx 2.0
+     6 : Heretic
+     7 : Hexen
+     8 : Hexen 2
+     9 : Quake
+     10 : Quake 2
+     11 : Rise of the Triad
+     12 : Shadow Warrior
+     13 : Strife
+     14 : Wolfenstein 3D
+     TODO Project .Blank palette (when the design is finished)
+*/
+int vgapal
+<
+	string UIName = "VGA Palette";
+	string UIWidget = "Spinner";
+	int UIMin = 0;
+	int UIMax = 14;
 > = {0};
 /*
    Dithering mode:
@@ -333,94 +353,6 @@ static const float ordered8[64] =
 	d(42),d(26),d(38),d(22),d(41),d(25),d(37),d(21)
 };
 #undef d
-/*
-   palettes
-   don't touch unless you know what you're doing
-*/
-#define d(x) x/3.0
-static const float3 cga1l[4] =
-{
-	float3(d(0),d(0),d(0)),
-	float3(d(0),d(2),d(2)),
-	float3(d(2),d(0),d(2)),
-	float3(d(2),d(2),d(2))
-};
-static const float3 cga1h[4] =
-{
-	float3(d(0),d(0),d(0)),
-	float3(d(1),d(3),d(3)),
-	float3(d(3),d(1),d(3)),
-	float3(d(3),d(3),d(3))
-};
-static const float3 cga2l[4] =
-{
-	float3(d(0),d(0),d(0)),
-	float3(d(0),d(2),d(0)),
-	float3(d(2),d(0),d(0)),
-	float3(d(2),d(1),d(0))
-};
-static const float3 cga2h[4] =
-{
-	float3(d(0),d(0),d(0)),
-	float3(d(1),d(3),d(1)),
-	float3(d(3),d(1),d(1)),
-	float3(d(3),d(2),d(1))
-};
-static const float3 cga3l[4] =
-{
-	float3(d(0),d(0),d(0)),
-	float3(d(0),d(2),d(2)),
-	float3(d(2),d(0),d(0)),
-	float3(d(2),d(2),d(2))
-};
-static const float3 cga3h[4] =
-{
-	float3(d(0),d(0),d(0)),
-	float3(d(1),d(3),d(3)),
-	float3(d(3),d(1),d(1)),
-	float3(d(3),d(3),d(3))
-};
-static const float3 stdega[16] =
-{
-	float3(d(0),d(0),d(0)),
-	float3(d(2),d(0),d(0)),
-	float3(d(0),d(2),d(0)),
-	float3(d(2),d(1),d(0)),
-	float3(d(0),d(0),d(2)),
-	float3(d(2),d(0),d(2)),
-	float3(d(0),d(2),d(2)),
-	float3(d(2),d(2),d(2)),
-	float3(d(1),d(1),d(1)),
-	float3(d(3),d(1),d(1)),
-	float3(d(1),d(3),d(1)),
-	float3(d(3),d(3),d(1)),
-	float3(d(1),d(1),d(3)),
-	float3(d(3),d(1),d(3)),
-	float3(d(1),d(3),d(3)),
-	float3(d(3),d(3),d(3))
-};
-#undef d
-#define d(x) x/256.0
-static const float3 aosega[16] =
-{
-	float3(d(  0),d(  0),d(  0)),
-	float3(d(128),d(  0),d(  0)),
-	float3(d( 32),d(128),d(  0)),
-	float3(d(160),d( 64),d( 32)),
-	float3(d(  0),d( 32),d( 88)),
-	float3(d( 60),d(  0),d( 88)),
-	float3(d( 16),d(160),d(208)),
-	float3(d( 88),d( 88),d( 88)),
-	float3(d( 32),d( 32),d( 32)),
-	float3(d(256),d( 64),d( 64)),
-	float3(d( 72),d(256),d( 64)),
-	float3(d(256),d(224),d( 60)),
-	float3(d( 48),d(128),d(256)),
-	float3(d(192),d( 48),d(256)),
-	float3(d( 72),d(224),d(256)),
-	float3(d(256),d(256),d(256)),
-};
-#undef d
 /* gauss stuff */
 float gauss3[3] =
 {
@@ -439,13 +371,13 @@ Texture2D TextureDots
 <
 	string ResourceName = "menbdots.png";
 >;
-Texture2D TextureDoom
+Texture2D TextureCGA
 <
-	string ResourceName = "menbdoomlut.png";
+	string ResourceName = "menbcgalut.png";
 >;
-Texture2D TextureQuake
+Texture2D TextureEGA
 <
-	string ResourceName = "menbquakelut.png";
+	string ResourceName = "menbegalut.png";
 >;
 Texture2D TextureVGA
 <
@@ -559,75 +491,10 @@ float4 ReducePrepass( in float4 col, in float2 coord )
 */
 float4 ReduceCGA( in float4 color, in float2 coord )
 {
-	float4 dac = ReducePrepass(color,coord);
-	if ( cgapal == 0 )
-	{
-		dac.a = (dac.r+dac.g+dac.b)/3.0;
-		return (dac.a>0.5);
-	}
-	float dist = 2.0;
-	int idx = 0;
-	if ( cgapal == 1 )
-	{
-		[unroll] for ( int i=0; i<4; i++ )
-			if ( distance(dac.rgb,cga1l[i]) < dist )
-			{
-				idx = i;
-				dist = distance(dac.rgb,cga1l[i]);
-			}
-		color.rgb = cga1l[idx];
-	}
-	else if ( cgapal == 2 )
-	{
-		[unroll] for ( int i=0; i<4; i++ )
-			if ( distance(dac.rgb,cga1h[i]) < dist )
-			{
-				idx = i;
-				dist = distance(dac.rgb,cga1h[i]);
-			}
-		color.rgb = cga1h[idx];
-	}
-	else if ( cgapal == 3 )
-	{
-		[unroll] for ( int i=0; i<4; i++ )
-			if ( distance(dac.rgb,cga2l[i]) < dist )
-			{
-				idx = i;
-				dist = distance(dac.rgb,cga2l[i]);
-			}
-		color.rgb = cga2l[idx];
-	}
-	else if ( cgapal == 4 )
-	{
-		[unroll] for ( int i=0; i<4; i++ )
-			if ( distance(dac.rgb,cga2h[i]) < dist )
-			{
-				idx = i;
-				dist = distance(dac.rgb,cga2h[i]);
-			}
-		color.rgb = cga2h[idx];
-	}
-	else if ( cgapal == 5 )
-	{
-		[unroll] for ( int i=0; i<4; i++ )
-			if ( distance(dac.rgb,cga3l[i]) < dist )
-			{
-				idx = i;
-				dist = distance(dac.rgb,cga3l[i]);
-			}
-		color.rgb = cga3l[idx];
-	}
-	else if ( cgapal == 6 )
-	{
-		[unroll] for ( int i=0; i<4; i++ )
-			if ( distance(dac.rgb,cga3h[i]) < dist )
-			{
-				idx = i;
-				dist = distance(dac.rgb,cga3h[i]);
-			}
-		color.rgb = cga3h[idx];
-	}
-	return color;
+	float4 dac = clamp(ReducePrepass(color,coord)+0.005,0.005,0.995);
+	float2 lc = float2((dac.r+cgapal)/7.0,
+		dac.g/64.0+floor(dac.b*64.0)/64.0);
+	return TextureCGA.Sample(SamplerLUT,lc);
 }
 /*
    EGA technically only had the 320x200 16-colour graphic mode, but when VGA
@@ -637,50 +504,16 @@ float4 ReduceCGA( in float4 color, in float2 coord )
 */
 float4 ReduceEGA( in float4 color, in float2 coord )
 {
-	float4 dac = ReducePrepass(color,coord);
-	float dist = 2.0;
-	int idx = 0;
-	if ( egapal == 0 )
-	{
-		[unroll] for ( int i=0; i<16; i++ )
-			if ( distance(dac.rgb,stdega[i]) < dist )
-			{
-				idx = i;
-				dist = distance(dac.rgb,stdega[i]);
-			}
-		color.rgb = stdega[idx];
-	}
-	else
-	{
-		[unroll] for ( int i=0; i<16; i++ )
-			if ( distance(dac.rgb,aosega[i]) < dist )
-			{
-				idx = i;
-				dist = distance(dac.rgb,aosega[i]);
-			}
-		color.rgb = aosega[idx];
-	}
-	return color;
+	float4 dac = clamp(ReducePrepass(color,coord)+0.005,0.005,0.995);
+	float2 lc = float2((dac.r+egapal)/2.0,
+		dac.g/64.0+floor(dac.b*64.0)/64.0);
+	return TextureEGA.Sample(SamplerLUT,lc);
 }
 /* A two bits per channel mode that can usually fit VGA mode 13h and mode x */
 float4 ReduceRGB2( in float4 color, in float2 coord )
 {
 	float4 dac = ReducePrepass(color,coord);
 	color.rgb = trunc(dac.rgb*4.0)/4.0;
-	return color;
-}
-/* Effectively has 256 colours, with a magenta tint due to precision loss */
-float4 ReduceRGB323( in float4 color, in float2 coord )
-{
-	float4 dac = ReducePrepass(color,coord);
-	color.rgb = trunc(dac.rgb*float3(8.0,4.0,8.0))/float3(8.0,4.0,8.0);
-	return color;
-}
-/* 4096 colours, no actual graphics hardware existed that used 4bpc, though */
-float4 ReduceRGB4( in float4 color, in float2 coord )
-{
-	float4 dac = ReducePrepass(color,coord);
-	color.rgb = trunc(dac.rgb*16.0)/16.0;
 	return color;
 }
 /*
@@ -695,38 +528,12 @@ float4 ReduceRGB565( in float4 color, in float2 coord )
 		/float3(32.0,64.0,32.0);
 	return color;
 }
-/*
-   If you see no difference when using this, then it could be because your
-   own screen is already 6bpc. This is the case for a lot of LCDs, both old
-   and modern. 8bpc tends to be the norm on IPS, though. 10bpc is the next
-   step, but for now it's only used internally in video codecs for more
-   efficient compression with lower quality loss. I seem to recall that in
-   most *nix systems such as Linux it's possible to have 10bpc already with
-   NVIDIA, but it causes compatibility issues with a lot of programs.
-*/
-float4 ReduceRGB6( in float4 color, in float2 coord )
-{
-	float4 dac = ReducePrepass(color,coord);
-	color.rgb = trunc(dac.rgb*64.0)/64.0;
-	return color;
-}
-/* Various VGA 256-colour palettes: Doom, Quake I, and the standard. */
-float4 ReduceDoom( in float4 color, in float2 coord )
-{
-	float4 dac = clamp(ReducePrepass(color,coord)+0.005,0.005,0.995);
-	float2 lc = float2(dac.r,dac.g/64.0+floor(dac.b*64.0)/64.0);
-	return TextureDoom.Sample(SamplerLUT,lc);
-}
-float4 ReduceQuake( in float4 color, in float2 coord )
-{
-	float4 dac = clamp(ReducePrepass(color,coord)+0.005,0.005,0.995);
-	float2 lc = float2(dac.r,dac.g/64.0+floor(dac.b*64.0)/64.0);
-	return TextureQuake.Sample(SamplerLUT,lc);
-}
+/* Various VGA 256-colour palettes */
 float4 ReduceVGA( in float4 color, in float2 coord )
 {
 	float4 dac = clamp(ReducePrepass(color,coord)+0.005,0.005,0.995);
-	float2 lc = float2(dac.r,dac.g/64.0+floor(dac.b*64.0)/64.0);
+	float2 lc = float2((dac.r+vgapal)/15.0,
+		dac.g/64.0+floor(dac.b*64.0)/64.0);
 	return TextureVGA.Sample(SamplerLUT,lc);
 }
 
@@ -758,13 +565,8 @@ float4 PS_Retro( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	if ( paltype == 0 ) res = ReduceCGA(tcol,(coord*rresl)/sresl);
 	else if ( paltype == 1 ) res = ReduceEGA(tcol,(coord*rresl)/sresl);
 	else if ( paltype == 2 ) res = ReduceRGB2(tcol,(coord*rresl)/sresl);
-	else if ( paltype == 3 ) res = ReduceRGB323(tcol,(coord*rresl)/sresl);
-	else if ( paltype == 4 ) res = ReduceVGA(tcol,(coord*rresl)/sresl);
-	else if ( paltype == 5 ) res = ReduceDoom(tcol,(coord*rresl)/sresl);
-	else if ( paltype == 6 ) res = ReduceQuake(tcol,(coord*rresl)/sresl);
-	else if ( paltype == 7 ) res = ReduceRGB4(tcol,(coord*rresl)/sresl);
-	else if ( paltype == 8 ) res = ReduceRGB565(tcol,(coord*rresl)/sresl);
-	else if ( paltype == 9 ) res = ReduceRGB6(tcol,(coord*rresl)/sresl);
+	else if ( paltype == 3 ) res = ReduceVGA(tcol,(coord*rresl)/sresl);
+	else if ( paltype == 4 ) res = ReduceRGB565(tcol,(coord*rresl)/sresl);
 	else res = tcol;
 	if ( ncoord.x < 0 || ncoord.x >= 1 || ncoord.y < 0 || ncoord.y >= 1 )
 		res *= 0;

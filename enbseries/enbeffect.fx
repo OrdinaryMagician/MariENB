@@ -431,12 +431,6 @@ int dither
 	int UIMin = 0;
 	int UIMax = 4;
 > = {4};
-string str_bloom = "Bloom Settings";
-bool bloomlighten
-<
-	string UIName = "Use Lighten Blend";
-	string UIWidget = "Checkbox";
-> = {false};
 string str_debug = "Debugging";
 bool bloomdebug
 <
@@ -846,16 +840,13 @@ float4 PS_Draw( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	float2 adapt = Adaptation(coord);
 	if ( bloomdebug ) res.rgb *= 0;
 	float3 bcol = mud.rgb*ENBParams01.x;
-	if ( bloomlighten )
-		res.rgb = float3(max(res.r,bcol.r),max(res.g,bcol.g),
-			max(res.b,bcol.b));
-	else res.rgb += bcol;
+	res.rgb += bcol;
 	if ( aenable ) res.rgb *= adapt.x;
 	if ( nbt && ne ) res.rgb = FilmGrain(res.rgb,coord);
 	if ( vtmapenable ) res.rgb = TonemapGame(res.rgb);
 	if ( vgradeenable ) res.rgb = GradingGame(res.rgb,adapt.y);
 #ifndef SKYRIMSE
-	res.rgb = pow(res.rgb,1.0/2.2);
+	res.rgb = pow(max(res.rgb,0.0),1.0/2.2);
 #endif
 	if ( tmapenable ) res.rgb = Tonemap(res.rgb);
 	if ( gradeenable1 ) res.rgb = GradingRGB(res.rgb);
