@@ -138,6 +138,12 @@ static const float3 aosega[16] =
 	float3(d(256),d(256),d(256)),
 };
 #undef d
+/* dimensions for ascii art font */
+#define FONT_WIDTH   8
+#define FONT_HEIGHT  4096
+#define GLYPH_WIDTH  8
+#define GLYPH_HEIGHT 16
+#define FONT_LEVELS  255
 /* standard stuff */
 float4 ScreenSize;
 float ENightDayFactor;

@@ -71,6 +71,10 @@ texture2D texNoise3
 <
 	string ResourceName = "menbnoise2.png";
 >;
+texture2D texLUT
+<
+	string ResourceName = "menblutpreset.png";
+>;
 sampler2D _s0 = sampler_state
 {
 	Texture = <texs0>;
@@ -158,6 +162,18 @@ sampler2D SamplerNoise2 = sampler_state
 sampler2D SamplerNoise3 = sampler_state
 {
 	Texture = <texNoise3>;
+	MinFilter = LINEAR;
+	MagFilter = LINEAR;
+	MipFilter = NONE;
+	AddressU = Wrap;
+	AddressV = Wrap;
+	SRGBTexture = FALSE;
+	MaxMipLevel = 0;
+	MipMapLodBias = 0;
+};
+sampler2D SamplerLUT = sampler_state
+{
+	Texture = <texLUT>;
 	MinFilter = LINEAR;
 	MagFilter = LINEAR;
 	MipFilter = NONE;

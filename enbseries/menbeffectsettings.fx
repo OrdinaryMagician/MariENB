@@ -828,6 +828,24 @@ float vgradeblend
 	float UIMin = 0.0;
 	float UIMax = 1.0;
 > = {1.0};
+/* LUT grading */
+bool lutenable
+<
+	string UIName = "EnableLUTGrading";
+	string UIWidget = "Checkbox";
+> = {false};
+float lutblend
+<
+	string UIName = "LUTBlend";
+	string UIWidget = "Spinner";
+> = {1.0};
+int clut
+<
+	string UIName = "LUTPreset";
+	string UIWidget = "Spinner";
+	int UIMin = 0;
+	int UIMax = 63;
+> = {1};
 bool fadebeforefilm
 <
 	string UIName = "FadeBeforeFilmFilters";

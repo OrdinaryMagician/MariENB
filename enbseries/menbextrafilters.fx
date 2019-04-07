@@ -226,11 +226,11 @@ float4 PS_ASCII( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	float4 res = tex2D(SamplerColor,coord);
 	if ( !asciienable ) return res;
 	float2 bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
-	float2 fresl = float2(8,4096);
-	float2 cresl = float2(8,16);
+	float2 fresl = float2(FONT_WIDTH,FONT_HEIGHT);
+	float2 cresl = float2(GLYPH_WIDTH,GLYPH_HEIGHT);
 	float2 bscl = floor(bresl/cresl);
 	float3 col = tex2D(SamplerColor,floor(bscl*coord)/bscl).rgb;
-	int lum = luminance(col)*255;
+	int lum = luminance(col)*FONT_LEVELS;
 	float2 itx = floor(coord*bresl);
 	float2 blk = floor(itx/cresl)*cresl;
 	float2 ofs = itx-blk;

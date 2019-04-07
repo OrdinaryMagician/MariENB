@@ -204,6 +204,25 @@ float3 GradingGame( float3 res )
 	tcol = max(0,(tcol*_r3.w-_r3.y)*_r3.z+_r3.y);
 	return lerp(res,tcol,vgradeblend);
 }
+/* LUT colour grading */
+float3 GradingLUT( float3 res )
+{
+	/*
+	   gross hacks were needed to "fix" the way direct3d interpolates on
+	   sampling, and to manually interpolate on the blue channel
+	*/
+	float3 tcol = clamp(res,0.0,1.0)*0.875+0.0625;
+	float2 lc1 = float2(tcol.r/16.0+floor(tcol.b*16.0)/16.0,tcol.g/64.0
+		+clut/64.0);
+	float2 lc2 = float2(tcol.r/16.0+ceil(tcol.b*16.0)/16.0,tcol.g/64.0
+		+clut/64.0);
+	float dec = frac(tcol.b*16.0);
+	float3 tcl1 = tex2D(SamplerLUT,lc1);
+	float3 tcl2 = tex2D(SamplerLUT,lc2);
+	tcol = lerp(tcl1,tcl2,dec);
+	tcol = (tcol-0.0625)/0.875;
+	return lerp(res,tcol,lutblend);
+}
 /* display debug register */
 float debugreg( float r, float2 coord, int p )
 {
@@ -324,6 +343,7 @@ float4 PS_Mari( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 		if ( gradeenable2 ) res.rgb = GradingColorize(res.rgb);
 		if ( gradeenable3 ) res.rgb = GradingHSV(res.rgb);
 	}
+	if ( lutenable ) res.rgb = GradingLUT(res.rgb);
 	if ( !tintbeforegrade && tintenable ) res.rgb = Tint(res.rgb);
 	if ( fadebeforefilm ) res.rgb = _r5.rgb*_r5.a + res.rgb*(1.0-_r5.a);
 	if ( ne ) res.rgb = FilmGrain(res.rgb,coord);
