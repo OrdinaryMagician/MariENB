@@ -215,7 +215,8 @@ float3 GradingLUT( float3 res )
 	   volume maps, but PS 3.0 has a limit of 16 samplers and I think ENB
 	   can't load volume maps anyway.
 	*/
-	float3 tcol = clamp(res,0.0,1.0)*0.875+0.0625;
+	float3 tcol = clamp(res,0.0,1.0);
+	tcol.rg = tcol.rg*0.5+0.25;
 	float2 lc1 = float2(tcol.r/16.0+floor(tcol.b*16.0)/16.0,tcol.g/64.0
 		+clut/64.0);
 	float2 lc2 = float2(tcol.r/16.0+ceil(tcol.b*16.0)/16.0,tcol.g/64.0
@@ -224,7 +225,6 @@ float3 GradingLUT( float3 res )
 	float3 tcl1 = tex2D(SamplerLUT,lc1);
 	float3 tcl2 = tex2D(SamplerLUT,lc2);
 	tcol = lerp(tcl1,tcl2,dec);
-	tcol = (tcol-0.0625)/0.875;
 	float lutblend = lerp(lerp(lutblend_n,lutblend_d,tod),lerp(lutblend_in,
 		lutblend_id,tod),ind);
 	return lerp(res,tcol,lutblend);

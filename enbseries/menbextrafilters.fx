@@ -373,12 +373,81 @@ float4 PS_Curvature( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	res.rgb = idist.rgb;
 	return res;
 }
+/* Why am I doing this */
+float4 PS_Blur( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
+{
+	float2 coord = IN.txcoord.xy;
+	float4 res = tex2D(SamplerColor,coord);
+	if ( !bssblurenable ) return res;
+	float2 ofs[16] =
+	{
+		float2(1.0,1.0), float2(-1.0,-1.0),
+		float2(-1.0,1.0), float2(1.0,-1.0),
+		
+		float2(1.0,0.0), float2(-1.0,0.0),
+		float2(0.0,1.0), float2(0.0,-1.0),
+		
+		float2(1.41,0.0), float2(-1.41,0.0),
+		float2(0.0,1.41), float2(0.0,-1.41),
+		
+		float2(1.41,1.41), float2(-1.41,-1.41),
+		float2(-1.41,1.41), float2(1.41,-1.41)
+	};
+	float2 bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
+	float2 bof = (1.0/bresl)*bssblurradius;
+	int i;
+	[unroll] for ( i=0; i<16; i++ )
+		res += tex2D(SamplerColor,coord+ofs[i]*bof);
+	res /= 17.0;
+	res.a = 1.0;
+	return res;
+}
+float4 PS_Sharp( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
+{
+	float2 coord = IN.txcoord.xy;
+	float4 res = tex2D(SamplerColor,coord);
+	if ( !bsssharpenable ) return res;
+	float2 ofs[8] =
+	{
+		float2(1.0,1.0), float2(-1.0,-1.0),
+		float2(-1.0,1.0), float2(1.0,-1.0),
+		
+		float2(1.41,1.41), float2(-1.41,-1.41),
+		float2(-1.41,1.41), float2(1.41,-1.41)
+	};
+	float2 bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
+	float2 bof = (1.0/bresl)*bsssharpradius;
+	float4 tcol = res;
+	int i;
+	[unroll] for ( i=0; i<8; i++ )
+		tcol += tex2D(SamplerColor,coord+ofs[i]*bof);
+	tcol /= 9.0;
+	float4 orig = res;
+	res = orig*(1.0+dot(orig.rgb-tcol.rgb,0.333333)*bsssharpamount);
+	float rg = clamp(pow(orig.b,3.0),0.0,1.0);
+	res = lerp(res,orig,rg);
+	res.a = 1.0;
+	return res;
+}
+float4 PS_Shift( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
+{
+	float2 coord = IN.txcoord.xy;
+	float4 res = tex2D(SamplerColor,coord);
+	if ( !bssshiftenable ) return res;
+	float2 bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
+	float2 bof = (1.0/bresl)*bssshiftradius;
+	res.g = tex2D(SamplerColor,coord).g;
+	res.r = tex2D(SamplerColor,coord+float2(0,-bof.y)).r;
+	res.b = tex2D(SamplerColor,coord+float2(0,bof.y)).b;
+	res.a = 1.0;
+	return res;
+}
 technique PostProcess
 {
 	pass p0
 	{
 		VertexShader = compile vs_3_0 VS_Pass();
-		PixelShader = compile ps_3_0 PS_ChromaKey();
+		PixelShader = compile ps_3_0 PS_Blur();
 		DitherEnable = FALSE;
 		ZEnable = FALSE;
 		CullMode = NONE;
@@ -395,7 +464,7 @@ technique PostProcess2
 	pass p0
 	{
 		VertexShader = compile vs_3_0 VS_Pass();
-		PixelShader = compile ps_3_0 PS_Retro();
+		PixelShader = compile ps_3_0 PS_Sharp();
 		DitherEnable = FALSE;
 		ZEnable = FALSE;
 		CullMode = NONE;
@@ -412,7 +481,7 @@ technique PostProcess3
 	pass p0
 	{
 		VertexShader = compile vs_3_0 VS_Pass();
-		PixelShader = compile ps_3_0 PS_ASCII();
+		PixelShader = compile ps_3_0 PS_Shift();
 		DitherEnable = FALSE;
 		ZEnable = FALSE;
 		CullMode = NONE;
@@ -429,7 +498,7 @@ technique PostProcess4
 	pass p0
 	{
 		VertexShader = compile vs_3_0 VS_Pass();
-		PixelShader = compile ps_3_0 PS_DotMatrix();
+		PixelShader = compile ps_3_0 PS_ChromaKey();
 		DitherEnable = FALSE;
 		ZEnable = FALSE;
 		CullMode = NONE;
@@ -442,6 +511,57 @@ technique PostProcess4
 	}
 }
 technique PostProcess5
+{
+	pass p0
+	{
+		VertexShader = compile vs_3_0 VS_Pass();
+		PixelShader = compile ps_3_0 PS_Retro();
+		DitherEnable = FALSE;
+		ZEnable = FALSE;
+		CullMode = NONE;
+		ALPHATESTENABLE = FALSE;
+		SEPARATEALPHABLENDENABLE = FALSE;
+		AlphaBlendEnable = FALSE;
+		StencilEnable = FALSE;
+		FogEnable = FALSE;
+		SRGBWRITEENABLE = FALSE;
+	}
+}
+technique PostProcess6
+{
+	pass p0
+	{
+		VertexShader = compile vs_3_0 VS_Pass();
+		PixelShader = compile ps_3_0 PS_ASCII();
+		DitherEnable = FALSE;
+		ZEnable = FALSE;
+		CullMode = NONE;
+		ALPHATESTENABLE = FALSE;
+		SEPARATEALPHABLENDENABLE = FALSE;
+		AlphaBlendEnable = FALSE;
+		StencilEnable = FALSE;
+		FogEnable = FALSE;
+		SRGBWRITEENABLE = FALSE;
+	}
+}
+technique PostProcess7
+{
+	pass p0
+	{
+		VertexShader = compile vs_3_0 VS_Pass();
+		PixelShader = compile ps_3_0 PS_DotMatrix();
+		DitherEnable = FALSE;
+		ZEnable = FALSE;
+		CullMode = NONE;
+		ALPHATESTENABLE = FALSE;
+		SEPARATEALPHABLENDENABLE = FALSE;
+		AlphaBlendEnable = FALSE;
+		StencilEnable = FALSE;
+		FogEnable = FALSE;
+		SRGBWRITEENABLE = FALSE;
+	}
+}
+technique PostProcess8
 {
 	pass p0
 	{

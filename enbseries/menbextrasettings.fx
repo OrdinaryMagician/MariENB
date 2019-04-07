@@ -242,3 +242,44 @@ float curvesoft
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.0};
+/* BlurSharpShift, some people are obsessed with this nonsense */
+string str_bss = "BlurSharpShift";
+bool bssblurenable
+<
+	string UIName = "Enable Blur";
+	string UIWidget = "Checkbox";
+> = {false};
+float bssblurradius
+<
+	string UIName = "Blur Sampling Range";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {0.25};
+bool bsssharpenable
+<
+	string UIName = "Enable Sharp";
+	string UIWidget = "Checkbox";
+> = {false};
+float bsssharpradius
+<
+	string UIName = "Sharp Sampling Range";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float bsssharpamount
+<
+	string UIName = "Sharpening Amount";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {6.0};
+bool bssshiftenable
+<
+	string UIName = "Enable Shift";
+	string UIWidget = "Checkbox";
+> = {false};
+float bssshiftradius
+<
+	string UIName = "Shift Sampling Range";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {0.75};
