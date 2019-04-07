@@ -21,13 +21,6 @@ VS_OUTPUT_POST VS_Pass( VS_INPUT_POST IN )
 /* these are znear/zfar values for Skyrim, but MAY match Fallout too */
 float depthlinear( float2 coord )
 {
-	/*
-	   These values seem to be used by pretty much all Skyrim ENB presets.
-	   Since it's practically impossible for me to know the real znear and
-	   zfar values for each game, I'll just use these and hope it goes well
-	*/
-	float zNear = 0.0509804;
-	float zFar = 3098.0392;
 	float z = tex2D(SamplerDepth,coord).x;
 	return (2*zNear)/(zFar+zNear-z*(zFar-zNear));
 }

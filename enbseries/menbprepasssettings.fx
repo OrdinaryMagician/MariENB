@@ -25,6 +25,18 @@ float cutoff
 	float UIMin = 0.0;
 	float UIMax = 1000000.0;
 > = {999949.0};
+float zNear
+<
+	string UIName = "Near Z";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {0.05};
+float zFar
+<
+	string UIName = "Far Z";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {3098.0};
 string str_dist = "Distortion Filters";
 float distcha
 <
