@@ -189,7 +189,8 @@ float2 DistantHeat( float2 coord )
 	float distfade = clamp(pow(max(0,dep),heatfadepow)*heatfademul
 		+heatfadebump,0.0,1.0);
 	if ( distfade <= 0.0 ) return coord;
-	float todpow = pow(max(0,ENightDayFactor*(1.0-EInteriorFactor)),
+	float todpow = pow(max(0,ENightDayFactor*min(1.0,weatherfactor(WT_HOT)
+		+1.0-EInteriorFactor)),
 		heattodpow);
 	if ( !heatalways && (todpow <= 0.0) ) return coord;
 	if ( (fixedx > 0) && (fixedy > 0) ) bresl = float2(fixedx,fixedy);
