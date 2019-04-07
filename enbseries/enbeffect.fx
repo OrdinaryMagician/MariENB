@@ -6,6 +6,107 @@
 */
 #include "menbglobaldefs.fx"
 
+string str_misc = "Miscellaneous";
+/* fixed resolution, keeps blur filters at a consistent internal resolution */
+int2 fixed
+<
+	string UIName = "Fixed Resolution";
+	string UIWidget = "Vector";
+	int2 UIMin = {0,0};
+> = {1920,1080};
+string str_dist = "Distortion Filters";
+float distcha
+<
+	string UIName = "Distortion Chromatic Aberration";
+	string UIWidget = "Spinner";
+> = {10.0};
+bool frostenable
+<
+	string UIName = "Enable Screen Frost";
+	string UIWidget = "Checkbox";
+> = {false};
+float frostpow
+<
+	string UIName = "Frost Contrast";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float froststrength
+<
+	string UIName = "Frost Strength";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float frostrpow
+<
+	string UIName = "Frost Radial Contrast";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float frostrmult
+<
+	string UIName = "Frost Radial Intensity";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float frostrbump
+<
+	string UIName = "Frost Radial Offset";
+	string UIWidget = "Spinner";
+> = {0.0};
+float frostblend
+<
+	string UIName = "Frost Texture Blend";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float frostbpow
+<
+	string UIName = "Frost Texture Blend Contrast";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float frostsize
+<
+	string UIName = "Frost Texture Size";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float frostfactor_dw
+<
+	string UIName = "Frost Factor Dawn";
+	string UIWidget = "Spinner";
+> = {0.1};
+float frostfactor_sr
+<
+	string UIName = "Frost Factor Sunrise";
+	string UIWidget = "Spinner";
+> = {0.0};
+float frostfactor_dy
+<
+	string UIName = "Frost Factor Day";
+	string UIWidget = "Spinner";
+> = {0.0};
+float frostfactor_ss
+<
+	string UIName = "Frost Factor Sunset";
+	string UIWidget = "Spinner";
+> = {0.0};
+float frostfactor_ds
+<
+	string UIName = "Frost Factor Dusk";
+	string UIWidget = "Spinner";
+> = {0.1};
+float frostfactor_nt
+<
+	string UIName = "Frost Factor Night";
+	string UIWidget = "Spinner";
+> = {0.25};
+float frostfactor_i
+<
+	string UIName = "Frost Factor Interior";
+	string UIWidget = "Spinner";
+> = {0.0};
 string str_noise = "Film Grain";
 bool ne
 <
@@ -109,14 +210,13 @@ string str_tonemap = "Tone Mapping";
      3 : Uncharted 2
      4 : Hejl Dawson
      5 : Haarm-Peter Duiker
-     6 : SweetFX
 */
 int tmapenable
 <
 	string UIName = "Tonemapping Method";
 	string UIWidget = "Spinner";
 	int UIMin = -1;
-	int UIMax = 6;
+	int UIMax = 5;
 > = {3};
 float tmapexposure_n
 <
@@ -262,126 +362,6 @@ float unW_i
 	string UIName = "Uncharted2 Linear White Interior";
 	string UIWidget = "Spinner";
 > = {10.0};
-float sfxgamma_n
-<
-	string UIName = "SweetFX Gamma Night";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-	float UIMax = 2.0;
-> = {1.0};
-float sfxgamma_d
-<
-	string UIName = "SweetFX Gamma Day";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-	float UIMax = 2.0;
-> = {1.0};
-float sfxgamma_i
-<
-	string UIName = "SweetFX Gamma Interior";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-	float UIMax = 2.0;
-> = {1.0};
-float sfxexposure_n
-<
-	string UIName = "SweetFX Exposure Night";
-	string UIWidget = "Spinner";
-	float UIMin = -1.0;
-	float UIMax = 1.0;
-> = {0.0};
-float sfxexposure_d
-<
-	string UIName = "SweetFX Exposure Day";
-	string UIWidget = "Spinner";
-	float UIMin = -1.0;
-	float UIMax = 1.0;
-> = {0.0};
-float sfxexposure_i
-<
-	string UIName = "SweetFX Exposure Interior";
-	string UIWidget = "Spinner";
-	float UIMin = -1.0;
-	float UIMax = 1.0;
-> = {0.0};
-float sfxsaturation_n
-<
-	string UIName = "SweetFX Saturation Night";
-	string UIWidget = "Spinner";
-	float UIMin = -1.0;
-	float UIMax = 1.0;
-> = {0.0};
-float sfxsaturation_d
-<
-	string UIName = "SweetFX Saturation Day";
-	string UIWidget = "Spinner";
-	float UIMin = -1.0;
-	float UIMax = 1.0;
-> = {0.0};
-float sfxsaturation_i
-<
-	string UIName = "SweetFX Saturation Interior";
-	string UIWidget = "Spinner";
-	float UIMin = -1.0;
-	float UIMax = 1.0;
-> = {0.0};
-float sfxbleach_n
-<
-	string UIName = "SweetFX Bleach Night";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-	float UIMax = 1.0;
-> = {0.0};
-float sfxbleach_d
-<
-	string UIName = "SweetFX Bleach Day";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-	float UIMax = 1.0;
-> = {0.0};
-float sfxbleach_i
-<
-	string UIName = "SweetFX Bleach Interior";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-	float UIMax = 1.0;
-> = {0.0};
-float sfxdefog_n
-<
-	string UIName = "SweetFX Defog Night";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-	float UIMax = 1.0;
-> = {0.0};
-float sfxdefog_d
-<
-	string UIName = "SweetFX Defog Day";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-	float UIMax = 1.0;
-> = {0.0};
-float sfxdefog_i
-<
-	string UIName = "SweetFX Defog Interior";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-	float UIMax = 1.0;
-> = {0.0};
-float3 sfxfogcolor_n
-<
-	string UIName = "SweetFX Defog Color Night";
-	string UIWidget = "Color";
-> = {0.0,0.0,1.0};
-float3 sfxfogcolor_d
-<
-	string UIName = "SweetFX Defog Color Day";
-	string UIWidget = "Color";
-> = {0.0,0.0,1.0};
-float3 sfxfogcolor_i
-<
-	string UIName = "SweetFX Defog Color Interior";
-	string UIWidget = "Color";
-> = {0.0,0.0,1.0};
 
 /* Color grading */
 string str_grade = "Color Grading Suite";
@@ -720,6 +700,14 @@ Texture2D TextureTonemap
 <
 	string ResourceName = "menbfilmlut.png";
 >;
+Texture2D TextureFrost
+<
+#ifdef FROST_DDS
+	string ResourceName = "menbfrost.dds";
+#else
+	string ResourceName = "menbfrost.png";
+#endif
+>;
 
 SamplerState Sampler0
 {
@@ -733,6 +721,13 @@ SamplerState Sampler1
 	AddressU = Clamp;
 	AddressV = Clamp;
 };
+SamplerState Sampler2
+{
+	Filter = MIN_MAG_MIP_LINEAR;
+	AddressU = Wrap;
+	AddressV = Wrap;
+};
+
 SamplerState SamplerLUT
 {
 	Filter = MIN_MAG_MIP_LINEAR;
@@ -875,31 +870,6 @@ float3 TonemapHejlDawson( float3 res )
 	float3 x = max(0.0,res-0.004);
 	return (x*(6.2*x+.5))/(x*(6.2*x+1.7)+0.06);
 }
-/* The standard tonemap from sweetfx */
-float3 TonemapSFX( float3 res )
-{
-	float Gamma = tod_ind(sfxgamma);
-	float Exposure = tod_ind(sfxexposure);
-	float Saturation = tod_ind(sfxsaturation);
-	float Bleach = tod_ind(sfxbleach);
-	float Defog = tod_ind(sfxdefog);
-	float3 FogColor = tod_ind(sfxfogcolor);
-	float3 tcol = res;
-	tcol = saturate(tcol-Defog*FogColor*2.55);
-	tcol *= pow(2.0,Exposure);
-	tcol = pow(tcol,Gamma);
-	float lum = luminance(tcol);
-	float L = saturate(1.0*(lum-0.45));
-	float3 A2 = Bleach*tcol;
-	float3 res1 = 2.0*tcol*lum;
-	float3 res2 = 1.0-2.0*(1.0-lum)*(1.0-tcol);
-	float3 newc = lerp(res1,res2,L);
-	float3 mixrgb = A2*newc;
-	tcol += (1.0-A2)*mixrgb;
-	float3 gray = dot(tcol,1.0/3.0);
-	float3 diff = tcol-gray;
-	return (tcol+diff*Saturation)/(1+(diff*Saturation));
-}
 float3 Tonemap( float3 res )
 {
 	float3 tcol = pow(max(res,0.0),1.0/2.2);
@@ -907,8 +877,7 @@ float3 Tonemap( float3 res )
 	res *= tod_ind(tmapexposure);
 	float tblend = tod_ind(tmapblend);
 	float3 mapped;
-	if ( tmapenable == 6 ) mapped = TonemapSFX(res);
-	else if ( tmapenable == 5 ) mapped = TonemapHaarmPeterDuiker(res);
+	if ( tmapenable == 5 ) mapped = TonemapHaarmPeterDuiker(res);
 	else if ( tmapenable == 4 ) mapped = TonemapHejlDawson(res);
 	else if ( tmapenable == 3 ) mapped = TonemapUC2(res);
 	else if ( tmapenable == 2 ) mapped = TonemapReinhard(res);
@@ -1111,15 +1080,87 @@ float2 Adaptation( float2 coord )
 #endif
 }
 
+/* Screen frost shader. Not very realistic either, but looks fine too. */
+float2 ScreenFrost( float2 coord )
+{
+	float2 bresl;
+	if ( (fixed.x > 0) && (fixed.y > 0) ) bresl = fixed;
+	else bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
+	float2 nc = coord*(bresl/FROSTSIZE)*frostsize;
+	float2 ofs = TextureFrost.Sample(Sampler2,nc).xy;
+	ofs = (ofs-0.5)*2.0;
+	ofs *= pow(length(ofs),frostpow)*froststrength;
+	float todpow = max(0.0,todx_ind(frostfactor));
+	ofs *= todpow;
+	/*ofs *= max(0.0,coldfactor-warmfactor);*/
+	float dist = distance(coord,float2(0.5,0.5))*2.0;
+	ofs *= clamp(pow(dist,frostrpow)*frostrmult+frostrbump,0.0,1.0);
+	return coord+ofs;
+}
+
 float4 PS_Draw( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 {
 	float2 coord = IN.txcoord0.xy;
-	float4 res = TextureColor.Sample(Sampler0,coord);
+	float2 bresl;
+	if ( (fixed.x > 0) && (fixed.y > 0) ) bresl = fixed;
+	else bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
+	float4 res, mud;
+	[branch] if ( frostenable )
+	{
+		float2 ofs = ScreenFrost(coord);
+		ofs -= coord;
+		if ( (distcha != 0.0) && (length(ofs) != 0.0) )
+		{
+			float2 ofr, ofg, ofb;
+			ofr = ofs*(1.0-distcha*0.01);
+			ofg = ofs;
+			ofb = ofs*(1.0+distcha*0.01);
+			res = float4(TextureColor.Sample(Sampler0,coord+ofr).r,
+				TextureColor.Sample(Sampler0,coord+ofg).g,
+				TextureColor.Sample(Sampler0,coord+ofb).b,1.0);
 #ifdef SKYRIMSE
-	float4 mud = TextureBloom.Sample(Sampler1,coord);
+			mud = float4(TextureBloom.Sample(Sampler1,coord+ofr).r,
+				TextureBloom.Sample(Sampler1,coord+ofg).g,
+				TextureBloom.Sample(Sampler1,coord+ofb).b,1.0);
 #else
-	float4 mud = TextureBloom.Sample(Sampler1,Params01[4].zw*coord);
+			mud = float4(TextureBloom.Sample(Sampler1,
+				Params01[4].zw*(coord+ofr)).r,
+				TextureBloom.Sample(Sampler1,Params01[4].zw
+				*(coord+ofg)).g,TextureBloom.Sample(Sampler1,
+				Params01[4].zw*(coord+ofb)).b,1.0);
 #endif
+		}
+		else
+		{
+			res = TextureColor.Sample(Sampler0,coord+ofs);
+#ifdef SKYRIMSE
+			mud = TextureBloom.Sample(Sampler1,coord+ofs);
+#else
+			mud = TextureBloom.Sample(Sampler1,Params01[4].zw
+				*(coord+ofs));
+#endif
+		}
+		float2 nc = coord*(bresl/FROSTSIZE)*frostsize;
+		float bmp = pow(max(0,TextureFrost.SampleLevel(Sampler2,nc,
+			0).z),frostbpow);
+		float dist = distance(coord,float2(0.5,0.5))*2.0;
+		dist = clamp(pow(dist,frostrpow)*frostrmult+frostrbump,0.0,
+			1.0)*frostblend;
+		float todpow = max(0.0,todx_ind(frostfactor));
+		dist *= todpow;
+		/* Weathers not implemented in FO4 ENB as of 0.291 */
+		/*dist *= max(0.0,coldfactor-warmfactor);*/
+		res.rgb *= 1.0+bmp*dist;
+	}
+	else
+	{
+		res = TextureColor.Sample(Sampler0,coord);
+#ifdef SKYRIMSE
+		mud = TextureBloom.Sample(Sampler1,coord);
+#else
+		mud = TextureBloom.Sample(Sampler1,Params01[4].zw*coord);
+#endif
+	}
 	/* Insert MariENB filters here */
 	float2 adapt = Adaptation(coord);
 	if ( bloomdebug ) res.rgb *= 0;
