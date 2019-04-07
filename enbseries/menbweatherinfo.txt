@@ -42,9 +42,9 @@ ECC96	FXWthrInvertWindowsWindhelm2	COLD
 10A231	SkyrimOvercastRainMA		TEMPERATE
 10A232	SkyrimFogMA			TEMPERATE
 10A233	SkyrimCloudyMA			HOT
-10A234	SkyrimClearCO			COLD
-10A235	SkyrimFogCO			COLD
-10A236	SkyrimCloudyCO			COLD
+10A234	SkyrimClearCO			TEMPERATE
+10A235	SkyrimFogCO			TEMPERATE
+10A236	SkyrimCloudyCO			TEMPERATE
 10A237	SkyrimClearRE			HOT
 10A238	SkyrimOvercastRainRE		TEMPERATE
 10A239	SkyrimFogRE			TEMPERATE
@@ -71,8 +71,8 @@ ECC96	FXWthrInvertWindowsWindhelm2	COLD
 10E1E4	SkyrimClearVT_A			HOT
 10E1E5	SkyrimCloudyMA_A		HOT
 10E1E6	SkyrimClearMA_A			HOT
-10E1E7	SkyrimCloudyCO_A		COLD
-10E1E8	SkyrimClearCO_A			COLD
+10E1E7	SkyrimCloudyCO_A		TEMPERATE
+10E1E8	SkyrimClearCO_A			TEMPERATE
 10E1E9	SkyrimCloudyRE_A		HOT
 10E1EA	SkyrimClearRE_A			HOT
 10E1EB	SkyrimCloudyFF_A		HOT

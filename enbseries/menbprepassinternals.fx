@@ -33,6 +33,7 @@ static const float gauss16[16] =
 	0.033109, 0.031485, 0.029764, 0.027971,
 	0.026131, 0.024268, 0.022405, 0.020563
 };
+#ifdef MARIENB_SSAO
 /* SSAO samples */
 static const float3 ssao_samples_lq[16] = 
 {
@@ -80,6 +81,7 @@ static const float3 ssao_samples_hq[64] =
 	float3(-0.7190, 0.1767, 0.4489),float3(-0.5617, 0.5845,-0.4116),
 	float3(-0.8919,-0.0384, 0.3360),float3(-0.0144, 0.9775,-0.2105)
 };
+#endif
 /* For high quality DOF */
 static const float2 poisson32[32] =
 {

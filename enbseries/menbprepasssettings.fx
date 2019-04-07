@@ -787,6 +787,7 @@ float edgevradius
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
+#ifdef MARIENB_SSAO
 /* ssao filter */
 string str_ssao = "Ray Marching SSAO";
 bool ssaoenable
@@ -915,6 +916,7 @@ bool ssaohalfblur
 	string UIName = "SSAO Blur Use Less Samples";
 	string UIWidget = "Checkbox";
 > = {true};
+#endif
 /* luma sharpen because of reasons */
 string str_sharp = "Luma Sharpen";
 bool sharpenable

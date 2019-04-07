@@ -720,8 +720,14 @@ int dither
 	string UIName = "Dither Pattern";
 	string UIWidget = "Spinner";
 	int UIMin = 0;
-	int UIMax = 4;
-> = {4};
+	int UIMax = 2;
+> = {2};
+string str_bloom = "Bloom Settings";
+bool bloomlighten
+<
+	string UIName = "Use Lighten Blend";
+	string UIWidget = "Checkbox";
+> = {false};
 string str_debug = "Debugging";
 bool bloomdebug
 <

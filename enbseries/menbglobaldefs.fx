@@ -61,3 +61,5 @@
 //#define LENSDIRT_DDS
 //#define FROST_DDS
 //#define FROSTBUMP_DDS
+/* optional heavy features (can be toggled to reduce compile times) */
+//#define MARIENB_SSAO

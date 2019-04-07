@@ -318,9 +318,9 @@ float3 GradingLUT( float3 res )
 	   volume maps, but PS 3.0 has a limit of 16 samplers and I think ENB
 	   can't load volume maps anyway.
 	*/
-	float3 tcol = clamp(res,0.0001,0.9999);
-	tcol.rg = tcol.rg*0.5+0.25;
 #ifdef LUTMODE_LEGACY
+	float3 tcol = clamp(res,0.08,0.92);
+	tcol.rg = tcol.rg*0.5+0.25;
 	float2 lc1 = float2(tcol.r/16.0+floor(tcol.b*16.0)/16.0,tcol.g/64.0
 		+clut/64.0);
 	float2 lc2 = float2(tcol.r/16.0+ceil(tcol.b*16.0)/16.0,tcol.g/64.0
@@ -328,11 +328,15 @@ float3 GradingLUT( float3 res )
 	float dec = (ceil(tcol.b*16.0)==16.0)?(0.0):frac(tcol.b*16.0);
 #endif
 #ifdef LUTMODE_16
+	float3 tcol = clamp(res,0.08,0.92);
+	tcol.rg = tcol.rg*0.5+0.25;
 	float2 lc1 = float2(tcol.r,tcol.g/16.0+floor(tcol.b*16.0)/16.0);
 	float2 lc2 = float2(tcol.r,tcol.g/16.0+ceil(tcol.b*16.0)/16.0);
 	float dec = (ceil(tcol.b*16.0)==16.0)?(0.0):frac(tcol.b*16.0);
 #endif
 #ifdef LUTMODE_64
+	float3 tcol = clamp(res,0.02,0.98);
+	tcol.rg = tcol.rg*0.5+0.25;
 	float2 lc1 = float2(tcol.r,tcol.g/64.0+floor(tcol.b*64.0)/64.0);
 	float2 lc2 = float2(tcol.r,tcol.g/64.0+ceil(tcol.b*64.0)/64.0);
 	float dec = (ceil(tcol.b*64.0)==64.0)?(0.0):frac(tcol.b*64.0);
@@ -369,10 +373,6 @@ float3 Dither( float3 res, float2 coord )
 	if ( dither == 1 )
 		col += ordered2[int(rcoord.x%2)+2*int(rcoord.y%2)]*dml-0.5*dml;
 	else if ( dither == 2 )
-		col += ordered3[int(rcoord.x%3)+3*int(rcoord.y%3)]*dml-0.5*dml;
-	else if ( dither == 3 )
-		col += ordered4[int(rcoord.x%4)+4*int(rcoord.y%4)]*dml-0.5*dml;
-	else if ( dither == 4 )
 		col += ordered8[int(rcoord.x%8)+8*int(rcoord.y%8)]*dml-0.5*dml;
 	else col += checkers[int(rcoord.x%2)+2*int(rcoord.y%2)]*dml-0.5*dml;
 	col = (trunc(col*256.0)/256.0);
@@ -436,7 +436,11 @@ float4 PS_Mari( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	if ( aenable ) res.rgb = Adaptation(res.rgb);
 	if ( tmapenable ) res.rgb = Tonemap(res.rgb);
 	if ( bloomdebug	) res.rgb *= 0;
-	res.rgb += tex2D(_s3,coord).rgb*EBloomAmount;
+	float3 bcol = tex2D(_s3,coord).rgb*EBloomAmount;
+	if ( bloomlighten )
+		res.rgb = float3(max(res.r,bcol.r),max(res.g,bcol.g),
+			max(res.b,bcol.b));
+	else res.rgb += bcol;
 	if ( vgradeenable ) res.rgb = GradingGame(res.rgb);
 	if ( gradeenable1 ) res.rgb = GradingRGB(res.rgb);
 	if ( colorizeafterhsv )

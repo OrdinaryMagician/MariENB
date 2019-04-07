@@ -29,40 +29,21 @@ float bresy
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.5};
-/* zooming factors (<=0 for stretch) */
-float sresx
-<
-	string UIName = "Zoom Factor X";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.0};
-float sresy
-<
-	string UIName = "Zoom Factor Y";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.0};
 /*
    palette type:
-    -2 : Standard VGA 256-color palette
     -1 : disable
      0 : CGA (320x200 4-color, or 640x200 monochrome)
      1 : EGA (320x200, 16 colors)
      2 : RGB2 (64-color quarter VGA palette, used in AOS)
-     3 : RGB323 (8-bit RGB, I don't think this was a real thing)
-     4 : VGA (256 colors, standard palette)
-     5 : Doom (256 colors, does not cover a lot)
-     6 : Quake I (256 colors, covers even less)
-     7 : RGB4 (4bpc, I also don't think this was ever used in real hardware)
-     8 : RGB565 (ol' 16-bit "true color")
-     9 : RGB6 (typical screens incapable of 8bpc)
+     3 : VGA (256 colors)
+     4 : RGB565 (ol' 16-bit "true color")
 */
 int paltype
 <
 	string UIName = "Palette Type";
 	string UIWidget = "Spinner";
 	int UIMin = -1;
-	int UIMax = 9;
+	int UIMax = 4;
 > = {1};
 /*
    CGA palette to use:
@@ -94,21 +75,33 @@ int egapal
 	int UIMax = 1;
 > = {0};
 /*
+    VGA palette to use:
+     0 : Standard VGA
+     1 : Doom
+     2 : Quake
+     TODO Add other games, including DOS TES ones
+*/
+int vgapal
+<
+	string UIName = "VGA Palette";
+	string UIWidget = "Spinner";
+	int UIMin = 0;
+	int UIMax = 2;
+> = {0};
+/*
    Dithering mode:
     -1 : No dithering, just raw banding
      0 : 2x2 checkerboard dithering, looks like ass
      1 : 2x2 ordered dithering
-     2 : 3x3 ordered dithering
-     3 : 4x4 ordered dithering
-     4 : 8x8 ordered dithering
+     2 : 8x8 ordered dithering
 */
 int dither
 <
 	string UIName = "Dithering Pattern";
 	string UIWidget = "Spinner";
 	int UIMin = -1;
-	int UIMax = 4;
-> = {4};
+	int UIMax = 2;
+> = {2};
 /* gamma modifier for base color, lower values raise midtones and viceversa */
 float bgamma
 <
@@ -264,12 +257,6 @@ float lensdist
 <
 	string UIName = "Curve Distortion";
 	string UIWidget = "Spinner";
-> = {0.0};
-float curvesoft
-<
-	string UIName = "Curve Sampling Soften";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
 > = {0.0};
 /* BlurSharpShift, some people are obsessed with this nonsense */
 string str_bss = "BlurSharpShift";

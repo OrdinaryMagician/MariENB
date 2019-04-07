@@ -20,23 +20,6 @@ static const float ordered2[4] =
 	d(4),d(2)
 };
 #undef d
-#define d(x) x/9.0
-static const float ordered3[9] =
-{
-	d(2),d(6),d(3),
-	d(5),d(0),d(8),
-	d(1),d(7),d(4)
-};
-#undef d
-#define d(x) x/16.0
-static const float ordered4[16] =
-{
-	d( 0),d( 8),d( 2),d(10),
-	d(12),d( 4),d(14),d( 6),
-	d( 3),d(11),d( 1),d( 9),
-	d(15),d( 7),d(13),d( 5)
-};
-#undef d
 #define d(x) x/64.0
 static const float ordered8[64] =
 {

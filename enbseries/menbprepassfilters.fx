@@ -111,6 +111,7 @@ float4 PS_EdgePlusSSAOPrepass( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	float4 res = tex2D(SamplerColor,coord);
 	if ( sharpenable ) res.rgb = Sharpen(res.rgb,coord);
 	if ( edgevenable ) res.rgb = EdgeView(res.rgb,coord);
+#ifdef MARIENB_SSAO
 	/* get occlusion using single-step Ray Marching with 64 samples */
 	float ssaofadepow = tod_ind(ssaofadepow);
 	float ssaofademult = tod_ind(ssaofademult);
@@ -164,6 +165,7 @@ float4 PS_EdgePlusSSAOPrepass( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	uocc *= saturate(pow(max(0,fade),ssaofadepow)*ssaofademult);
 	uocc = saturate(pow(max(0,uocc),ssaopow)*ssaomult);
 	res.a = saturate(1.0-(uocc*ssaoblend));
+#endif
 	return res;
 }
 /*
@@ -235,6 +237,7 @@ float4 PS_Distortion( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 		tex2D(SamplerColor,coord+ofs).a);
 	return res;
 }
+#ifdef MARIENB_SSAO
 /*
    The blur passes use bilateral filtering to mostly preserve borders.
    An additional factor using difference of normals was tested, but the
@@ -312,6 +315,7 @@ float4 PS_SSAOBlurV( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	res *= res.a;
 	return res;
 }
+#endif
 /* Focus */
 float4 PS_ReadFocus( VS_OUTPUT_POST IN ) : COLOR
 {
@@ -602,6 +606,7 @@ technique PostProcess2
 		SRGBWRITEENABLE = FALSE;
 	}
 }
+#ifdef MARIENB_SSAO
 technique PostProcess3
 {
 	pass p0
@@ -687,3 +692,56 @@ technique PostProcess7
 		SRGBWRITEENABLE = FALSE;
 	}
 }
+#else
+technique PostProcess3
+{
+	pass p0
+	{
+		VertexShader = compile vs_3_0 VS_Pass();
+		PixelShader = compile ps_3_0 PS_DoFPrepass();
+		DitherEnable = FALSE;
+		ZEnable = FALSE;
+		CullMode = NONE;
+		ALPHATESTENABLE = FALSE;
+		SEPARATEALPHABLENDENABLE = FALSE;
+		AlphaBlendEnable = FALSE;
+		StencilEnable = FALSE;
+		FogEnable = FALSE;
+		SRGBWRITEENABLE = FALSE;
+	}
+}
+technique PostProcess4
+{
+	pass p0
+	{
+		VertexShader = compile vs_3_0 VS_Pass();
+		PixelShader = compile ps_3_0 PS_DoFGather();
+		DitherEnable = FALSE;
+		ZEnable = FALSE;
+		CullMode = NONE;
+		ALPHATESTENABLE = FALSE;
+		SEPARATEALPHABLENDENABLE = FALSE;
+		AlphaBlendEnable = FALSE;
+		StencilEnable = FALSE;
+		FogEnable = FALSE;
+		SRGBWRITEENABLE = FALSE;
+	}
+}
+technique PostProcess5
+{
+	pass p0
+	{
+		VertexShader = compile vs_3_0 VS_Pass();
+		PixelShader = compile ps_3_0 PS_FrostPass();
+		DitherEnable = FALSE;
+		ZEnable = FALSE;
+		CullMode = NONE;
+		ALPHATESTENABLE = FALSE;
+		SEPARATEALPHABLENDENABLE = FALSE;
+		AlphaBlendEnable = FALSE;
+		StencilEnable = FALSE;
+		FogEnable = FALSE;
+		SRGBWRITEENABLE = FALSE;
+	}
+}
+#endif
