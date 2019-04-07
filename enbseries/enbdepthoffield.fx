@@ -565,6 +565,17 @@ bool dofdisable
 	string UIName = "Disable DOF";
 	string UIWidget = "Checkbox";
 > = {false};
+float dofbfact
+<
+	string UIName = "DOF Bilateral Factor";
+	string UIWidget = "Spinner";
+> = {20.0};
+float dofbradius
+<
+	string UIName = "DOF Bilateral Radius";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
 float dofpradius
 <
 	string UIName = "DOF Gather Blur Radius";
@@ -1388,6 +1399,64 @@ float4 PS_DoFBlur( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	else return TextureColor.Sample(Sampler1,coord);
 }
 
+/* simple gaussian / bilateral blur */
+float4 PS_DoFBlurH( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
+{
+	float2 coord = IN.txcoord.xy;
+	if ( dofdisable ) return TextureColor.Sample(Sampler1,coord);
+	float dfc = RenderTargetR32F.Sample(Sampler1,coord).x;
+	if ( dofdebug ) return TextureDepth.Sample(Sampler1,coord).x;
+	if ( dfcdebug ) return dfc;
+	float bresl = (fixed.x>0)?fixed.x:ScreenSize.x;
+	float bof = (1.0/bresl)*dofbradius;
+	float4 res = float4(0,0,0,0);
+	if ( dfc <= dofminblur ) return TextureColor.Sample(Sampler1,coord);
+	int i;
+	float isd, sd, ds, sw, tw = 0;
+	isd = dfc;
+	[unroll] for ( i=-7; i<=7; i++ )
+	{
+		sd = RenderTargetR32F.Sample(Sampler1,coord+float2(i,0)*bof
+			*dfc).x;
+		ds = abs(isd-sd)*dofbfact+0.5;
+		sw = 1.0/(ds+1.0);
+		sw *= gauss8[abs(i)];
+		tw += sw;
+		res += sw*TextureColor.Sample(Sampler1,coord+float2(i,0)*bof
+			*dfc);
+	}
+	res /= tw;
+	return res;
+}
+float4 PS_DoFBlurV( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
+{
+	float2 coord = IN.txcoord.xy;
+	if ( dofdisable ) return TextureColor.Sample(Sampler1,coord);
+	float dfc = RenderTargetR32F.Sample(Sampler1,coord).x;
+	if ( dofdebug ) return TextureDepth.Sample(Sampler1,coord).x;
+	if ( dfcdebug ) return dfc;
+	float bresl = (fixed.y>0)?fixed.y:(ScreenSize.x*ScreenSize.w);
+	float bof = (1.0/bresl)*dofbradius;
+	float4 res = float4(0,0,0,0);
+	if ( dfc <= dofminblur ) return TextureColor.Sample(Sampler1,coord);
+	int i;
+	float isd, sd, ds, sw, tw = 0;
+	isd = dfc;
+	[unroll] for ( i=-7; i<=7; i++ )
+	{
+		sd = RenderTargetR32F.Sample(Sampler1,coord+float2(0,i)*bof
+			*dfc).x;
+		ds = abs(isd-sd)*dofbfact+0.5;
+		sw = 1.0/(ds+1.0);
+		sw *= gauss8[abs(i)];
+		tw += sw;
+		res += sw*TextureColor.Sample(Sampler1,coord+float2(0,i)*bof
+			*dfc);
+	}
+	res /= tw;
+	return res;
+}
+
 /* Screen frost shader. Not very realistic either, but looks fine too. */
 float2 ScreenFrost( float2 coord )
 {
@@ -1489,7 +1558,88 @@ technique11 Focus
 	}
 }
 
-technique11 Prepass <string UIName="MariENB";>
+technique11 PrepassNB <string UIName="MariENB Bilateral Blur DoF";>
+{
+	pass p0
+	{
+		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
+		SetPixelShader(CompileShader(ps_5_0,PS_SSAOPre()));
+	}
+}
+technique11 PrepassNB1
+{
+	pass p0
+	{
+		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
+		SetPixelShader(CompileShader(ps_5_0,PS_SSAOBlurH()));
+	}
+}
+technique11 PrepassNB2 <string RenderTarget="RenderTargetR16F";>
+{
+	pass p0
+	{
+		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
+		SetPixelShader(CompileShader(ps_5_0,PS_SSAOBlurV()));
+	}
+}
+technique11 PrepassNB3 <string RenderTarget="RenderTargetR32F";>
+{
+	pass p0
+	{
+		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
+		SetPixelShader(CompileShader(ps_5_0,PS_DoFPrepass()));
+	}
+}
+technique11 PrepassNB4
+{
+	pass p0
+	{
+		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
+		SetPixelShader(CompileShader(ps_5_0,PS_SSAOApply()));
+	}
+}
+technique11 PrepassNB5
+{
+	pass p0
+	{
+		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
+		SetPixelShader(CompileShader(ps_5_0,PS_Edge()));
+	}
+}
+technique11 PrepassNB6
+{
+	pass p0
+	{
+		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
+		SetPixelShader(CompileShader(ps_5_0,PS_Distortion()));
+	}
+}
+technique11 PrepassNB7
+{
+	pass p0
+	{
+		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
+		SetPixelShader(CompileShader(ps_5_0,PS_DoFBlurH()));
+	}
+}
+technique11 PrepassNB8
+{
+	pass p0
+	{
+		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
+		SetPixelShader(CompileShader(ps_5_0,PS_DoFBlurV()));
+	}
+}
+technique11 PrepassNB9
+{
+	pass p0
+	{
+		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
+		SetPixelShader(CompileShader(ps_5_0,PS_FrostPass()));
+	}
+}
+
+technique11 Prepass <string UIName="MariENB Gather Blur DoF";>
 {
 	pass p0
 	{
@@ -1561,5 +1711,3 @@ technique11 Prepass8
 		SetPixelShader(CompileShader(ps_5_0,PS_FrostPass()));
 	}
 }
-
-
