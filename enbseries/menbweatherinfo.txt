@@ -1,90 +1,37 @@
+Only weathers used in FROST will be included.
+If there's any I've missed, please notify me.
+It's not like it really matters for now, ENB
+doesn't yet handle weathers.
+
 Fallout4
 
-15E	DefaultWeather				WARM
-116B	FXDiamondSunlightBounce			.
-116D	DiamondWeather				.
-116E	DiamondWeatherPastel			.
-16EC	IstWeather				.
-29BB8	FXWthrSunlightOffAtNight		.
-2B52A	CommonwealthClear			WARM
-6ED5A	FXWthrInvertDayNight			.
-747C8	FXConcord01				.
-7548F	FXWthrSunlight				.
-75491	FXWthrSunlightWhite			.
-76A58	FXConcord01OffatNight			.
-777CF	FXWthrInvertDayNightWarm		.
-88C57	FXWthrMoonlightOnly			.
-96C61	FXWthrMorningOnly			.
-A1588	NeutralWeather				WARM
-A6858	WorldMapWeather				.
-DB2A1	MQ203Weather				.
-F1033	CommonwealthGSOvercast			WARM
-FF98F	PrewarPlayerHouseInteriorWeather	WARM
-108640	FXInstituteDayNightCycle		.
-10D573	FXInstituteDayNightCycleKey		.
-10E3D4	EditorCloudPreview			.
-10F781	TCommonwealthMarshOvercast		COLD
-115C64	GoodneighborWeatherBase			.
-1209AF	NeutralOvercast				COLD
-1256FB	FXNukeWeather				WARM
-12A18E	CommonwealthSanctuaryClear		WARM
-141AB4	FXWthrSunlightWhiteBounce		.
-171621	DefaultInteriorWeatherNoLUT		.
-171636	FXWthrSunlightOffAtNightGlass		.
-191647	FXWthrInvertDayNightGS			.
-1A65E5	ConcMuseumWeather			.
-1A65F0	DefaultInteriorWeather			.
-1A6994	CommonwealthSanctuaryClearNukeFog	WARM
-1BD481	CommonwealthGSFoggy			WARM
-1C3473	CommonwealthFoggy			COLD
-1C3D5E	CommonwealthGSRadstorm			WARM
-1C8556	CommonwealthOvercast			.
-1CA7E4	CommonwealthRain			COLD
-1CC186	CommonwealthMisty			.
-1CD096	CommonwealthMistyRainy			COLD
-1D1CEC	FXWthrSunlightOffAtNightBlack		.
-1D670E	CommonwealthClearestSkies		WARM
-1E5E60	CommonwealthDarkSkies			.
-1EB2FF	CommonwealthPolluted			WARM
-1F2529	CommOvercastTest2			.
-1F61A1	CommonwealthDusty			.
-1F61FD	CGPrewarNukeFXWeather			WARM
-20F46C	CommonwealthOvercastBackup		.
-211221	VideoVaultExit				WARM
-2115D7	CommonwealthMistyRainyBackup		COLD
-216A98	CommonwealthClearBackup			WARM
-21A563	CommonwealthClearTrailer1		WARM
-21A564	CommonwealthClearTrailer2		WARM
-222394	CommonwealthGSRadstormOld		WARM
-22239A	CommonwealthRainBackup			COLD
-225922	CommonwealthSanctuaryClearNoAttach	COLD
-226448	CommonwealthDarkSkies3			.
-2385FB	CommonwealthDarkSkies2			.
-2385FD	CommonwealthClear2			WARM
-2392A2	CommonwealthFoggyBackup			COLD
-2392A3	CommonwealthGSRadstormBackup		WARM
-2392A4	CommonwealthGSFoggyBackup		WARM
-2392A5	CommonwealthMistyBackup			.
-2392A6	CommonwealthSanctuaryClearBackup	WARM
-23AB9C	CommonwealthClearBackup2		WARM
-2486A4	CommonwealthClear_VBFog			WARM
-2486A5	CommonwealthOvercast_VBFog		COLD
+f1033	CommonwealthGSOvercast		Temperate Fog
+171621	DefaultInteriorWeatherNoLUT	Temperate
+1a65f0	DefaultInteriorWeather		Temperate
+1c3473	CommonwealthFoggy		Cold Fog
+1c3d5e	CommonwealthGSRadstorm		Cold
+1c8556	CommonwealthOvercast		Cold
+222394	CommonwealthGSRadstormOld	Temperate Fog (unused? no references to it)
+2392a3	CommonwealthGSRadstormBackup	Cold Fog
 
 DLCCoast
 
-74C6	DLC03_RadStorm					WARM
-74F2	DLC03_UNUSEDMistyFogWeather			COLD
-74F3	DLC03_TestMistyWeather				.
-74F5	DLC03_RadMistWeather				COLD
-74FA	DLC03_RainWeather				COLD
-7FBA	DLC03_RadFogWeather				COLD
-9962	DLC03_ClearWeather				.
-23A97	DLC03VirtualWeather01				.
-247B6	DLC03AtomM01_RadStorm				WARM
-31416	DLC03VirtualWeather01Original			.
-427EB	DLC03_RadMistWeatherBeforeGrantMessedItUp	COLD
-45F6F	DLC03_ClearWeatherFast				WARM
-54132	DLC03VirtualWeather01OriginalFog		.
-56378	FXWthrWindowNoGlow01				.
-56638	DLC03_ClearWeatherFastBackup			WARM
-5D0C4	dlc03_radmistweatherFast			COLD
+74c6	DLC03_RadStorm			Cold Fog
+74f5	DLC03_RadMistWeather		Cold Fog
+74fa	DLC03_RainWeather		Cold
+7fba	DLC03_RadFogWeather		Cold Fog
+9962	DLC03_ClearWeather		Cold
+45f6f	DLC03_ClearWeatherFast		Temperate
+5d0c4	DLC03_radmistweatherFast	Cold Fog
+
+DLCNukaWorld (worldspace not implemented in FROST)
+
+7e3b	DLC04NukaWorldClear		-
+30acd	DLC04NukaWorldRain		-
+367ca	DLC04NukaWorldClearDusty	-
+
+
+FROST
+
+2224b	CommonwealthFoggyLight		Cold Fog
+25054	CommonwealthOvercastStormy	Cold Fog
