@@ -228,20 +228,6 @@ float4 PS_EdgePlusSSAOPrepass( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	res.a = saturate(1.0-(uocc*ssaoblend));
 	return res;
 }
-/*
-   Underwater distortion, which currently has no real use due to Boris being
-   lazy. fWaterLevel doesn't yet provide any usable values.
-*/
-float2 UnderwaterDistort( float2 coord )
-{
-	if ( !wateralways ) return coord;
-	float2 ofs = float2(0.0,0.0);
-	float siny = sin(pi*2.0*(coord.y*uwm1+Timer.x*uwf1*100.0))*uws1;
-	ofs.y = siny+sin(pi*2.0*(coord.x*uwm2+Timer.x*uwf2*100.0))*uws2;
-	ofs.x = siny+sin(pi*2.0*(coord.x*uwm3+Timer.x*uwf3*100.0))*uws3;
-	ofs -= (coord-0.5)*2.0*uwz;
-	return coord+ofs*0.01;
-}
 /* Distant hot air refraction. Not very realistic, but does the job. */
 float2 DistantHeat( float2 coord )
 {
@@ -258,11 +244,7 @@ float2 DistantHeat( float2 coord )
 	float2 ofs = tex2D(SamplerHeat,nc+ts).xy;
 	ofs = (ofs-0.5)*2.0;
 	ofs *= pow(length(ofs),heatpow);
-	if ( !heatalways ) ofs *= max(tod_ind(heatfactor),0.0)
-#ifndef FALLOUT
-		*max(0.0,warmfactor-coldfactor)
-#endif
-		;
+	ofs *= max(tod_ind(heatfactor),0.0);
 	odep = tex2D(SamplerDepth,coord+ofs*heatstrength*distfade*0.01).x;
 	float odistfade = clamp(pow(max(0,odep),heatfadepow)*heatfademul
 		+heatfadebump,0.0,1.0);
@@ -277,7 +259,6 @@ float4 PS_Distortion( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	if ( (fixedx > 0) && (fixedy > 0) ) bresl = float2(fixedx,fixedy);
 	else bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
 	float2 ofs = coord;
-	if ( waterenable ) ofs = UnderwaterDistort(ofs);
 	if ( heatenable ) ofs = DistantHeat(ofs);
 	ofs -= coord;
 	float4 res;
@@ -415,12 +396,6 @@ float4 PS_DoFPrepass( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	float doffixedunfocusmult = tod_ind(doffixedunfocusmult);
 	float doffixedunfocusbump = tod_ind(doffixedunfocusbump);
 	float doffixedunfocusblend = tod_ind(doffixedunfocusblend);
-#ifndef FALLOUT
-	float doffogpow = tod_ind(doffogpow);
-	float doffogmult = tod_ind(doffogmult);
-	float doffogbump = tod_ind(doffogbump);
-	float doffogblend = tod_ind(doffogblend);
-#endif
 	float dep = tex2D(SamplerDepth,coord).x;
 	float foc = tex2D(SamplerFocus,coord).x;
 	/* cheap tilt */
@@ -433,33 +408,11 @@ float4 PS_DoFPrepass( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	float dfu = abs(dep-doffixedunfocusdepth);
 	dfu = clamp(pow(dfu,doffixedunfocuspow)*doffixedunfocusmult
 		+doffixedunfocusbump,0.0,1.0);
-#ifndef FALLOUT
-	float dfog = abs(dep-doffogdepth);
-	dfog = clamp(pow(dfog,doffogpow)*doffogmult+doffogbump,0.0,1.0);
-#endif
 	if ( doffixedcut && (dep >= cutoff*0.000001) ) dfu *= 0;
-	/*
-	   Change power of dof based on field of view. Works only in Skyrim.
-	   The FieldOfView variable seems to hold bogus values in Fallout
-	   completely unrelated to actual FOV (yes, I checked if it's in
-	   radians, and no, it isn't). The value appears to be 1.134452. Who
-	   could I blame for this mess? Boris? Bethesda? Hell if I know.
-	*/
-#ifndef FALLOUT
-	if ( dofrelfov )
-	{
-		float relfovfactor = tod_ind(relfovfactor);
-		float relfov = (FieldOfView-fovdefault)/fovdefault;
-		dofpow = max(0,dofpow+relfov*relfovfactor);
-	}
-#endif
 	float dfc = abs(dep-foc);
 	dfc = clamp(pow(dfc,dofpow)*dofmult+dofbump,0.0,1.0);
 	if ( doffixedonly ) dfc *= 0;
 	dfc += lerp(0.0,dfu,doffixedunfocusblend);
-#ifndef FALLOUT
-	if ( doffogenable ) dfc += fogfactor*lerp(0.0,dfog,doffogblend);
-#endif
 	dfc *= lerp(1.0,dff,doffixedfocusblend);
 	dfc = saturate(dfc);
 	float4 res = tex2D(SamplerColor,coord);
@@ -615,61 +568,11 @@ float4 PS_DoFPostBlur( VS_OUTPUT_POST IN, float2 vPos : VPOS) : COLOR
 	res.a = 1.0;
 	return res;
 }
-/* Screen frost shader. Not very realistic either, but looks fine too. */
-float2 ScreenFrost( float2 coord )
-{
-	float2 bresl;
-	if ( (fixedx > 0) && (fixedy > 0) ) bresl = float2(fixedx,fixedy);
-	else bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
-	float2 nc = coord*(bresl/FROSTSIZE)*frostsize;
-	float2 ofs = tex2D(SamplerFrostBump,nc).xy;
-	ofs = (ofs-0.5)*2.0;
-	ofs *= pow(length(ofs),frostpow)*froststrength;
-	if ( !frostalways ) ofs *= max(0.0,tod_ind(frostfactor))
-#ifndef FALLOUT
-		*max(0.0,coldfactor-warmfactor)
-#endif
-		;
-	float dist = distance(coord,float2(0.5,0.5))*2.0;
-	ofs *= clamp(pow(dist,frostrpow)*frostrmult+frostrbump,0.0,1.0);
-	return coord+ofs;
-}
-/* screen frost overlay */
-float4 PS_FrostPass( VS_OUTPUT_POST IN, float2 vPos : VPOS) : COLOR
+/* focus point debug */
+float4 PS_FocusDebug( VS_OUTPUT_POST IN, float2 vPos : VPOS) : COLOR
 {
 	float2 coord = IN.txcoord.xy;
-	float2 bresl;
-	if ( (fixedx > 0) && (fixedy > 0) ) bresl = float2(fixedx,fixedy);
-	else bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
-	float4 res;
-	if ( frostenable )
-	{
-		float2 ofs = ScreenFrost(coord);
-		ofs -= coord;
-		if ( (distcha != 0.0) && (length(ofs) != 0.0) )
-		{
-			float2 ofr, ofg, ofb;
-			ofr = ofs*(1.0-distcha*0.01);
-			ofg = ofs;
-			ofb = ofs*(1.0+distcha*0.01);
-			res = float4(tex2D(SamplerColor,coord+ofr).r,
-				tex2D(SamplerColor,coord+ofg).g,
-				tex2D(SamplerColor,coord+ofb).b,1.0);
-		}
-		else res = tex2D(SamplerColor,coord+ofs);
-		float2 nc = coord*(bresl/FROSTSIZE)*frostsize;
-		float bmp = pow(max(0,tex2D(SamplerFrost,nc).x),frostbpow);
-		float dist = distance(coord,float2(0.5,0.5))*2.0;
-		dist = clamp(pow(dist,frostrpow)*frostrmult+frostrbump,0.0,
-			1.0)*frostblend;
-		if ( !frostalways ) dist *= max(0.0,tod_ind(frostfactor))
-#ifndef FALLOUT
-			*max(0.0,coldfactor-warmfactor)
-#endif
-			;
-		res.rgb *= 1.0+bmp*dist;
-	}
-	else res = tex2D(SamplerColor,coord);
+	float4 res = tex2D(SamplerColor,coord);
 	if ( !focusdisplay || (focuscircle < 0) ) return res;
 	if ( focuscircle == 2 )
 	{
@@ -856,7 +759,7 @@ technique PostProcess8
 	pass p0
 	{
 		VertexShader = compile vs_3_0 VS_Pass();
-		PixelShader = compile ps_3_0 PS_FrostPass();
+		PixelShader = compile ps_3_0 PS_FocusDebug();
 		DitherEnable = FALSE;
 		ZEnable = FALSE;
 		CullMode = NONE;
@@ -993,7 +896,7 @@ technique PostProcessB8
 	pass p0
 	{
 		VertexShader = compile vs_3_0 VS_Pass();
-		PixelShader = compile ps_3_0 PS_FrostPass();
+		PixelShader = compile ps_3_0 PS_FocusDebug();
 		DitherEnable = FALSE;
 		ZEnable = FALSE;
 		CullMode = NONE;

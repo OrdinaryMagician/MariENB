@@ -40,7 +40,6 @@ float4 Timer;
 float ENightDayFactor;
 float EInteriorFactor;
 float EBloomAmount;
-float4 WeatherAndTime;
 /* samplers and textures */
 texture2D texs0;
 texture2D texs1;
@@ -80,28 +79,27 @@ texture2D texLUTD
 	string ResourceName = "menblut64_day.png";
 #endif
 >;
-texture2D texLUTIN
+texture2D texLUTI
 <
 #ifdef LUTMODE_16
-	string ResourceName = "menblut16_interiornight.png";
+	string ResourceName = "menblut16_interior.png";
 #endif
 #ifdef LUTMODE_64
-	string ResourceName = "menblut64_interiornight.png";
-#endif
->;
-texture2D texLUTID
-<
-#ifdef LUTMODE_16
-	string ResourceName = "menblut16_interiorday.png";
-#endif
-#ifdef LUTMODE_64
-	string ResourceName = "menblut64_interiorday.png";
+	string ResourceName = "menblut64_interior.png";
 #endif
 >;
 #endif
 texture2D texTonemap
 <
 	string ResourceName = "menbfilmlut.png";
+>;
+texture2D texFrost
+<
+#ifdef FROST_DDS
+	string ResourceName = "menbfrost.dds";
+#else
+	string ResourceName = "menbfrost.png";
+#endif
 >;
 sampler2D _s0 = sampler_state
 {
@@ -237,21 +235,9 @@ sampler2D SamplerLUTD = sampler_state
 	MaxMipLevel = 0;
 	MipMapLodBias = 0;
 };
-sampler2D SamplerLUTIN = sampler_state
+sampler2D SamplerLUTI = sampler_state
 {
-	Texture = <texLUTIN>;
-	MinFilter = LINEAR;
-	MagFilter = LINEAR;
-	MipFilter = NONE;
-	AddressU = Clamp;
-	AddressV = Clamp;
-	SRGBTexture = FALSE;
-	MaxMipLevel = 0;
-	MipMapLodBias = 0;
-};
-sampler2D SamplerLUTID = sampler_state
-{
-	Texture = <texLUTID>;
+	Texture = <texLUTI>;
 	MinFilter = LINEAR;
 	MagFilter = LINEAR;
 	MipFilter = NONE;
@@ -270,6 +256,18 @@ sampler2D SamplerTonemap = sampler_state
 	MipFilter = NONE;
 	AddressU = Clamp;
 	AddressV = Clamp;
+	SRGBTexture = FALSE;
+	MaxMipLevel = 0;
+	MipMapLodBias = 0;
+};
+sampler2D SamplerFrost = sampler_state
+{
+	Texture = <texFrost>;
+	MinFilter = LINEAR;
+	MagFilter = LINEAR;
+	MipFilter = NONE;
+	AddressU = Wrap;
+	AddressV = Wrap;
 	SRGBTexture = FALSE;
 	MaxMipLevel = 0;
 	MipMapLodBias = 0;
