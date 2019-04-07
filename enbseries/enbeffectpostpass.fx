@@ -143,25 +143,6 @@ float bdmult
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.25};
-/* ASCII art filter */
-string str_ascii = "Luma ASCII Art Filter";
-bool asciienable
-<
-	string UIName = "Enable ASCII";
-	string UIWidget = "Checkbox";
-> = {false};
-bool asciimono
-<
-	string UIName = "ASCII Monochrome";
-	string UIWidget = "Checkbox";
-> = {true};
-float asciiblend
-<
-	string UIName = "ASCII Blend";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-	float UIMax = 1.0;
-> = {0.0};
 string str_mask = "Depth Chroma Key";
 bool maskenable
 <
@@ -180,64 +161,6 @@ float maskd
 	float UIMin = 0.0;
 	float UIMax = 1.0;
 > = {0.5};
-string str_dot = "RGBI Dot Matrix";
-bool dotenable
-<
-	string UIName = "Enable Dot Matrix";
-	string UIWidget = "Checkbox";
-> = {false};
-int dotsize
-<
-	string UIName = "Dot Size";
-	string UIWidget = "Spinner";
-	int UIMin = 1;
-> = {1};
-float dotblend
-<
-	string UIName = "Dot Blend";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-	float UIMax = 1.0;
-> = {0.4};
-float dotmult
-<
-	string UIName = "Dot Intensity";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float dotpow
-<
-	string UIName = "Dot Contrast";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-string str_curve = "Lens Curvature";
-bool curveenable
-<
-	string UIName = "Enable Curvature";
-	string UIWidget = "Checkbox";
-> = {false};
-float chromaab
-<
-	string UIName = "Curve Chromatic Aberration";
-	string UIWidget = "Spinner";
-> = {0.0};
-float lenszoom
-<
-	string UIName = "Curve Zooming";
-	string UIWidget = "Spinner";
-> = {50.0};
-float lensdist
-<
-	string UIName = "Curve Distortion";
-	string UIWidget = "Spinner";
-> = {0.0};
-float curvesoft
-<
-	string UIName = "Curve Sampling Soften";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.0};
 /* BlurSharpShift, some people are obsessed with this nonsense */
 string str_bss = "BlurSharpShift";
 bool bssblurenable
