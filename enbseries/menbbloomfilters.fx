@@ -40,7 +40,11 @@ float4 PS_BloomPrePass(VS_OUTPUT_POST In) : COLOR
 float4 PS_BloomTexture(VS_OUTPUT_POST In) : COLOR
 {
 	float2 coord = In.txcoord0.xy;
-	float2 bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
+	float2 bresl;
+	if ( (fixedx > 0) && (fixedy > 0) )
+		bresl = float2(fixedx,fixedy);
+	else
+		bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
 	float2 bof = float2(1.0/bresl.x,1.0/bresl.y)*pow(4,TempParameters.w);
 	/* loop unrolled for speeding up compilation (this is retarded) */
 	float4 res;

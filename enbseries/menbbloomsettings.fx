@@ -4,6 +4,19 @@
 	Part of MariENB, the personal ENB of Marisa.
 	Released under the WTFPL.
 */
+/* fixed resolution */
+int fixedx
+<
+	string UIName = "_FixedResolutionX";
+	string UIWidget = "Spinner";
+	int UIMin = 0;
+> = {0};
+int fixedy
+<
+	string UIName = "_FixedResolutionY";
+	string UIWidget = "Spinner";
+	int UIMin = 0;
+> = {0};
 /* bloom intensity */
 float bloomintensity_n
 <

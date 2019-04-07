@@ -4,6 +4,19 @@
 	Part of MariENB, the personal ENB of Marisa.
 	Released under the WTFPL.
 */
+/* fixed resolution */
+int fixedx
+<
+	string UIName = "_FixedResolutionX";
+	string UIWidget = "Spinner";
+	int UIMin = 0;
+> = {0};
+int fixedy
+<
+	string UIName = "_FixedResolutionY";
+	string UIWidget = "Spinner";
+	int UIMin = 0;
+> = {0};
 /* circle average focus */
 bool focuscircle
 <
@@ -304,3 +317,77 @@ float edgemult
 	string UIName = "EdgeMultiplier";
 	string UIWidget = "Spinner";
 > = {32.0};
+/* ssao filter */
+bool ssaoenable
+<
+	string UIName = "SSAOEnable";
+	string UIWidget = "Checkbox";
+> = {false};
+int ssaodebug
+<
+	string UIName = "SSAODebug";
+	string UIWidget = "Spinner";
+	int UIMin = 0;
+	int UIMax = 2;
+> = 0;
+float ssaonoff1
+<
+	string UIName = "SSAONormalOffset1";
+	string UIWidget = "Spinner";
+> = {0.0};
+float ssaonoff2
+<
+	string UIName = "SSAONormalOffset2";
+	string UIWidget = "Spinner";
+> = {0.1};
+float ssaonoff3
+<
+	string UIName = "SSAONormalOffset3";
+	string UIWidget = "Spinner";
+> = {0.1};
+float ssaonoff4
+<
+	string UIName = "SSAONormalOffset4";
+	string UIWidget = "Spinner";
+> = {0.0};
+float ssaoradius
+<
+	string UIName = "SSAORadius";
+	string UIWidget = "Spinner";
+> = {1.0};
+float ssaonoise
+<
+	string UIName = "SSAONoise";
+	string UIWidget = "Spinner";
+> = {0.5};
+float ssaofadepow
+<
+	string UIName = "SSAOFadePower";
+	string UIWidget = "Spinner";
+> = {1.5};
+float ssaofademult
+<
+	string UIName = "SSAOFadeMultiplier";
+	string UIWidget = "Spinner";
+> = {15.0};
+float ssaomult
+<
+	string UIName = "SSAOMultiplier";
+	string UIWidget = "Spinner";
+> = {1.0};
+float ssaopow
+<
+	string UIName = "SSAOPower";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float ssaoblend
+<
+	string UIName = "SSAOBlend";
+	string UIWidget = "Spinner";
+> = {1.0};
+bool ssaobenable
+<
+	string UIName = "SSAOBlurEnable";
+	string UIWidget = "Spinner";
+> = {true};

@@ -41,7 +41,11 @@ float4 PS_Edge( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	float2 coord = IN.txcoord.xy;
 	if ( noedge )
 		return tex2D(SamplerColor,coord);
-	float2 bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
+	float2 bresl;
+	if ( (fixedx > 0) && (fixedy > 0) )
+		bresl = float2(fixedx,fixedy);
+	else
+		bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
 	float2 bof = float2(1.0/bresl.x,1.0/bresl.y);
 	float mdx, mdy, mud;
 	/* this reduces texture fetches by half, big difference */
@@ -82,7 +86,123 @@ float4 PS_Edge( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 		res.rgb = mud;
 	else
 		res.rgb -= mud;
+	res.a = 1.0;
 	return saturate(res);
+}
+/* Crappy SSAO */
+float3 pseudonormal( float dep, float2 coord )
+{
+	float2 ofs1 = float2(ssaonoff1*0.01,ssaonoff2*0.01);
+	float2 ofs2 = float2(ssaonoff3*0.01,ssaonoff4*0.01);
+	float dep1 = tex2D(SamplerDepth,coord+ofs1).x;
+	float dep2 = tex2D(SamplerDepth,coord+ofs2).x;
+	float3 p1 = float3(ofs1,dep1-dep);
+	float3 p2 = float3(ofs2,dep2-dep);
+	float3 normal = cross(p1,p2);
+	normal.z = -normal.z;
+	return normalize(normal);
+}
+float4 PS_SSAO( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
+{
+	float2 coord = IN.txcoord.xy;
+	float4 res = tex2D(SamplerColor,coord);
+	if ( !ssaoenable )
+		return res;
+	float2 bresl;
+	if ( (fixedx > 0) && (fixedy > 0) )
+		bresl = float2(fixedx,fixedy);
+	else
+		bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
+	float depth = tex2D(SamplerDepth,coord).x;
+	float3 normal = pseudonormal(depth,coord);
+	float2 nc = coord*(bresl/256.0);
+	float2 bof = float2(1.0/bresl.x,1.0/bresl.y)*ssaoradius;
+	float3 rnormal = tex2D(SamplerNoise3,nc).xyz*2.0-1.0;
+	normal = normal+rnormal*ssaonoise;
+	float occ = 0.0;
+	int i;
+	float ldepth = depthlinear(coord);
+	for ( i=0; i<16; i++ )
+	{
+		float3 sample = reflect(ssao_samples[i],normal);
+		float sampledepth = depthlinear(coord+i*sample.xy*bof);
+		float diff = sampledepth-ldepth;
+		if ( sampledepth > ldepth )
+			occ += 1.0/(1.0+pow(diff,2));
+	}
+	float uocc = saturate(1.0-occ/16.0);
+	float fade = 1.0-depth;
+	uocc *= saturate(pow(fade,ssaofadepow)*ssaofademult);
+	uocc = saturate(pow(uocc,ssaopow)*ssaomult);
+	if ( depth >= 0.999999 )
+		uocc = 0.0;
+	if ( ssaodebug == 1 )
+		return saturate(1.0-(uocc*ssaoblend));
+	if ( ssaodebug == 2 )
+		return (float4(normal.x,normal.y,normal.z,1.0)+1.0)*0.5;
+	res.a = saturate(1.0-(uocc*ssaoblend));
+	return res;
+}
+float4 PS_SSAO_Post( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
+{
+	float2 coord = IN.txcoord.xy;
+	float4 res = tex2D(SamplerColor,coord);
+	if ( !ssaoenable )
+		return res;
+	if ( !ssaobenable || (ssaodebug == 2) )
+		return res*res.a;
+	float2 bresl;
+	if ( (fixedx > 0) && (fixedy > 0) )
+		bresl = float2(fixedx,fixedy);
+	else
+		bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
+	float2 bof = float2(1.0/bresl.x,1.0/bresl.y);
+	res.a = gauss7[3][3]*tex2D(SamplerColor,coord+float2(-3,-3)*bof).a;
+	res.a += gauss7[2][3]*tex2D(SamplerColor,coord+float2(-2,-3)*bof).a;
+	res.a += gauss7[1][3]*tex2D(SamplerColor,coord+float2(-1,-3)*bof).a;
+	res.a += gauss7[0][3]*tex2D(SamplerColor,coord+float2(0,-3)*bof).a;
+	res.a += gauss7[1][3]*tex2D(SamplerColor,coord+float2(1,-3)*bof).a;
+	res.a += gauss7[2][3]*tex2D(SamplerColor,coord+float2(2,-3)*bof).a;
+	res.a += gauss7[3][3]*tex2D(SamplerColor,coord+float2(3,-3)*bof).a;
+	res.a += gauss7[3][2]*tex2D(SamplerColor,coord+float2(-3,-2)*bof).a;
+	res.a += gauss7[2][2]*tex2D(SamplerColor,coord+float2(-2,-2)*bof).a;
+	res.a += gauss7[1][2]*tex2D(SamplerColor,coord+float2(-1,-2)*bof).a;
+	res.a += gauss7[0][2]*tex2D(SamplerColor,coord+float2(0,-2)*bof).a;
+	res.a += gauss7[1][2]*tex2D(SamplerColor,coord+float2(1,-2)*bof).a;
+	res.a += gauss7[2][2]*tex2D(SamplerColor,coord+float2(2,-2)*bof).a;
+	res.a += gauss7[3][2]*tex2D(SamplerColor,coord+float2(3,-2)*bof).a;
+	res.a += gauss7[3][1]*tex2D(SamplerColor,coord+float2(-3,-1)*bof).a;
+	res.a += gauss7[2][1]*tex2D(SamplerColor,coord+float2(-2,-1)*bof).a;
+	res.a += gauss7[1][1]*tex2D(SamplerColor,coord+float2(-1,-1)*bof).a;
+	res.a += gauss7[0][1]*tex2D(SamplerColor,coord+float2(0,-1)*bof).a;
+	res.a += gauss7[1][1]*tex2D(SamplerColor,coord+float2(1,-1)*bof).a;
+	res.a += gauss7[2][1]*tex2D(SamplerColor,coord+float2(2,-1)*bof).a;
+	res.a += gauss7[3][1]*tex2D(SamplerColor,coord+float2(3,-1)*bof).a;
+	res.a += gauss7[3][0]*tex2D(SamplerColor,coord+float2(-3,0)*bof).a;
+	res.a += gauss7[2][0]*tex2D(SamplerColor,coord+float2(-2,0)*bof).a;
+	res.a += gauss7[1][0]*tex2D(SamplerColor,coord+float2(-1,0)*bof).a;
+	res.a += gauss7[0][0]*tex2D(SamplerColor,coord+float2(0,0)*bof).a;
+	res.a += gauss7[1][0]*tex2D(SamplerColor,coord+float2(1,0)*bof).a;
+	res.a += gauss7[2][0]*tex2D(SamplerColor,coord+float2(2,0)*bof).a;
+	res.a += gauss7[3][0]*tex2D(SamplerColor,coord+float2(3,0)*bof).a;
+	res.a += gauss7[3][1]*tex2D(SamplerColor,coord+float2(-3,1)*bof).a;
+	res.a += gauss7[2][1]*tex2D(SamplerColor,coord+float2(-2,1)*bof).a;
+	res.a += gauss7[1][1]*tex2D(SamplerColor,coord+float2(-1,1)*bof).a;
+	res.a += gauss7[0][1]*tex2D(SamplerColor,coord+float2(0,1)*bof).a;
+	res.a += gauss7[1][1]*tex2D(SamplerColor,coord+float2(1,1)*bof).a;
+	res.a += gauss7[2][1]*tex2D(SamplerColor,coord+float2(2,1)*bof).a;
+	res.a += gauss7[3][1]*tex2D(SamplerColor,coord+float2(3,1)*bof).a;
+	res.a += gauss7[3][2]*tex2D(SamplerColor,coord+float2(-3,2)*bof).a;
+	res.a += gauss7[2][2]*tex2D(SamplerColor,coord+float2(-2,2)*bof).a;
+	res.a += gauss7[1][2]*tex2D(SamplerColor,coord+float2(-1,2)*bof).a;
+	res.a += gauss7[0][2]*tex2D(SamplerColor,coord+float2(0,2)*bof).a;
+	res.a += gauss7[1][2]*tex2D(SamplerColor,coord+float2(1,2)*bof).a;
+	res.a += gauss7[2][2]*tex2D(SamplerColor,coord+float2(2,2)*bof).a;
+	res.a += gauss7[3][2]*tex2D(SamplerColor,coord+float2(3,2)*bof).a;
+	if ( ssaodebug == 1 )
+		return res.a;
+	res *= res.a;
+	return res;
 }
 /* Focus */
 float4 PS_ReadFocus( VS_OUTPUT_POST IN ) : COLOR
@@ -154,7 +274,11 @@ float4 PS_DoF( VS_OUTPUT_POST IN, float2 vPos : VPOS, uniform int p ) : COLOR
 	float doffixedunfocusblend = lerp(lerp(doffixedunfocusblend_n,
 		doffixedunfocusblend_d,tod),lerp(doffixedunfocusblend_in,
 		doffixedunfocusblend_id,tod),ind);
-	float2 bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
+	float2 bresl;
+	if ( (fixedx > 0) && (fixedy > 0) )
+		bresl = float2(fixedx,fixedy);
+	else
+		bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
 	float2 bof = float2(1.0/bresl.x,1.0/bresl.y);
 	float dep;
 	if ( dofsmooth )
@@ -267,7 +391,7 @@ technique PostProcess2
 	pass p0
 	{
 		VertexShader = compile vs_3_0 VS_Pass();
-		PixelShader = compile ps_3_0 PS_DoF(0);
+		PixelShader = compile ps_3_0 PS_SSAO();
 		DitherEnable = FALSE;
 		ZEnable = FALSE;
 		CullMode = NONE;
@@ -280,6 +404,40 @@ technique PostProcess2
 	}
 }
 technique PostProcess3
+{
+	pass p0
+	{
+		VertexShader = compile vs_3_0 VS_Pass();
+		PixelShader = compile ps_3_0 PS_SSAO_Post();
+		DitherEnable = FALSE;
+		ZEnable = FALSE;
+		CullMode = NONE;
+		ALPHATESTENABLE = FALSE;
+		SEPARATEALPHABLENDENABLE = FALSE;
+		AlphaBlendEnable = FALSE;
+		StencilEnable = FALSE;
+		FogEnable = FALSE;
+		SRGBWRITEENABLE = FALSE;
+	}
+}
+technique PostProcess4
+{
+	pass p0
+	{
+		VertexShader = compile vs_3_0 VS_Pass();
+		PixelShader = compile ps_3_0 PS_DoF(0);
+		DitherEnable = FALSE;
+		ZEnable = FALSE;
+		CullMode = NONE;
+		ALPHATESTENABLE = FALSE;
+		SEPARATEALPHABLENDENABLE = FALSE;
+		AlphaBlendEnable = FALSE;
+		StencilEnable = FALSE;
+		FogEnable = FALSE;
+		SRGBWRITEENABLE = FALSE;
+	}
+}
+technique PostProcess5
 {
 	pass p0
 	{

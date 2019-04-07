@@ -60,7 +60,10 @@ float4 PS_Mari( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	/* screen mud goes here */
 	if ( softbloom )
 	{
-		bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
+		if ( (fixedx > 0) && (fixedy > 0) )
+			bresl = float2(fixedx,fixedy);
+		else
+			bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
 		bof = float2(1.0/bresl.x,1.0/bresl.y);
 		res += gauss5[2][2]*tex2D(_s3,coord+float2(-2,-2)*bof);
 		res += gauss5[1][2]*tex2D(_s3,coord+float2(-1,-2)*bof);
