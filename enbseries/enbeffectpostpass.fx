@@ -518,12 +518,14 @@ SamplerState Sampler
 	Filter = MIN_MAG_MIP_LINEAR;
 	AddressU = Clamp;
 	AddressV = Clamp;
+	MaxLOD = 0;
 };
 SamplerState SamplerB
 {
 	Filter = MIN_MAG_MIP_LINEAR;
 	AddressU = Border;
 	AddressV = Border;
+	MaxLOD = 0;
 };
 
 struct VS_INPUT_POST

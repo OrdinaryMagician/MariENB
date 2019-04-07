@@ -700,18 +700,21 @@ SamplerState Sampler0
 	Filter = MIN_MAG_MIP_POINT;
 	AddressU = Clamp;
 	AddressV = Clamp;
+	MaxLOD = 0;
 };
 SamplerState Sampler1
 {
 	Filter = MIN_MAG_MIP_LINEAR;
 	AddressU = Clamp;
 	AddressV = Clamp;
+	MaxLOD = 0;
 };
 SamplerState Sampler2
 {
 	Filter = MIN_MAG_MIP_LINEAR;
 	AddressU = Wrap;
 	AddressV = Wrap;
+	MaxLOD = 0;
 };
 SamplerState SamplerLUT
 {
@@ -719,6 +722,7 @@ SamplerState SamplerLUT
 	AddressU = Clamp;
 	AddressV = Clamp;
 	AddressW = Clamp;
+	MaxLOD = 0;
 };
 
 struct VS_INPUT_POST
@@ -1106,8 +1110,8 @@ float4 PS_Draw( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 		if ( gradeenable2 ) res.rgb = GradingColorize(res.rgb);
 		if ( gradeenable3 ) res.rgb = GradingHSV(res.rgb);
 	}
-	if ( lutenable ) res.rgb = GradingLUT(res.rgb);
 	if ( techenable ) res.rgb = Technicolor(res.rgb);
+	if ( lutenable ) res.rgb = GradingLUT(res.rgb);
 	if ( !nbt && ne ) res.rgb = FilmGrain(res.rgb,coord);
 	/* fade has same index on both games */
 	res.rgb = Params01[5].rgb*Params01[5].a+res.rgb*(1.0-Params01[5].a);

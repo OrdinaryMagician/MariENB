@@ -1250,18 +1250,21 @@ SamplerState Sampler0
 	Filter = MIN_MAG_MIP_POINT;
 	AddressU = Clamp;
 	AddressV = Clamp;
+	MaxLOD = 0;
 };
 SamplerState Sampler1
 {
 	Filter = MIN_MAG_MIP_LINEAR;
 	AddressU = Clamp;
 	AddressV = Clamp;
+	MaxLOD = 0;
 };
 SamplerState Sampler2
 {
 	Filter = MIN_MAG_MIP_LINEAR;
 	AddressU = Wrap;
 	AddressV = Wrap;
+	MaxLOD = 0;
 };
 
 struct VS_INPUT_POST
@@ -1792,34 +1795,34 @@ float4 dofsample( float2 coord, float2 bsz, float blur, bool bDoHighlight,
 	float cstep = 2.0*pi*(1.0/3.0);
 	float ang = 0.5*pi;
 	res.r = TextureColor.SampleLevel(Sampler1,coord
-		+gcircle(ang)*bsz*dofpcha*0.1,0,0).r;
+		+gcircle(ang)*bsz*dofpcha*0.1,0).r;
 	deps.r = TextureDepth.SampleLevel(Sampler1,coord
-		+gcircle(ang)*bsz*dofpcha*0.1,0,0).x;
+		+gcircle(ang)*bsz*dofpcha*0.1,0).x;
 	dfcs.r = RenderTargetR32F.SampleLevel(Sampler1,coord
-		+gcircle(ang)*bsz*dofpcha*0.1,0,0).x;
+		+gcircle(ang)*bsz*dofpcha*0.1,0).x;
 	ang += cstep;
 	res.g = TextureColor.SampleLevel(Sampler1,coord
-		+gcircle(ang)*bsz*dofpcha*0.1,0,0).g;
+		+gcircle(ang)*bsz*dofpcha*0.1,0).g;
 	deps.g = TextureDepth.SampleLevel(Sampler1,coord
-		+gcircle(ang)*bsz*dofpcha*0.1,0,0).x;
+		+gcircle(ang)*bsz*dofpcha*0.1,0).x;
 	dfcs.g = RenderTargetR32F.SampleLevel(Sampler1,coord
-		+gcircle(ang)*bsz*dofpcha*0.1,0,0).x;
+		+gcircle(ang)*bsz*dofpcha*0.1,0).x;
 	ang += cstep;
 	res.b = TextureColor.SampleLevel(Sampler1,coord
-		+gcircle(ang)*bsz*dofpcha*0.1,0,0).b;
+		+gcircle(ang)*bsz*dofpcha*0.1,0).b;
 	deps.b = TextureDepth.SampleLevel(Sampler1,coord
-		+gcircle(ang)*bsz*dofpcha*0.1,0,0).x;
+		+gcircle(ang)*bsz*dofpcha*0.1,0).x;
 	dfcs.b = RenderTargetR32F.SampleLevel(Sampler1,coord
-		+gcircle(ang)*bsz*dofpcha*0.1,0,0).x;
+		+gcircle(ang)*bsz*dofpcha*0.1,0).x;
 	if ( bDoHighlight )
 	{
 		float l = luminance(res.rgb);
 		float threshold = max((l-dofbthreshold)*dofbgain,0.0);
 		res += lerp(0,res,threshold*blur);
 	}
-	res.a = TextureColor.SampleLevel(Sampler1,coord,0,0).a;
-	deps.a = TextureDepth.SampleLevel(Sampler1,coord,0,0).x;
-	dfcs.a = RenderTargetR32F.SampleLevel(Sampler1,coord,0,0).x;
+	res.a = TextureColor.SampleLevel(Sampler1,coord,0).a;
+	deps.a = TextureDepth.SampleLevel(Sampler1,coord,0).x;
+	dfcs.a = RenderTargetR32F.SampleLevel(Sampler1,coord,0).x;
 	return res;
 }
 /* gather blur pass */
@@ -1875,7 +1878,7 @@ float4 PS_DoFBorkeh( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	if ( dfc <= dofminblur ) return res;
 	float dep = TextureDepth.Sample(Sampler1,coord).x;
 	float2 sf = bof+(TextureNoise3.SampleLevel(Sampler2,coord
-		*(bresl/256.0),0,0).xy*2.0-1.0)*dofbnoise*0.001;
+		*(bresl/256.0),0).xy*2.0-1.0)*dofbnoise*0.001;
 	float2 sr = sf*dofbradius*dfc;
 	int rsamples;
 	float bstep, bw;
