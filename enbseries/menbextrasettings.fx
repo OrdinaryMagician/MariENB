@@ -140,6 +140,63 @@ float bdmult
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.25};
+/*
+   Paint filters:
+   -1 : Disabled
+    0 : Oil painting filter, mixes Kuwahara with median for a smooth result
+    1 : "Van Gogh" filter, ported from https://www.shadertoy.com/view/MdGSDG
+        with some small changes
+    2 : "Watercolor" filter, ported from https://www.shadertoy.com/view/ltyGRV
+        also with some small changes
+    
+*/
+string str_paint = "Painting Filters";
+bool oilenable
+<
+	string UIName = "Enable Oil Filter";
+	string UIWidget = "Checkbox";
+> = {false};
+/* legacy FXAA filter */
+string str_fxaa = "FXAA";
+bool fxaaenable
+<
+	string UIName = "Enable FXAA";
+	string UIWidget = "Checkbox";
+> = {false};
+float fxaaspanmax
+<
+	string UIName = "FXAA Span Max";
+	string UIWidget = "Checkbox";
+> = {4.0};
+float fxaareducemul
+<
+	string UIName = "FXAA Reduce Mul";
+	string UIWidget = "Checkbox";
+> = {16.0};
+float fxaareducemin
+<
+	string UIName = "FXAA Reduce Min";
+	string UIWidget = "Checkbox";
+> = {128.0};
+/* ASCII art filter */
+string str_ascii = "Luma ASCII Art Filter";
+bool asciienable
+<
+	string UIName = "Enable ASCII";
+	string UIWidget = "Checkbox";
+> = {false};
+bool asciimono
+<
+	string UIName = "ASCII Monochrome";
+	string UIWidget = "Checkbox";
+> = {true};
+float asciiblend
+<
+	string UIName = "ASCII Blend";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {0.0};
 /* Depth-cutting chroma key */
 string str_mask = "Depth Chroma Key";
 bool maskenable
@@ -198,6 +255,60 @@ float masktiltx
 float masktilty
 <
 	string UIName = "Chroma Key Depth Vertical Tilt";
+	string UIWidget = "Spinner";
+> = {0.0};
+/* cheap dot matrix */
+string str_dot = "RGBI Dot Matrix";
+bool dotenable
+<
+	string UIName = "Enable Dot Matrix";
+	string UIWidget = "Checkbox";
+> = {false};
+int dotsize
+<
+	string UIName = "Dot Size";
+	string UIWidget = "Spinner";
+	int UIMin = 1;
+> = {1};
+float dotblend
+<
+	string UIName = "Dot Blend";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {0.4};
+float dotmult
+<
+	string UIName = "Dot Intensity";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float dotpow
+<
+	string UIName = "Dot Contrast";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+/* lens curve with chromatic aberration */
+string str_curve = "Lens Curvature";
+bool curveenable
+<
+	string UIName = "Enable Curvature";
+	string UIWidget = "Checkbox";
+> = {false};
+float chromaab
+<
+	string UIName = "Curve Chromatic Aberration";
+	string UIWidget = "Spinner";
+> = {0.0};
+float lenszoom
+<
+	string UIName = "Curve Zooming";
+	string UIWidget = "Spinner";
+> = {50.0};
+float lensdist
+<
+	string UIName = "Curve Distortion";
 	string UIWidget = "Spinner";
 > = {0.0};
 /* BlurSharpShift, some people are obsessed with this nonsense */

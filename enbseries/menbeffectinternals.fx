@@ -48,14 +48,56 @@ texture2D texs2;
 texture2D texs3;
 texture2D texs4;
 texture2D texs7;
-texture2D texNoise2
+texture2D texNoise1
 <
 	string ResourceName = "menbnoise1.png";
 >;
-texture2D texNoise3
+texture2D texNoise2
 <
 	string ResourceName = "menbnoise2.png";
 >;
+texture2D texNoise3
+<
+	string ResourceName = "menbnoise3.png";
+>;
+#ifdef VOLUME_LUTS
+texture3D texLUTN
+<
+#ifdef LUTMODE_16
+	string ResourceName = "menblut16v_night.dds";
+#endif
+#ifdef LUTMODE_64
+	string ResourceName = "menblut64v_night.dds";
+#endif
+>;
+texture3D texLUTD
+<
+#ifdef LUTMODE_16
+	string ResourceName = "menblut16v_day.dds";
+#endif
+#ifdef LUTMODE_64
+	string ResourceName = "menblut64v_day.dds";
+#endif
+>;
+texture3D texLUTIN
+<
+#ifdef LUTMODE_16
+	string ResourceName = "menblut16v_interiornight.dds";
+#endif
+#ifdef LUTMODE_64
+	string ResourceName = "menblut64v_interiornight.dds";
+#endif
+>;
+texture3D texLUTID
+<
+#ifdef LUTMODE_16
+	string ResourceName = "menblut16v_interiorday.dds";
+#endif
+#ifdef LUTMODE_64
+	string ResourceName = "menblut64v_interiorday.dds";
+#endif
+>;
+#else
 #ifdef LUTMODE_LEGACY
 texture2D texLUT
 <
@@ -98,6 +140,7 @@ texture2D texLUTID
 	string ResourceName = "menblut64_interiorday.png";
 #endif
 >;
+#endif
 #endif
 texture2D texTonemap
 <
@@ -183,6 +226,18 @@ sampler2D _s7 = sampler_state
 	MaxMipLevel = 0;
 	MipMapLodBias = 0;
 };
+sampler2D SamplerNoise1 = sampler_state
+{
+	Texture = <texNoise1>;
+	MinFilter = POINT;
+	MagFilter = POINT;
+	MipFilter = NONE;
+	AddressU = Wrap;
+	AddressV = Wrap;
+	SRGBTexture = FALSE;
+	MaxMipLevel = 0;
+	MipMapLodBias = 0;
+};
 sampler2D SamplerNoise2 = sampler_state
 {
 	Texture = <texNoise2>;
@@ -207,6 +262,60 @@ sampler2D SamplerNoise3 = sampler_state
 	MaxMipLevel = 0;
 	MipMapLodBias = 0;
 };
+#ifdef VOLUME_LUTS
+sampler3D SamplerLUTN = sampler_state
+{
+	Texture = <texLUTN>;
+	MinFilter = LINEAR;
+	MagFilter = LINEAR;
+	MipFilter = NONE;
+	AddressU = Clamp;
+	AddressV = Clamp;
+	AddressW = Clamp;
+	SRGBTexture = FALSE;
+	MaxMipLevel = 0;
+	MipMapLodBias = 0;
+};
+sampler3D SamplerLUTD = sampler_state
+{
+	Texture = <texLUTD>;
+	MinFilter = LINEAR;
+	MagFilter = LINEAR;
+	MipFilter = NONE;
+	AddressU = Clamp;
+	AddressV = Clamp;
+	AddressW = Clamp;
+	SRGBTexture = FALSE;
+	MaxMipLevel = 0;
+	MipMapLodBias = 0;
+};
+sampler3D SamplerLUTIN = sampler_state
+{
+	Texture = <texLUTIN>;
+	MinFilter = LINEAR;
+	MagFilter = LINEAR;
+	MipFilter = NONE;
+	AddressU = Clamp;
+	AddressV = Clamp;
+	AddressW = Clamp;
+	SRGBTexture = FALSE;
+	MaxMipLevel = 0;
+	MipMapLodBias = 0;
+};
+sampler3D SamplerLUTID = sampler_state
+{
+	Texture = <texLUTID>;
+	MinFilter = LINEAR;
+	MagFilter = LINEAR;
+	MipFilter = NONE;
+	AddressU = Clamp;
+	AddressV = Clamp;
+	AddressW = Clamp;
+	SRGBTexture = FALSE;
+	MaxMipLevel = 0;
+	MipMapLodBias = 0;
+};
+#else
 #ifdef LUTMODE_LEGACY
 sampler2D SamplerLUT = sampler_state
 {
@@ -269,6 +378,7 @@ sampler2D SamplerLUTID = sampler_state
 	MaxMipLevel = 0;
 	MipMapLodBias = 0;
 };
+#endif
 #endif
 sampler2D SamplerTonemap = sampler_state
 {

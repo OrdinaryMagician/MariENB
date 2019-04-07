@@ -188,6 +188,175 @@ float edgevradius
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
+bool edgevinv
+<
+	string UIName = "Invert Edgevision";
+	string UIWidget = "Checkbox";
+> = {false};
+bool edgevblend
+<
+	string UIName = "Blend Edgevision";
+	string UIWidget = "Checkbox";
+> = {false};
+/* use luma edge detection filter */
+string str_com = "Edge Detect";
+bool comenable
+<
+	string UIName = "Enable Edge Detect";
+	string UIWidget = "Checkbox";
+> = {false};
+float compow
+<
+	string UIName = "Edge Detect Contrast";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float commult
+<
+	string UIName = "Edge Detect Intensity";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float comradius
+<
+	string UIName = "Edge Detect Radius";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+bool cominv
+<
+	string UIName = "Invert Edge Detect";
+	string UIWidget = "Checkbox";
+> = {false};
+bool comblend
+<
+	string UIName = "Blend Edge Detect";
+	string UIWidget = "Checkbox";
+> = {false};
+/* use edge threshold filter aka "linevision" */
+string str_cont = "Linevision";
+bool contenable
+<
+	string UIName = "Enable Linevision";
+	string UIWidget = "Checkbox";
+> = {false};
+/* factors */
+float contfadepow_n
+<
+	string UIName = "Linevision Fade Contrast Night";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {2.0};
+float contfadepow_d
+<
+	string UIName = "Linevision Fade Contrast Day";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {2.0};
+float contfadepow_in
+<
+	string UIName = "Linevision Fade Contrast Interior Night";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {2.0};
+float contfadepow_id
+<
+	string UIName = "Linevision Fade Contrast Interior Day";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {2.0};
+float contfademult_n
+<
+	string UIName = "Linevision Fade Intensity Night";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {500.0};
+float contfademult_d
+<
+	string UIName = "Linevision Fade Intensity Day";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {500.0};
+float contfademult_in
+<
+	string UIName = "Linevision Fade Intensity Interior Night";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {500.0};
+float contfademult_id
+<
+	string UIName = "Linevision Fade Intensity Interior Day";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {500.0};
+float contpow
+<
+	string UIName = "Linevision Contrast";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float contmult
+<
+	string UIName = "Linevision Intensity";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {2.0};
+float contradius
+<
+	string UIName = "Linevision Radius";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float contthreshold
+<
+	string UIName = "Linevision Threshold";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {0.05};
+bool continv
+<
+	string UIName = "Invert Linevision";
+	string UIWidget = "Checkbox";
+> = {false};
+bool contblend
+<
+	string UIName = "Blend Linevision";
+	string UIWidget = "Checkbox";
+> = {false};
+/* fog filter */
+string str_fog = "Custom Fog Filter";
+bool fogenable
+<
+	string UIName = "Enable Custom Fog";
+	string UIWidget = "Checkbox";
+> = {false};
+float fogpow
+<
+	string UIName = "Fog Contrast";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float fogmult
+<
+	string UIName = "Fog Intensity";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float fogbump
+<
+	string UIName = "Fog Shift";
+	string UIWidget = "Spinner";
+> = {0.0};
+float3 fogcolor
+<
+	string UIName = "Fog Color";
+	string UIWidget = "Spinner";
+> = {1.0,1.0,1.0};
+bool foglimbo
+<
+	string UIName = "Limbo Mode";
+	string UIWidget = "Checkbox";
+> = {false};
 /* ssao filter */
 string str_ssao = "Ray Marching SSAO";
 bool ssaoenable
@@ -267,6 +436,11 @@ float ssaopow
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.5};
+float ssaobump
+<
+	string UIName = "SSAO Shift";
+	string UIWidget = "Spinner";
+> = {0.0};
 float ssaoblend
 <
 	string UIName = "SSAO Blending";

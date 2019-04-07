@@ -153,9 +153,95 @@ float3 EdgeView( float3 res, float2 coord )
 	mdy += GY[2][2]*depths[2][2];
 	mud = pow(mdx*mdx+mdy*mdy,0.5);
 	float fade = 1.0-tex2D(SamplerDepth,coord).x;
-	mud *= saturate(pow(max(0,fade),edgevfadepow)*edgevfademult);
-	mud = saturate(pow(max(0,mud),edgevpow)*edgevmult);
-	return mud;
+	mud *= clamp(pow(max(0.0,fade),edgevfadepow)*edgevfademult,0.0,1.0);
+	mud = clamp(pow(max(0.0,mud),edgevpow)*edgevmult,0.0,1.0);
+	if ( edgevblend ) return res-(edgevinv?1.0-mud:mud);
+	return edgevinv?1.0-mud:mud;
+}
+/* luminance edge detection */
+float3 EdgeDetect( float3 res, float2 coord )
+{
+	float2 bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
+	if ( fixedx>0 ) bresl.x = fixedx;
+	if ( fixedy>0 ) bresl.y = fixedy;
+	float2 bof = float2(1.0/bresl.x,1.0/bresl.y)*comradius;
+	float mdx = 0, mdy = 0, mud = 0;
+	float3x3 lums;
+	float3 col = tex2D(SamplerColor,coord+float2(-1,-1)*bof).rgb;
+	lums[0][0] = luminance(col);
+	col = tex2D(SamplerColor,coord+float2(0,-1)*bof).rgb;
+	lums[0][1] = luminance(col);
+	col = tex2D(SamplerColor,coord+float2(1,-1)*bof).rgb;
+	lums[0][2] = luminance(col);
+	col = tex2D(SamplerColor,coord+float2(-1,0)*bof).rgb;
+	lums[1][0] = luminance(col);
+	col = tex2D(SamplerColor,coord+float2(0,0)*bof).rgb;
+	lums[1][1] = luminance(col);
+	col = tex2D(SamplerColor,coord+float2(1,0)*bof).rgb;
+	lums[1][2] = luminance(col);
+	col = tex2D(SamplerColor,coord+float2(-1,1)*bof).rgb;
+	lums[2][0] = luminance(col);
+	col = tex2D(SamplerColor,coord+float2(0,1)*bof).rgb;
+	lums[2][1] = luminance(col);
+	col = tex2D(SamplerColor,coord+float2(1,1)*bof).rgb;
+	lums[2][2] = luminance(col);
+	mdx += GX[0][0]*lums[0][0];
+	mdx += GX[0][1]*lums[0][1];
+	mdx += GX[0][2]*lums[0][2];
+	mdx += GX[1][0]*lums[1][0];
+	mdx += GX[1][1]*lums[1][1];
+	mdx += GX[1][2]*lums[1][2];
+	mdx += GX[2][0]*lums[2][0];
+	mdx += GX[2][1]*lums[2][1];
+	mdx += GX[2][2]*lums[2][2];
+	mdy += GY[0][0]*lums[0][0];
+	mdy += GY[0][1]*lums[0][1];
+	mdy += GY[0][2]*lums[0][2];
+	mdy += GY[1][0]*lums[1][0];
+	mdy += GY[1][1]*lums[1][1];
+	mdy += GY[1][2]*lums[1][2];
+	mdy += GY[2][0]*lums[2][0];
+	mdy += GY[2][1]*lums[2][1];
+	mdy += GY[2][2]*lums[2][2];
+	mud = pow(max(mdx*mdx+mdy*mdy,0.0),0.5);
+	mud = clamp(pow(max(mud,0.0),compow)*commult,0.0,1.0);
+	if ( comblend ) return res-(cominv?1.0-mud:mud);
+	return cominv?1.0-mud:mud;
+}
+/* linevision filter */
+float3 LineView( float3 res, float2 coord )
+{
+	float2 bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
+	if ( fixedx>0 ) bresl.x = fixedx;
+	if ( fixedy>0 ) bresl.y = fixedy;
+	float contfadepow = tod_ind(contfadepow);
+	float contfademult = tod_ind(contfademult);
+	float2 bof = float2(1.0/bresl.x,1.0/bresl.y)*contradius;
+	float dep = depthlinear(coord);
+	float cont = depthlinear(coord+float2(-1,-1)*bof);
+	cont += depthlinear(coord+float2(0,-1)*bof);
+	cont += depthlinear(coord+float2(1,-1)*bof);
+	cont += depthlinear(coord+float2(-1,0)*bof);
+	cont += depthlinear(coord+float2(1,0)*bof);
+	cont += depthlinear(coord+float2(-1,1)*bof);
+	cont += depthlinear(coord+float2(0,1)*bof);
+	cont += depthlinear(coord+float2(1,1)*bof);
+	cont /= 8.0;
+	float mud = 0.0;
+	if ( abs(cont-dep) > (contthreshold*0.00001) ) mud = 1.0;
+	float fade = 1.0-tex2D(SamplerDepth,coord).x;
+	mud *= clamp(pow(max(0.0,fade),contfadepow)*contfademult,0.0,1.0);
+	mud = clamp(pow(max(0.0,mud),contpow)*contmult,0.0,1.0);
+	if ( contblend ) return res-(continv?1.0-mud:mud);
+	return continv?1.0-mud:mud;
+}
+/* fog filter */
+float3 Limbo( float3 res, float2 coord )
+{
+	float mud = clamp(pow(max(0.0,depthlinear(coord)),fogpow)*fogmult
+		+fogbump,0.0,1.0);
+	if ( foglimbo ) return fogcolor*mud;
+	return lerp(res,fogcolor,mud);
 }
 /*
    Thank you Boris for not providing access to a normal buffer. Guesswork using
@@ -176,15 +262,19 @@ float3 pseudonormal( float dep, float2 coord )
 	normal.z = -normal.z;
 	return normalize(normal);
 }
-/* Squeezed in are Depth Grading, Edgevision, Sharpen and ssao prepass */
-float4 PS_EdgePlusSSAOPrepass( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
+float4 PS_DepthGrading( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 {
 	float2 coord = IN.txcoord.xy;
 	float4 res = tex2D(SamplerColor,coord);
 	if ( sharpenable ) res.rgb = Sharpen(res.rgb,coord);
 	res.rgb = DepthGrade(res.rgb,coord);
-	if ( edgevenable ) res.rgb = EdgeView(res.rgb,coord);
-	/* get occlusion using single-step Ray Marching with 64 samples */
+	return res;
+}
+/* this SSAO algorithm is honestly a big mess */
+float4 PS_SSAOPrepass( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
+{
+	float2 coord = IN.txcoord.xy;
+	float4 res = tex2D(SamplerColor,coord);
 	float ssaofadepow = tod_ind(ssaofadepow);
 	float ssaofademult = tod_ind(ssaofademult);
 	if ( !ssaoenable ) return res;
@@ -200,17 +290,17 @@ float4 PS_EdgePlusSSAOPrepass( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	else bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
 	float3 normal = pseudonormal(depth,coord);
 	float2 nc = coord*(bresl/256.0);
-	float2 bof = float2(1.0/bresl.x,1.0/bresl.y)*ssaoradius;
+	float2 bof = (1.0/bresl)*ssaoradius;
 	float2 nc2 = tex2D(SamplerNoise3,nc+48000.0*Timer.x*ssaonoise).xy;
 	float3 rnormal = tex2D(SamplerNoise3,nc2).xyz*2.0-1.0;
 	rnormal = normalize(rnormal);
 	float occ = 0.0;
 	int i;
 	float3 sample;
-	float sdepth, so, delta;
-	float sclamp = ssaoclamp/100000.0;
-	float sclampmin = ssaoclampmin/100000.0;
-	[unroll] for ( i=0; i<16; i++ )
+	float sdepth, delta;
+	float so;
+	float sclamp = ssaoclamp/100000.0, sclampmin = ssaoclampmin/100000.0;
+	[loop] for ( i=0; i<64; i++ )
 	{
 		sample = reflect(ssao_samples[i],rnormal);
 		sample *= sign(dot(normal,sample));
@@ -221,11 +311,21 @@ float4 PS_EdgePlusSSAOPrepass( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 		if ( (delta > sclampmin) && (delta < sclamp) )
 			occ += 1.0-delta;
 	}
-	float uocc = saturate(occ/16.0);
+	float uocc = saturate(occ/64.0);
 	float fade = 1.0-depth;
 	uocc *= saturate(pow(max(0,fade),ssaofadepow)*ssaofademult);
-	uocc = saturate(pow(max(0,uocc),ssaopow)*ssaomult);
+	uocc = saturate(pow(max(0,uocc),ssaopow)*ssaomult+ssaobump);
 	res.a = saturate(1.0-(uocc*ssaoblend));
+	return res;
+}
+float4 PS_EdgeFilters( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
+{
+	float2 coord = IN.txcoord.xy;
+	float4 res = tex2D(SamplerColor,coord);
+	if ( fogenable ) res.rgb = Limbo(res.rgb,coord);
+	if ( edgevenable ) res.rgb = EdgeView(res.rgb,coord);
+	if ( comenable ) res.rgb = EdgeDetect(res.rgb,coord);
+	if ( contenable ) res.rgb = LineView(res.rgb,coord);
 	return res;
 }
 /* Distant hot air refraction. Not very realistic, but does the job. */
@@ -276,35 +376,14 @@ float4 PS_Distortion( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	return res;
 }
 /*
-   The blur passes use bilateral filtering to mostly preserve borders.
+   The blur pass uses bilateral filtering to mostly preserve borders.
    An additional factor using difference of normals was tested, but the
    performance decrease was too much, so it's gone forever.
+
+   This has been reverted into a single pass since separable blur seems to
+   cause some ugly artifacting.
 */
-float4 PS_SSAOBlurH( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
-{
-	float2 coord = IN.txcoord.xy;
-	float4 res = tex2D(SamplerColor,coord);
-	if ( !ssaoenable ) return res;
-	if ( !ssaobenable ) return res;
-	float bresl = ScreenSize.x;
-	float bof = (1.0/bresl)*ssaobradius;
-	float isd, sd, ds, sw, tw = 0;
-	res.a = 0.0;
-	int i;
-	isd = tex2D(SamplerDepth,coord).x;
-	[unroll] for ( i=-15; i<=15; i++ )
-	{
-		sd = tex2D(SamplerDepth,coord+float2(i,0)*bof).x;
-		ds = 1.0/pow(1.0+abs(isd-sd),ssaobfact);
-		sw = ds;
-		sw *= gauss16[abs(i)];
-		tw += sw;
-		res.a += sw*tex2D(SamplerColor,coord+float2(i,0)*bof).a;
-	}
-	res.a /= tw;
-	return res;
-}
-float4 PS_SSAOBlurV( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
+float4 PS_SSAOBlur( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 {
 	float2 coord = IN.txcoord.xy;
 	float4 res = tex2D(SamplerColor,coord);
@@ -314,20 +393,20 @@ float4 PS_SSAOBlurV( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 		if ( ssaodebug ) return saturate(res.a);
 		return res*res.a;
 	}
-	float bresl = ScreenSize.x*ScreenSize.w;
-	float bof = (1.0/bresl)*ssaobradius;
+	float2 bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
+	float2 bof = (1.0/bresl)*ssaobradius;
 	float isd, sd, ds, sw, tw = 0;
 	res.a = 0.0;
-	int i;
+	int i, j;
 	isd = tex2D(SamplerDepth,coord).x;
-	[unroll] for ( i=-15; i<=15; i++ )
+	[loop] for ( j=-7; j<=7; j++ ) [loop] for ( i=-7; i<=7; i++ )
 	{
-		sd = tex2D(SamplerDepth,coord+float2(0,i)*bof).x;
+		sd = tex2D(SamplerDepth,coord+float2(i,j)*bof).x;
 		ds = 1.0/pow(1.0+abs(isd-sd),ssaobfact);
 		sw = ds;
-		sw *= gauss16[abs(i)];
+		sw *= gauss8[abs(i)]*gauss8[abs(j)];
 		tw += sw;
-		res.a += sw*tex2D(SamplerColor,coord+float2(0,i)*bof).a;
+		res.a += sw*tex2D(SamplerColor,coord+float2(i,j)*bof).a;
 	}
 	res.a /= tw;
 	if ( ssaodebug ) return saturate(res.a);
@@ -339,7 +418,7 @@ technique PostProcess
 	pass p0
 	{
 		VertexShader = compile vs_3_0 VS_Pass();
-		PixelShader = compile ps_3_0 PS_EdgePlusSSAOPrepass();
+		PixelShader = compile ps_3_0 PS_EdgeFilters();
 		DitherEnable = FALSE;
 		ZEnable = FALSE;
 		CullMode = NONE;
@@ -356,7 +435,7 @@ technique PostProcess2
 	pass p0
 	{
 		VertexShader = compile vs_3_0 VS_Pass();
-		PixelShader = compile ps_3_0 PS_Distortion();
+		PixelShader = compile ps_3_0 PS_DepthGrading();
 		DitherEnable = FALSE;
 		ZEnable = FALSE;
 		CullMode = NONE;
@@ -373,7 +452,7 @@ technique PostProcess3
 	pass p0
 	{
 		VertexShader = compile vs_3_0 VS_Pass();
-		PixelShader = compile ps_3_0 PS_SSAOBlurH();
+		PixelShader = compile ps_3_0 PS_SSAOPrepass();
 		DitherEnable = FALSE;
 		ZEnable = FALSE;
 		CullMode = NONE;
@@ -390,7 +469,24 @@ technique PostProcess4
 	pass p0
 	{
 		VertexShader = compile vs_3_0 VS_Pass();
-		PixelShader = compile ps_3_0 PS_SSAOBlurV();
+		PixelShader = compile ps_3_0 PS_Distortion();
+		DitherEnable = FALSE;
+		ZEnable = FALSE;
+		CullMode = NONE;
+		ALPHATESTENABLE = FALSE;
+		SEPARATEALPHABLENDENABLE = FALSE;
+		AlphaBlendEnable = FALSE;
+		StencilEnable = FALSE;
+		FogEnable = FALSE;
+		SRGBWRITEENABLE = FALSE;
+	}
+}
+technique PostProcess5
+{
+	pass p0
+	{
+		VertexShader = compile vs_3_0 VS_Pass();
+		PixelShader = compile ps_3_0 PS_SSAOBlur();
 		DitherEnable = FALSE;
 		ZEnable = FALSE;
 		CullMode = NONE;

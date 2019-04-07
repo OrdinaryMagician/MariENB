@@ -65,16 +65,31 @@
 	?isfog(WeatherAndTime.y)?(1.0):(WeatherAndTime.z)\
 	:isfog(WeatherAndTime.y)?(1.0-WeatherAndTime.z):(0.0))
 /* asset definitions */
+/* ascii art font */
+#define FONT_WIDTH   8
+#define FONT_HEIGHT  4096
+#define GLYPH_WIDTH  8
+#define GLYPH_HEIGHT 16
+#define FONT_LEVELS  255
+/*
+   aspect correction for certain overlays
+    uncommented : the textures are 1:1 and must be corrected
+    commented : the textures are 16:9 or whatever ratio you use
+*/
+//#define ASPECT_LENSDIRT
 /* texture sizes */
 #define NOISESIZE 256.0
 #define HEATSIZE 1024.0
 #define FROSTSIZE 1024.0
-/* LUT mode (use only one) - The 256px option was discarded for size reasons */
+/* LUT mode (use only one) */
 //#define LUTMODE_LEGACY
 //#define LUTMODE_16
 #define LUTMODE_64
+/* !NEW! volume map option, faster and more precise, no legacy tex support */
+#define VOLUME_LUTS
 /* some textures can be provided as DDS rather than PNG to save space */
 //#define HEAT_DDS
+//#define LENSDIRT_DDS
 //#define FROST_DDS
 //#define FROSTBUMP_DDS
 //#define VIGNETTE_DDS

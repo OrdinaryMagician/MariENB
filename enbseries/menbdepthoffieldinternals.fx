@@ -39,7 +39,7 @@ texture2D texColor;
 texture2D texDepth;
 texture2D texNoise3
 <
-	string ResourceName = "menbnoise2.png";
+	string ResourceName = "menbnoise3.png";
 >;
 texture2D texFocus;
 texture2D texCurr;

@@ -331,12 +331,18 @@ float3 GradingGame( float3 res )
 /* LUT colour grading */
 float3 GradingLUT( float3 res )
 {
+#ifdef VOLUME_LUTS
 	/*
-	   Gross hacks were needed to "fix" the way direct3d interpolates on
-	   sampling, and to manually interpolate on the blue channel.
-	   This could be removed if I could have the LUTs as volume maps, but
-	   I think ENB doesn't support those.
+	   volume maps are SO MUCH BETTER on the shader side, no ugly
+	   interpolation hacks are needed to work around sampling quirks,
+	   and the code is EXTREMELY simplified as a result
 	*/
+	float3 tcl_n = tex3D(SamplerLUTN,res).rgb;
+	float3 tcl_d = tex3D(SamplerLUTD,res).rgb;
+	float3 tcl_in = tex3D(SamplerLUTIN,res).rgb;
+	float3 tcl_id = tex3D(SamplerLUTID,res).rgb;
+	float3 tcol = tod_ind(tcl);
+#else
 #ifdef LUTMODE_LEGACY
 	float3 tcol = clamp(res,0.08,0.92);
 	tcol.rg = tcol.rg*0.5+0.25;
@@ -386,6 +392,7 @@ float3 GradingLUT( float3 res )
 	float3 tcl1 = tod_ind(tcl1);
 	float3 tcl2 = tod_ind(tcl2);
 	tcol = lerp(tcl1,tcl2,dec);
+#endif
 	float lutblend = tod_ind(lutblend);
 	return lerp(res,tcol,lutblend);
 }
@@ -479,6 +486,19 @@ float2 ScreenFrost( float2 coord )
 	ofs *= clamp(pow(dist,frostrpow)*frostrmult+frostrbump,0.0,1.0);
 	return coord+ofs;
 }
+/* Old MariENB 0.x screen dirt filter, updated */
+float3 ScreenDirt( float3 res, float2 coord )
+{
+	float2 nr = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w)/256.0;
+	float3 ncolc = tex2D(SamplerNoise1,coord*dirtmc*nr).rgb;
+	float2 ds = float2(res.r+res.g,res.g+res.b)/2.0;
+	float3 ncoll = tex2D(SamplerNoise1,ds*dirtml).rgb;
+	res = lerp(res,(ncolc.r+1.0)*res,dirtcfactor
+		*saturate(1.0-(ds.x+ds.y)*0.25));
+	res = lerp(res,(ncoll.r+1.0)*res,dirtlfactor
+		*saturate(1.0-(ds.x+ds.y)*0.25));
+	return res;
+}
 /* MariENB shader */
 float4 PS_Mari( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 {
@@ -529,6 +549,7 @@ float4 PS_Mari( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	res.rgb += bcol;
 	if ( aenable ) res.rgb = Adaptation(res.rgb);
 	if ( nbt && ne ) res.rgb = FilmGrain(res.rgb,coord);
+	if ( dirtenable ) res.rgb = ScreenDirt(res.rgb,coord);
 	res.rgb = Tonemap(res.rgb);
 	if ( vgradeenable ) res.rgb = GradingGame(res.rgb);
 	if ( gradeenable1 ) res.rgb = GradingRGB(res.rgb);
