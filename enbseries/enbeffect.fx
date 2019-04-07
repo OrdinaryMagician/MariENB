@@ -557,9 +557,23 @@ float lutblend_i
 	string UIWidget = "Spinner";
 > = {1.0};
 #ifdef LUTMODE_LEGACY
-int clut
+int clut_n
 <
-	string UIName = "LUT Preset";
+	string UIName = "LUT Preset Night";
+	string UIWidget = "Spinner";
+	int UIMin = 0;
+	int UIMax = 63;
+> = {1};
+int clut_d
+<
+	string UIName = "LUT Preset Day";
+	string UIWidget = "Spinner";
+	int UIMin = 0;
+	int UIMax = 63;
+> = {1};
+int clut_i
+<
+	string UIName = "LUT Preset Interior";
 	string UIWidget = "Spinner";
 	int UIMin = 0;
 	int UIMax = 63;
@@ -668,18 +682,40 @@ Texture2D TextureNoise3
 <
 	string ResourceName = "menbnoise2.png";
 >;
+#ifdef LUTMODE_LEGACY
 Texture2D TextureLUT
 <
-#ifdef LUTMODE_LEGACY
 	string ResourceName = "menblutpreset.png";
-#endif
+>;
+#else
+Texture2D TextureLUTN
+<
 #ifdef LUTMODE_16
-	string ResourceName = "menblut16.png";
+	string ResourceName = "menblut16_night.png";
 #endif
 #ifdef LUTMODE_64
-	string ResourceName = "menblut64.png";
+	string ResourceName = "menblut64_night.png";
 #endif
 >;
+Texture2D TextureLUTD
+<
+#ifdef LUTMODE_16
+	string ResourceName = "menblut16_day.png";
+#endif
+#ifdef LUTMODE_64
+	string ResourceName = "menblut64_day.png";
+#endif
+>;
+Texture2D TextureLUTI
+<
+#ifdef LUTMODE_16
+	string ResourceName = "menblut16_interior.png";
+#endif
+#ifdef LUTMODE_64
+	string ResourceName = "menblut64_interior.png";
+#endif
+>;
+#endif
 Texture2D TextureTonemap
 <
 	string ResourceName = "menbfilmlut.png";
@@ -919,12 +955,25 @@ float3 GradingLUT( float3 res )
 	float3 tcol = clamp(res,0.0001,0.9999);
 	tcol.rg = tcol.rg*0.5+0.25;
 #ifdef LUTMODE_LEGACY
-	float2 lc1 = float2(tcol.r/16.0+floor(tcol.b*16.0)/16.0,tcol.g/64.0
-		+clut/64.0);
-	float2 lc2 = float2(tcol.r/16.0+ceil(tcol.b*16.0)/16.0,tcol.g/64.0
-		+clut/64.0);
+	float2 lc1 = float2(tcol.r/16.0+floor(tcol.b*16.0)/16.0,tcol.g/64.0);
+	float2 lc2 = float2(tcol.r/16.0+ceil(tcol.b*16.0)/16.0,tcol.g/64.0);
 	float dec = (ceil(tcol.b*16.0)==16.0)?(0.0):frac(tcol.b*16.0);
-#endif
+	/* night samples */
+	float3 tcl1_n = TextureLUT.Sample(SamplerLUT,lc1
+		+float2(0,clut_n/64.0)).rgb;
+	float3 tcl2_n = TextureLUT.Sample(SamplerLUT,lc2
+		+float2(0,clut_n/64.0)).rgb;
+	/* day samples */
+	float3 tcl1_d = TextureLUT.Sample(SamplerLUT,lc1
+		+float2(0,clut_d/64.0)).rgb;
+	float3 tcl2_d = TextureLUT.Sample(SamplerLUT,lc2
+		+float2(0,clut_d/64.0)).rgb;
+	/* interior samples */
+	float3 tcl1_i = TextureLUT.Sample(SamplerLUT,lc1
+		+float2(0,clut_i/64.0)).rgb;
+	float3 tcl2_i = TextureLUT.Sample(SamplerLUT,lc2
+		+float2(0,clut_i/64.0)).rgb;
+#else
 #ifdef LUTMODE_16
 	float2 lc1 = float2(tcol.r,tcol.g/16.0+floor(tcol.b*16.0)/16.0);
 	float2 lc2 = float2(tcol.r,tcol.g/16.0+ceil(tcol.b*16.0)/16.0);
@@ -935,8 +984,18 @@ float3 GradingLUT( float3 res )
 	float2 lc2 = float2(tcol.r,tcol.g/64.0+ceil(tcol.b*64.0)/64.0);
 	float dec = (ceil(tcol.b*64.0)==64.0)?(0.0):frac(tcol.b*64.0);
 #endif
-	float3 tcl1 = TextureLUT.Sample(SamplerLUT,lc1).rgb;
-	float3 tcl2 = TextureLUT.Sample(SamplerLUT,lc2).rgb;
+	/* night samples */
+	float3 tcl1_n = TextureLUTN.Sample(SamplerLUT,lc1).rgb;
+	float3 tcl2_n = TextureLUTN.Sample(SamplerLUT,lc2).rgb;
+	/* day samples */
+	float3 tcl1_d = TextureLUTD.Sample(SamplerLUT,lc1).rgb;
+	float3 tcl2_d = TextureLUTD.Sample(SamplerLUT,lc2).rgb;
+	/* interior samples */
+	float3 tcl1_i = TextureLUTI.Sample(SamplerLUT,lc1).rgb;
+	float3 tcl2_i = TextureLUTI.Sample(SamplerLUT,lc2).rgb;
+#endif
+	float3 tcl1 = tod_ind(tcl1);
+	float3 tcl2 = tod_ind(tcl2);
 	tcol = lerp(tcl1,tcl2,dec);
 	float lutblend = tod_ind(lutblend);
 	return lerp(res,tcol,lutblend);
