@@ -123,6 +123,11 @@ float heatfademul
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.5};
+float heatfadebump
+<
+	string UIName = "HeatFadeBump";
+	string UIWidget = "Spinner";
+> = {0.0};
 float heatstrength
 <
 	string UIName = "HeatStrength";
@@ -305,6 +310,27 @@ float dofpow_id
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {4.0};
+/* dof bump (to emulate tilt shift I guess, I brought it back) */
+float dofbump_n
+<
+	string UIName = "DoFBumpNight";
+	string UIWidget = "Spinner";
+> = {0.0};
+float dofbump_d
+<
+	string UIName = "DoFBumpDay";
+	string UIWidget = "Spinner";
+> = {0.0};
+float dofbump_in
+<
+	string UIName = "DoFBumpInteriorNight";
+	string UIWidget = "Spinner";
+> = {0.0};
+float dofbump_id
+<
+	string UIName = "DoFBumpInteriorDay";
+	string UIWidget = "Spinner";
+> = {0.0};
 /* fixed focused depth factors */
 float doffixedfocusmult_n
 <
@@ -354,6 +380,26 @@ float doffixedfocuspow_id
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
+float doffixedfocusbump_n
+<
+	string UIName = "DoFFixedFocusedBumpNight";
+	string UIWidget = "Spinner";
+> = {0.0};
+float doffixedfocusbump_d
+<
+	string UIName = "DoFFixedFocusedBumpDay";
+	string UIWidget = "Spinner";
+> = {0.0};
+float doffixedfocusbump_in
+<
+	string UIName = "DoFFixedFocusedBumpInteriorNight";
+	string UIWidget = "Spinner";
+> = {0.0};
+float doffixedfocusbump_id
+<
+	string UIName = "DoFFixedFocusedBumpInteriorDay";
+	string UIWidget = "Spinner";
+> = {0.0};
 float doffixedfocusblend_n
 <
 	string UIName = "DoFFixedFocusedBlendNight";
@@ -427,6 +473,26 @@ float doffixedunfocuspow_id
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1000.0};
+float doffixedunfocusbump_n
+<
+	string UIName = "DoFFixedUnfocusedBumpNight";
+	string UIWidget = "Spinner";
+> = {0.0};
+float doffixedunfocusbump_d
+<
+	string UIName = "DoFFixedUnfocusedBumpDay";
+	string UIWidget = "Spinner";
+> = {0.0};
+float doffixedunfocusbump_in
+<
+	string UIName = "DoFFixedUnfocusedBumpInteriorNight";
+	string UIWidget = "Spinner";
+> = {0.0};
+float doffixedunfocusbump_id
+<
+	string UIName = "DoFFixedUnfocusedBumpInteriorDay";
+	string UIWidget = "Spinner";
+> = {0.0};
 float doffixedunfocusblend_n
 <
 	string UIName = "DoFFixedUnfocusedBlendNight";
@@ -584,6 +650,12 @@ float edgemult
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {128.0};
+float edgeradius
+<
+	string UIName = "EdgeRadius";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
 /* ssao filter */
 bool ssaoenable
 <

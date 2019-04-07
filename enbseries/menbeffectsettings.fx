@@ -846,6 +846,17 @@ int clut
 	int UIMin = 0;
 	int UIMax = 63;
 > = {1};
+/* not using ENB's own variables, sorry */
+bool palenable
+<
+	string UIName = "EnableENBPalette";
+	string UIWidget = "Checkbox";
+> = {false};
+float palblend
+<
+	string UIName = "PaletteBlend";
+	string UIWidget = "Spinner";
+> = {1.0};
 bool fadebeforefilm
 <
 	string UIName = "FadeBeforeFilmFilters";
@@ -868,16 +879,3 @@ bool bloomdebug
 	string UIName = "DebugBloom";
 	string UIWidget = "Checkbox";
 > = {false};
-/* debug vanilla shader registers */
-bool regdebug
-<
-	string UIName = "DebugRegisters";
-	string UIWidget = "Checkbox";
-> = {false};
-/* scale of register bars */
-float regdebugscale
-<
-	string UIName = "DebugRegistersScale";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {5.0};

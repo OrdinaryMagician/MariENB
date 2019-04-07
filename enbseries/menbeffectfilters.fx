@@ -210,6 +210,10 @@ float3 GradingLUT( float3 res )
 	/*
 	   gross hacks were needed to "fix" the way direct3d interpolates on
 	   sampling, and to manually interpolate on the blue channel
+	   
+	   this could be alleviated if I could have all the LUTs as 64 separate
+	   volume maps, but PS 3.0 has a limit of 16 samplers and I think ENB
+	   can't load volume maps anyway.
 	*/
 	float3 tcol = clamp(res,0.0,1.0)*0.875+0.0625;
 	float2 lc1 = float2(tcol.r/16.0+floor(tcol.b*16.0)/16.0,tcol.g/64.0
@@ -223,21 +227,22 @@ float3 GradingLUT( float3 res )
 	tcol = (tcol-0.0625)/0.875;
 	return lerp(res,tcol,lutblend);
 }
-/* display debug register */
-float debugreg( float r, float2 coord, int p )
+/* classic ENB palette colour grading */
+float3 GradingPal( float3 res )
 {
-	if ( r == 0.0 ) return 0.0;
-	if ( (coord.x < p*0.05) || (coord.x > (p+1)*0.05-0.01) ) return 0.0;
-	float posy = (coord.y-0.5)*2.0*regdebugscale;
-	if ( r < 0.0 )
-	{
-		if ( posy > 0.0 ) return 0.0;
-		if ( posy < r ) return 0.0;
-		return 1.0;
-	}
-	if ( posy < 0.0 ) return 0.0;
-	if ( posy > r ) return 0.0;
-	return 1.0;
+	float4 adapt = tex2D(_s4,0.5);
+	adapt = adapt/(adapt+1.0);
+	float adapts = max(adapt.r,max(adapt.g,adapt.b));
+	float3 palt;
+	float2 coord;
+	coord.y = adapts;
+	coord.x = res.r;
+	palt.r = tex2D(_s7,coord).r;
+	coord.x = res.g;
+	palt.g = tex2D(_s7,coord).g;
+	coord.x = res.b;
+	palt.b = tex2D(_s7,coord).b;
+	return lerp(res,palt,palblend);
 }
 /* post-pass dithering */
 float3 Dither( float3 res, float2 coord )
@@ -344,35 +349,13 @@ float4 PS_Mari( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 		if ( gradeenable3 ) res.rgb = GradingHSV(res.rgb);
 	}
 	if ( lutenable ) res.rgb = GradingLUT(res.rgb);
+	if ( palenable ) res.rgb = GradingPal(res.rgb);
 	if ( !tintbeforegrade && tintenable ) res.rgb = Tint(res.rgb);
 	if ( fadebeforefilm ) res.rgb = _r5.rgb*_r5.a + res.rgb*(1.0-_r5.a);
 	if ( ne ) res.rgb = FilmGrain(res.rgb,coord);
 	if ( dkenable ) res.rgb = Vignette(res.rgb,coord);
 	if ( boxenable ) res.rgb = Letterbox(res.rgb,coord);
 	if ( !fadebeforefilm ) res.rgb = _r5.rgb*_r5.a + res.rgb*(1.0-_r5.a);
-	if ( regdebug )
-	{
-		res.rgb += debugreg(_r1.x,coord,0);
-		res.rgb += debugreg(_r1.y,coord,1);
-		res.rgb += debugreg(_r1.z,coord,2);
-		res.rgb += debugreg(_r1.w,coord,3);
-		res.rgb += debugreg(_r2.x,coord,4);
-		res.rgb += debugreg(_r2.y,coord,5);
-		res.rgb += debugreg(_r2.z,coord,6);
-		res.rgb += debugreg(_r2.w,coord,7);
-		res.rgb += debugreg(_r3.x,coord,8);
-		res.rgb += debugreg(_r3.y,coord,9);
-		res.rgb += debugreg(_r3.z,coord,10);
-		res.rgb += debugreg(_r3.w,coord,11);
-		res.rgb += debugreg(_r4.x,coord,12);
-		res.rgb += debugreg(_r4.y,coord,13);
-		res.rgb += debugreg(_r4.z,coord,14);
-		res.rgb += debugreg(_r4.w,coord,15);
-		res.rgb += debugreg(_r5.x,coord,16);
-		res.rgb += debugreg(_r5.y,coord,17);
-		res.rgb += debugreg(_r5.z,coord,18);
-		res.rgb += debugreg(_r5.w,coord,19);
-	}
 	if ( dodither ) res.rgb = Dither(res.rgb,coord);
 	res.rgb = max(0,res.rgb);
 	res.a = 1.0;

@@ -54,7 +54,7 @@ float3 Edge( float3 res, float2 coord )
 		lerp(edgefadepow_in,edgefadepow_id,tod),ind);
 	float edgefademult = lerp(lerp(edgefademult_n,edgefademult_d,tod),
 		lerp(edgefademult_in,edgefademult_id,tod),ind);
-	float2 bof = float2(1.0/bresl.x,1.0/bresl.y);
+	float2 bof = float2(1.0/bresl.x,1.0/bresl.y)*edgeradius;
 	float mdx = 0, mdy = 0, mud = 0;
 	/* this reduces texture fetches by half, big difference */
 	float3x3 depths;
@@ -151,7 +151,7 @@ float4 PS_SSAOPrepass( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	{
 		sample = reflect(ssao_samples[i],normal);
 		sdepth = depthlinear(coord+sample.xy*bof);
-		if ( ldepth < sdepth ) occ += 1.0;
+		if ( ldepth <= sdepth ) occ += 1.0;
 		else occ += saturate((abs(ldepth-sdepth)-sclamp)/sclamp);
 	}
 	float uocc = saturate(1.0-occ/64.0);
@@ -261,12 +261,17 @@ float4 PS_DoFPrepass( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 		dofpow_id,tod),ind);
 	float dofmult = lerp(lerp(dofmult_n,dofmult_d,tod),lerp(dofmult_in,
 		dofmult_id,tod),ind);
+	float dofbump = lerp(lerp(dofbump_n,dofbump_d,tod),lerp(dofbump_in,
+		dofbump_id,tod),ind);
 	float doffixedfocuspow = lerp(lerp(doffixedfocuspow_n,
 		doffixedfocuspow_d,tod),lerp(doffixedfocuspow_in,
 		doffixedfocuspow_id,tod),ind);
 	float doffixedfocusmult = lerp(lerp(doffixedfocusmult_n,
 		doffixedfocusmult_d,tod),lerp(doffixedfocusmult_in,
 		doffixedfocusmult_id,tod),ind);
+	float doffixedfocusbump = lerp(lerp(doffixedfocusbump_n,
+		doffixedfocusbump_d,tod),lerp(doffixedfocusbump_in,
+		doffixedfocusbump_id,tod),ind);
 	float doffixedfocusblend = lerp(lerp(doffixedfocusblend_n,
 		doffixedfocusblend_d,tod),lerp(doffixedfocusblend_in,
 		doffixedfocusblend_id,tod),ind);
@@ -276,6 +281,9 @@ float4 PS_DoFPrepass( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	float doffixedunfocusmult = lerp(lerp(doffixedunfocusmult_n,
 		doffixedunfocusmult_d,tod),lerp(doffixedunfocusmult_in,
 		doffixedunfocusmult_id,tod),ind);
+	float doffixedunfocusbump = lerp(lerp(doffixedunfocusbump_n,
+		doffixedunfocusbump_d,tod),lerp(doffixedunfocusbump_in,
+		doffixedunfocusbump_id,tod),ind);
 	float doffixedunfocusblend = lerp(lerp(doffixedunfocusblend_n,
 		doffixedunfocusblend_d,tod),lerp(doffixedunfocusblend_in,
 		doffixedunfocusblend_id,tod),ind);
@@ -301,9 +309,11 @@ float4 PS_DoFPrepass( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 		float relfov = (FieldOfView-fovdefault)/fovdefault;
 		dofpow = max(0,dofpow+relfov*relfovfactor);
 	}
-	dfc = saturate(pow(dfc,dofpow)*dofmult);
-	dff = saturate(pow(dff,doffixedfocuspow)*doffixedfocusmult);
-	dfu = saturate(pow(dfu,doffixedunfocuspow)*doffixedunfocusmult);
+	dfc = clamp(pow(dfc,dofpow)*dofmult+dofbump,0.0,1.0);
+	dff = clamp(pow(dff,doffixedfocuspow)*doffixedfocusmult
+		+doffixedfocusbump,0.0,1.0);
+	dfu = clamp(pow(dfu,doffixedunfocuspow)*doffixedunfocusmult
+		+doffixedunfocusbump,0.0,1.0);
 	dfc *= lerp(1.0,dff,doffixedfocusblend);
 	dfc += lerp(0.0,dfu,doffixedunfocusblend);
 	dfc = saturate(dfc);
@@ -415,7 +425,8 @@ float2 DistantHeat( float2 coord )
 	ofs = (ofs-0.5)*2.0;
 	ofs *= pow(length(ofs),heatpow);
 	float distfade = tex2D(SamplerDepth,coord).x;
-	distfade = pow(distfade,heatfadepow)*heatfademul;
+	distfade = clamp(pow(distfade,heatfadepow)*heatfademul+heatfadebump,
+		0.0,1.0);
 	if ( !heatalways ) ofs *= pow(tod*(1.0-ind),heattodpow);
 	return coord+ofs*heatstrength*distfade*0.01;
 }
