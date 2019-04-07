@@ -10,7 +10,7 @@
    Vorontsov and the major breakage of his ENB project.
 
    Lots of blind debugging are necessary to get the goddamn thing to compile,
-   and from the looks of it the filter, which works flawlessly on MariEFX, is
+   and from the looks of it the filter, which worked flawlessly on MariEFX, is
    completely unportable to this massive bag of dicks. After DAYS of
    selectively commenting out code, the only way it can compile is if the
    shader does NOTHING. For ever minor change to the code, five minutes of

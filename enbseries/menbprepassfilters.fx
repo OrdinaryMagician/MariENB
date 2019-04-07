@@ -21,6 +21,11 @@ VS_OUTPUT_POST VS_Pass( VS_INPUT_POST IN )
 /* these are znear/zfar values for Skyrim, but MAY match Fallout too */
 float depthlinear( float2 coord )
 {
+	/*
+	   These values seem to be used by pretty much all Skyrim ENB presets.
+	   Since it's practically impossible for me to know the real znear and
+	   zfar values for each game, I'll just use these and hope it all goes well
+	*/
 	float zNear = 0.0509804;
 	float zFar = 3098.0392;
 	float z = tex2D(SamplerDepth,coord).x;
@@ -60,12 +65,11 @@ float3 Edge( float3 res, float2 coord )
 	cont += depthlinear(coord+float2(0,-1)*bof);
 	cont += depthlinear(coord+float2(1,-1)*bof);
 	cont += depthlinear(coord+float2(-1,0)*bof);
-	cont += depthlinear(coord+float2(0,0)*bof);
 	cont += depthlinear(coord+float2(1,0)*bof);
 	cont += depthlinear(coord+float2(-1,1)*bof);
 	cont += depthlinear(coord+float2(0,1)*bof);
 	cont += depthlinear(coord+float2(1,1)*bof);
-	cont /= 9.0;
+	cont /= 8.0;
 	float mud = 0.0;
 	if ( abs(cont-dep) > (edgethreshold*0.00001) ) mud = 1.0;
 	float fade = 1.0-tex2D(SamplerDepth,coord).x;
@@ -87,12 +91,11 @@ float3 EdgeColor( float3 res, float2 coord )
 	ccol += tex2D(SamplerColor,coord+float2(0,-1)*bof).rgb;
 	ccol += tex2D(SamplerColor,coord+float2(1,-1)*bof).rgb;
 	ccol += tex2D(SamplerColor,coord+float2(-1,0)*bof).rgb;
-	ccol += tex2D(SamplerColor,coord+float2(0,0)*bof).rgb;
 	ccol += tex2D(SamplerColor,coord+float2(1,0)*bof).rgb;
 	ccol += tex2D(SamplerColor,coord+float2(-1,1)*bof).rgb;
 	ccol += tex2D(SamplerColor,coord+float2(0,1)*bof).rgb;
 	ccol += tex2D(SamplerColor,coord+float2(1,1)*bof).rgb;
-	ccol /= 9.0;
+	ccol /= 8.0;
 	float clum = luminance(ccol);
 	float mud = abs(clum-lum);
 	mud = saturate(pow(mud,celpow)*celmult);
@@ -157,7 +160,10 @@ float4 PS_FirstPass( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	if ( edgevenable ) res.rgb = EdgeView(res.rgb,coord);
 	return res;
 }
-/* Crappy SSAO */
+/*
+   Thank you Boris for not providing access to a normal buffer. Guesswork using
+   the depth buffer results in imprecise normals that aren't smoothed.
+*/
 float3 pseudonormal( float dep, float2 coord )
 {
 	float2 bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
@@ -171,6 +177,7 @@ float3 pseudonormal( float dep, float2 coord )
 	normal.z = -normal.z;
 	return normalize(normal);
 }
+/* get occlusion using single-pass single-step Ray Marching with 64 samples */
 float4 PS_SSAOPrepass( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 {
 	float2 coord = IN.txcoord.xy;
@@ -219,6 +226,7 @@ float4 PS_SSAOPrepass( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	res.a = saturate(1.0-(uocc*ssaoblend));
 	return res;
 }
+/* the blur passes use bilateral filtering to mostly preserve borders */
 float4 PS_SSAOBlurH( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 {
 	float2 coord = IN.txcoord.xy;
@@ -283,6 +291,7 @@ float4 PS_ReadFocus( VS_OUTPUT_POST IN ) : COLOR
 	float2 fcenter = float2(focuscenter_x,focuscenter_y);
 	float cfocus = min(tex2D(SamplerDepth,fcenter).x,focusmax*0.001);
 	if ( !focuscircle ) return cfocus;
+	/* using polygons inscribed into a circle, in this case a triangle */
 	float focusradius = lerp(lerp(focusradius_n,focusradius_d,tod),
 		lerp(focusradius_in,focusradius_id,tod),ind);
 	float focusmix = lerp(lerp(focusmix_n,focusmix_d,tod),lerp(focusmix_in,
@@ -358,7 +367,10 @@ float4 PS_DoFPrepass( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	   Change power of dof based on field of view. Works only in Skyrim,
 	   Boris is just such a fucking assbutt that he doesn't update the
 	   FO3/FNV version to be feature-equal to this, inventing pathetic
-	   excuses.
+	   excuses. The FieldOfView variable seems to hold bogus values in Fallout
+	   completely unrelated to actual FOV (yes, I checked if it's in radians,
+	   and no, it isn't). The value appears to be 1.134452. I'll try to
+	   investigate its origins someday.
 	*/
 	if ( dofrelfov )
 	{
@@ -379,6 +391,12 @@ float4 PS_DoFPrepass( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	res.a = dfc;
 	return res;
 }
+/*
+   This method skips blurring areas that are perfectly in focus. The
+   performance gain is negligible in most cases, though. It also provides the
+   option to use or NOT use bilateral filtering. Which I'll probably remove
+   soon because no bilateral filtering is pointless.
+*/
 float4 PS_DoFBlurH( VS_OUTPUT_POST IN, float2 vPos : VPOS) : COLOR
 {
 	float2 coord = IN.txcoord.xy;
@@ -463,7 +481,10 @@ float4 PS_DoFBlurV( VS_OUTPUT_POST IN, float2 vPos : VPOS) : COLOR
 	res.a = 1.0;
 	return res;
 }
-/* Underwater distortion */
+/*
+   Underwater distortion, which currently has no real use due to Boris being
+   lazy. fWaterLevel doesn't yet provide any usable values.
+*/
 float2 UnderwaterDistort( float2 coord )
 {
 	float2 ofs = float2(0.0,0.0);
@@ -473,7 +494,11 @@ float2 UnderwaterDistort( float2 coord )
 	ofs -= (coord-0.5)*2.0*uwz;
 	return coord+ofs*0.01;
 }
-/* Distant hot air refraction */
+/*
+   Distant hot air refraction. Not very realistic, but does the job. Currently
+   it isn't fully depth-aware, so you'll see that close objects get distorted
+   around their borders.
+*/
 float2 DistantHeat( float2 coord )
 {
 	float2 bresl;

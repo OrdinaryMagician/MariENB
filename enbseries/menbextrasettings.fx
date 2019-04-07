@@ -5,9 +5,10 @@
 	Released under the GNU GPLv3 (or later).
 */
 /* BlockGFX filter, I'm proud of it */
+string str_block = "BlockGFX Suite";
 bool useblock
 <
-	string UIName = "UseBlockGFX";
+	string UIName = "Enable Block GFX";
 	string UIWidget = "Checkbox";
 > = {false};
 /*
@@ -18,26 +19,26 @@ bool useblock
 */
 float bresx
 <
-	string UIName = "EmulatedResX";
+	string UIName = "Emulated Resolution Width";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.5};
 float bresy
 <
-	string UIName = "EmulatedResY";
+	string UIName = "Emulated Resolution Height";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.5};
 /* zooming factors (<=0 for stretch) */
 float sresx
 <
-	string UIName = "ZoomedResX";
+	string UIName = "Zoom Factor X";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.0};
 float sresy
 <
-	string UIName = "ZoomedResY";
+	string UIName = "Zoom Factor Y";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.0};
@@ -54,7 +55,7 @@ float sresy
 */
 int paltype
 <
-	string UIName = "PaletteType";
+	string UIName = "Palette Type";
 	string UIWidget = "Spinner";
 	int UIMin = -1;
 	int UIMax = 6;
@@ -71,7 +72,7 @@ int paltype
 */
 int cgapal
 <
-	string UIName = "CGAPalette";
+	string UIName = "CGA Palette";
 	string UIWidget = "Spinner";
 	int UIMin = 0;
 	int UIMax = 6;
@@ -83,7 +84,7 @@ int cgapal
 */
 int egapal
 <
-	string UIName = "EGAPalette";
+	string UIName = "EGA Palette";
 	string UIWidget = "Spinner";
 	int UIMin = 0;
 	int UIMax = 1;
@@ -99,7 +100,7 @@ int egapal
 */
 int dither
 <
-	string UIName = "DitherMode";
+	string UIName = "Dithering Pattern";
 	string UIWidget = "Spinner";
 	int UIMin = -1;
 	int UIMax = 4;
@@ -107,77 +108,137 @@ int dither
 /* gamma modifier for base color, lower values raise midtones and viceversa */
 float bgamma
 <
-	string UIName = "GammaMod";
+	string UIName = "Contrast Modifier";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.35};
+/* saturation modifier for base color, helps with limited palettes */
+float bsaturation
+<
+	string UIName = "Saturation Modifier";
+	string UIWidget = "Spinner";
+> = {1.1};
 /* base brightness bump for the dither grid */
 float bdbump
 <
-	string UIName = "DitherBump";
+	string UIName = "Dither Offset";
 	string UIWidget = "Spinner";
 > = {-0.1};
 /* range multiplier for the dither grid */
 float bdmult
 <
-	string UIName = "DitherMultiplier";
+	string UIName = "Dither Range";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.25};
-/* saturation modifier for base color, helps with limited palettes */
-float bsaturation
-<
-	string UIName = "SaturationMod";
-	string UIWidget = "Spinner";
-> = {1.1};
 /* ASCII art filter */
+string str_ascii = "Luma ASCII Art Filter";
 bool asciienable
 <
-	string UIName = "EnableASCII";
+	string UIName = "Enable ASCII";
 	string UIWidget = "Checkbox";
 > = {false};
 bool asciimono
 <
-	string UIName = "ASCIIMonochrome";
+	string UIName = "ASCII Monochrome";
 	string UIWidget = "Checkbox";
 > = {true};
 float asciiblend
 <
-	string UIName = "ASCIIBlend";
+	string UIName = "ASCII Blend";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 	float UIMax = 1.0;
 > = {0.0};
+string str_mask = "Depth Chroma Key";
 bool maskenable
 <
-	string UIName = "EnableChromaKey";
+	string UIName = "Enable Chroma Key";
 	string UIWidget = "Checkbox";
 > = {false};
 float maskr
 <
-	string UIName = "ChromaKeyRed";
+	string UIName = "Chroma Key Red";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 	float UIMax = 1.0;
 > = {0.0};
 float maskg
 <
-	string UIName = "ChromaKeyGreen";
+	string UIName = "Chroma Key Green";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 	float UIMax = 1.0;
 > = {1.0};
 float maskb
 <
-	string UIName = "ChromaKeyBlue";
+	string UIName = "Chroma Key Blue";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 	float UIMax = 1.0;
 > = {0.0};
 float maskd
 <
-	string UIName = "ChromaKeyDepth";
+	string UIName = "Chroma Key Depth";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 	float UIMax = 1.0;
 > = {0.5};
+string str_dot = "RGBI Dot Matrix";
+bool dotenable
+<
+	string UIName = "Enable Dot Matrix";
+	string UIWidget = "Checkbox";
+> = {false};
+int dotsize
+<
+	string UIName = "Dot Size";
+	string UIWidget = "Spinner";
+	int UIMin = 1;
+> = {1};
+float dotblend
+<
+	string UIName = "Dot Blend";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {0.4};
+float dotmult
+<
+	string UIName = "Dot Intensity";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float dotpow
+<
+	string UIName = "Dot Contrast";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+string str_curve = "Lens Curvature";
+bool curveenable
+<
+	string UIName = "Enable Curvature";
+	string UIWidget = "Checkbox";
+> = {false};
+float chromaab
+<
+	string UIName = "Curve Chromatic Aberration";
+	string UIWidget = "Spinner";
+> = {0.0};
+float lenszoom
+<
+	string UIName = "Curve Zooming";
+	string UIWidget = "Spinner";
+> = {50.0};
+float lensdist
+<
+	string UIName = "Curve Distortion";
+	string UIWidget = "Spinner";
+> = {0.0};
+float curvesoft
+<
+	string UIName = "Curve Sampling Soften";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {0.0};

@@ -144,6 +144,11 @@ static const float3 aosega[16] =
 #define GLYPH_WIDTH  8
 #define GLYPH_HEIGHT 16
 #define FONT_LEVELS  255
+/* gauss stuff */
+float gauss3[3] =
+{
+	0.444814, 0.239936, 0.037657
+};
 /* standard stuff */
 float4 ScreenSize;
 float ENightDayFactor;
@@ -155,7 +160,23 @@ texture2D texFont
 <
 	string ResourceName = "menbvgaluma.png";
 >;
+texture2D texDots
+<
+	string ResourceName = "menbdots.png";
+>;
 sampler2D SamplerColor = sampler_state
+{
+	Texture = <texColor>;
+	MinFilter = LINEAR;
+	MagFilter = LINEAR;
+	MipFilter = NONE;
+	AddressU = Clamp;
+	AddressV = Clamp;
+	SRGBTexture = FALSE;
+	MaxMipLevel = 0;
+	MipMapLodBias = 0;
+};
+sampler2D SamplerColorb = sampler_state
 {
 	Texture = <texColor>;
 	MinFilter = LINEAR;
@@ -173,8 +194,8 @@ sampler2D SamplerDepth = sampler_state
 	MinFilter = LINEAR;
 	MagFilter = LINEAR;
 	MipFilter = NONE;
-	AddressU = Border;
-	AddressV = Border;
+	AddressU = Clamp;
+	AddressV = Clamp;
 	SRGBTexture = FALSE;
 	MaxMipLevel = 0;
 	MipMapLodBias = 0;
@@ -184,6 +205,18 @@ sampler2D SamplerFont = sampler_state
 	Texture = <texFont>;
 	MinFilter = LINEAR;
 	MagFilter = POINT;
+	MipFilter = NONE;
+	AddressU = Wrap;
+	AddressV = Wrap;
+	SRGBTexture = FALSE;
+	MaxMipLevel = 0;
+	MipMapLodBias = 0;
+};
+sampler2D SamplerDots = sampler_state
+{
+	Texture = <texDots>;
+	MinFilter = LINEAR;
+	MagFilter = LINEAR;
 	MipFilter = NONE;
 	AddressU = Wrap;
 	AddressV = Wrap;

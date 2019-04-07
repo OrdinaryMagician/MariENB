@@ -4,172 +4,175 @@
 	Part of MariENB, the personal ENB of Marisa.
 	Released under the GNU GPLv3 (or later).
 */
+string str_misc = "Miscellaneous";
 /* fixed resolution, keeps blur filters at a consistent internal resolution */
 int fixedx
 <
-	string UIName = "_FixedResolutionX";
+	string UIName = "Fixed Resolution Width";
 	string UIWidget = "Spinner";
 	int UIMin = 0;
 > = {1920};
 int fixedy
 <
-	string UIName = "_FixedResolutionY";
+	string UIName = "Fixed Resolution Height";
 	string UIWidget = "Spinner";
 	int UIMin = 0;
 > = {1080};
 float cutoff
 <
-	string UIName = "DepthCutoff";
+	string UIName = "Depth Cutoff";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 	float UIMax = 1000000.0;
 > = {999949.0};
+string str_dist = "Distortion Filters";
 float distcha
 <
-	string UIName = "DistortionChromaticAberration";
+	string UIName = "Distortion Chromatic Aberration";
 	string UIWidget = "Spinner";
 > = {10.0};
 bool waterenable
 <
-	string UIName = "UnderwaterEnable";
+	string UIName = "Enable Underwater";
 	string UIWidget = "Checkbox";
 > = {false};
 float uwm1
 <
-	string UIName = "UnderwaterMult1";
+	string UIName = "Underwater Frequency 1";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.4};
 float uwm2
 <
-	string UIName = "UnderwaterMult2";
+	string UIName = "Underwater Frequency 2";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.6};
 float uwm3
 <
-	string UIName = "UnderwaterMult3";
+	string UIName = "Underwater Frequency 3";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.4};
 float uwf1
 <
-	string UIName = "UnderwaterFreq1";
+	string UIName = "Underwater Speed 1";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {10.0};
 float uwf2
 <
-	string UIName = "UnderwaterFreq2";
+	string UIName = "Underwater Speed 2";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {8.0};
 float uwf3
 <
-	string UIName = "UnderwaterFreq3";
+	string UIName = "Underwater Speed 3";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {16.0};
 float uws1
 <
-	string UIName = "UnderwaterStr1";
+	string UIName = "Underwater Amplitude 1";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.3};
 float uws2
 <
-	string UIName = "UnderwaterStr2";
+	string UIName = "Underwater Amplitude 2";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.5};
 float uws3
 <
-	string UIName = "UnderwaterStr3";
+	string UIName = "Underwater Amplitude 3";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.8};
 float uwz
 <
-	string UIName = "UnderwaterZoom";
+	string UIName = "Underwater Zoom";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.5};
 bool heatenable
 <
-	string UIName = "HeatEnable";
+	string UIName = "Enable Hot Air Refraction";
 	string UIWidget = "Checkbox";
 > = {false};
 float heatsize
 <
-	string UIName = "HeatSize";
+	string UIName = "Heat Texture Size";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {3.5};
 float heatspeed
 <
-	string UIName = "HeatSpeed";
+	string UIName = "Heat Speed";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {2.5};
 float heatfadepow
 <
-	string UIName = "HeatFadePower";
+	string UIName = "Heat Fade Contrast";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {200.0};
 float heatfademul
 <
-	string UIName = "HeatFadeMultiplier";
+	string UIName = "Heat Fade Intensity";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.5};
 float heatfadebump
 <
-	string UIName = "HeatFadeBump";
+	string UIName = "Heat Fade Offset";
 	string UIWidget = "Spinner";
 > = {0.0};
 float heatstrength
 <
-	string UIName = "HeatStrength";
+	string UIName = "Heat Intensity";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.25};
 float heatpow
 <
-	string UIName = "HeatPower";
+	string UIName = "Heat Contrast";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.2};
 float heattodpow
 <
-	string UIName = "HeatTODPower";
+	string UIName = "Heat Time-of-day Contrast";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.2};
 bool heatalways
 <
-	string UIName = "HeatAlways";
+	string UIName = "Heat Always Enable";
 	string UIWidget = "Checkbox";
 > = {false};
+string str_focus = "Focusing Parameters";
 /* circle (triangle, actually) average focus */
 bool focuscircle
 <
-	string UIName = "FocusCircleEnable";
+	string UIName = "Enable Focus Triangle";
 	string UIWidget = "Checkbox";
 > = {true};
 bool focusdisplay
 <
-	string UIName = "FocusPointDisplay";
+	string UIName = "Display Focus Points";
 	string UIWidget = "Checkbox";
 > = {false};
 bool focusmanual
 <
-	string UIName = "FocusManual";
+	string UIName = "Enable Manual Focus";
 	string UIWidget = "Checkbox";
 > = {false};
 float focusmanualvalue
 <
-	string UIName = "FocusManualValue";
+	string UIName = "Manual Focus Depth";
 	string UIWidget = "Checkbox";
 	float UIMin = 0.0;
 	float UIMax = 1.0;
@@ -177,21 +180,21 @@ float focusmanualvalue
 /* center point of focus */
 float focuscenter_x
 <
-	string UIName = "FocusCenterX";
+	string UIName = "Focus Point Center X";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 	float UIMax = 1.0;
 > = {0.5};
 float focuscenter_y
 <
-	string UIName = "FocusCenterY";
+	string UIName = "Focus Point Center Y";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 	float UIMax = 1.0;
 > = {0.5};
 float focuscircleangle
 <
-	string UIName = "FocusCircleAngle";
+	string UIName = "Focus Triangle Angle";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 	float UIMax = 1.0;
@@ -199,706 +202,712 @@ float focuscircleangle
 /* radius of the focus point triangle */
 float focusradius_n
 <
-	string UIName = "FocusCircleRadiusNight";
+	string UIName = "Focus Triangle Radius Night";
 	string UIWidget = "Spinner";
 > = {20.0};
 float focusradius_d
 <
-	string UIName = "FocusCircleRadiusDay";
+	string UIName = "Focus Triangle Radius Day";
 	string UIWidget = "Spinner";
 > = {20.0};
 float focusradius_in
 <
-	string UIName = "FocusCircleRadiusInteriorNight";
+	string UIName = "Focus Triangle Radius Interior Night";
 	string UIWidget = "Spinner";
 > = {20.0};
 float focusradius_id
 <
-	string UIName = "FocusCircleRadiusInteriorDay";
+	string UIName = "Focus Triangle Radius Interior Day";
 	string UIWidget = "Spinner";
 > = {20.0};
 /* mix factor with sample at screen center */
 float focusmix_n
 <
-	string UIName = "FocusCircleMixNight";
+	string UIName = "Focus Triangle Blending Night";
 	string UIWidget = "Spinner";
 > = {0.5};
 float focusmix_d
 <
-	string UIName = "FocusCircleMixDay";
+	string UIName = "Focus Triangle Blending Day";
 	string UIWidget = "Spinner";
 > = {0.5};
 float focusmix_in
 <
-	string UIName = "FocusCircleMixInteriorNight";
+	string UIName = "Focus Triangle Blending Interior Night";
 	string UIWidget = "Spinner";
 > = {0.5};
 float focusmix_id
 <
-	string UIName = "FocusCircleMixInteriorDay";
+	string UIName = "Focus Triangle Blending Interior Day";
 	string UIWidget = "Spinner";
 > = {0.5};
 /* maximum focus depth */
 float focusmax_n
 <
-	string UIName = "FocusMaxNight";
+	string UIName = "Focus Maximum Depth Night";
 	string UIWidget = "Spinner";
 > = {1000.0};
 float focusmax_d
 <
-	string UIName = "FocusMaxDay";
+	string UIName = "Focus Maximum Depth Day";
 	string UIWidget = "Spinner";
 > = {1000.0};
 float focusmax_in
 <
-	string UIName = "FocusMaxInteriorNight";
+	string UIName = "Focus Maximum Depth Interior Night";
 	string UIWidget = "Spinner";
 > = {1000.0};
 float focusmax_id
 <
-	string UIName = "FocusMaxInteriorDay";
+	string UIName = "Focus Maximum Depth Interior Day";
 	string UIWidget = "Spinner";
 > = {1000.0};
 /* dof filter */
+string str_dof = "Depth Of Field";
 /* dof multiplier (makes unfocused depths more blurry) */
 float dofmult_n
 <
-	string UIName = "DoFMultNight";
+	string UIName = "DOF Intensity Night";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {500.0};
 float dofmult_d
 <
-	string UIName = "DoFMultDay";
+	string UIName = "DOF Intensity Day";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {500.0};
 float dofmult_in
 <
-	string UIName = "DoFMultInteriorNight";
+	string UIName = "DOF Intensity Interior Night";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {500.0};
 float dofmult_id
 <
-	string UIName = "DoFMultInteriorDay";
+	string UIName = "DOF Intensity Interior Day";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {500.0};
 /* dof power (falloff, kinda) */
 float dofpow_n
 <
-	string UIName = "DoFPowNight";
+	string UIName = "DOF Contrast Night";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {4.0};
 float dofpow_d
 <
-	string UIName = "DoFPowDay";
+	string UIName = "DOF Contrast Day";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {4.0};
 float dofpow_in
 <
-	string UIName = "DoFPowInteriorNight";
+	string UIName = "DOF Contrast Interior Night";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {4.0};
 float dofpow_id
 <
-	string UIName = "DoFPowInteriorDay";
+	string UIName = "DOF Contrast Interior Day";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {4.0};
 /* dof bump (to emulate tilt shift I guess, I brought it back) */
 float dofbump_n
 <
-	string UIName = "DoFBumpNight";
+	string UIName = "DOF Shift Night";
 	string UIWidget = "Spinner";
 > = {0.0};
 float dofbump_d
 <
-	string UIName = "DoFBumpDay";
+	string UIName = "DOF Shift Day";
 	string UIWidget = "Spinner";
 > = {0.0};
 float dofbump_in
 <
-	string UIName = "DoFBumpInteriorNight";
+	string UIName = "DOF Shift Interior Night";
 	string UIWidget = "Spinner";
 > = {0.0};
 float dofbump_id
 <
-	string UIName = "DoFBumpInteriorDay";
+	string UIName = "DOF Shift Interior Day";
 	string UIWidget = "Spinner";
 > = {0.0};
 /* fixed focused depth factors */
 float doffixedfocusmult_n
 <
-	string UIName = "DoFFixedFocusedMultNight";
+	string UIName = "DOF Fixed Focus Intensity Night";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
 float doffixedfocusmult_d
 <
-	string UIName = "DoFFixedFocusedMultDay";
+	string UIName = "DOF Fixed Focus Intensity Day";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
 float doffixedfocusmult_in
 <
-	string UIName = "DoFFixedFocusedMultInteriorNight";
+	string UIName = "DOF Fixed Focus Intensity Interior Night";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
 float doffixedfocusmult_id
 <
-	string UIName = "DoFFixedFocusedMultInteriorDay";
+	string UIName = "DOF Fixed Focus Intensity Interior Day";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
 float doffixedfocuspow_n
 <
-	string UIName = "DoFFixedFocusedPowNight";
+	string UIName = "DOF Fixed Focus Contrast Night";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
 float doffixedfocuspow_d
 <
-	string UIName = "DoFFixedFocusedPowDay";
+	string UIName = "DOF Fixed Focus Contrast Day";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
 float doffixedfocuspow_in
 <
-	string UIName = "DoFFixedFocusedPowInteriorNight";
+	string UIName = "DOF Fixed Focus Contrast Interior Night";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
 float doffixedfocuspow_id
 <
-	string UIName = "DoFFixedFocusedPowInteriorDay";
+	string UIName = "DOF Fixed Focus Contrast Interior Day";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
 float doffixedfocusbump_n
 <
-	string UIName = "DoFFixedFocusedBumpNight";
+	string UIName = "DOF Fixed Focus Shift Night";
 	string UIWidget = "Spinner";
 > = {0.0};
 float doffixedfocusbump_d
 <
-	string UIName = "DoFFixedFocusedBumpDay";
+	string UIName = "DOF Fixed Focus Shift Day";
 	string UIWidget = "Spinner";
 > = {0.0};
 float doffixedfocusbump_in
 <
-	string UIName = "DoFFixedFocusedBumpInteriorNight";
+	string UIName = "DOF Fixed Focus Shift Interior Night";
 	string UIWidget = "Spinner";
 > = {0.0};
 float doffixedfocusbump_id
 <
-	string UIName = "DoFFixedFocusedBumpInteriorDay";
+	string UIName = "DOF Fixed Focus Shift Interior Day";
 	string UIWidget = "Spinner";
 > = {0.0};
 float doffixedfocusblend_n
 <
-	string UIName = "DoFFixedFocusedBlendNight";
+	string UIName = "DOF Fixed Focus Blend Night";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.0};
 float doffixedfocusblend_d
 <
-	string UIName = "DoFFixedFocusedBlendDay";
+	string UIName = "DOF Fixed Focus Blend Day";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.0};
 float doffixedfocusblend_in
 <
-	string UIName = "DoFFixedFocusedBlendInteriorNight";
+	string UIName = "DOF Fixed Focus Blend Interior Night";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.0};
 float doffixedfocusblend_id
 <
-	string UIName = "DoFFixedFocusedBlendInteriorDay";
+	string UIName = "DOF Fixed Focus Blend Interior Day";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.0};
 /* fixed unfocused depth factors */
 float doffixedunfocusmult_n
 <
-	string UIName = "DoFFixedUnfocusedMultNight";
+	string UIName = "DOF Fixed Unfocus Intensity Night";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {2.0};
 float doffixedunfocusmult_d
 <
-	string UIName = "DoFFixedUnfocusedMultDay";
+	string UIName = "DOF Fixed Unfocus Intensity Day";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {2.0};
 float doffixedunfocusmult_in
 <
-	string UIName = "DoFFixedUnfocusedMultInteriorNight";
+	string UIName = "DOF Fixed Unfocus Intensity Interior Night";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {2.0};
 float doffixedunfocusmult_id
 <
-	string UIName = "DoFFixedUnfocusedMultInteriorDay";
+	string UIName = "DOF Fixed Unfocus Intensity Interior Day";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {2.0};
 float doffixedunfocuspow_n
 <
-	string UIName = "DoFFixedUnfocusedPowNight";
+	string UIName = "DOF Fixed Unfocus Contrast Night";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1000.0};
 float doffixedunfocuspow_d
 <
-	string UIName = "DoFFixedUnfocusedPowDay";
+	string UIName = "DOF Fixed Unfocus Contrast Day";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1000.0};
 float doffixedunfocuspow_in
 <
-	string UIName = "DoFFixedUnfocusedPowInteriorNight";
+	string UIName = "DOF Fixed Unfocus Contrast Interior Night";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1000.0};
 float doffixedunfocuspow_id
 <
-	string UIName = "DoFFixedUnfocusedPowInteriorDay";
+	string UIName = "DOF Fixed Unfocus Contrast Interior Day";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1000.0};
 float doffixedunfocusbump_n
 <
-	string UIName = "DoFFixedUnfocusedBumpNight";
+	string UIName = "DOF Fixed Unfocus Shift Night";
 	string UIWidget = "Spinner";
 > = {0.0};
 float doffixedunfocusbump_d
 <
-	string UIName = "DoFFixedUnfocusedBumpDay";
+	string UIName = "DOF Fixed Unfocus Shift Day";
 	string UIWidget = "Spinner";
 > = {0.0};
 float doffixedunfocusbump_in
 <
-	string UIName = "DoFFixedUnfocusedBumpInteriorNight";
+	string UIName = "DOF Fixed Unfocus Shift Interior Night";
 	string UIWidget = "Spinner";
 > = {0.0};
 float doffixedunfocusbump_id
 <
-	string UIName = "DoFFixedUnfocusedBumpInteriorDay";
+	string UIName = "DOF Fixed Unfocus Shift Interior Day";
 	string UIWidget = "Spinner";
 > = {0.0};
 float doffixedunfocusblend_n
 <
-	string UIName = "DoFFixedUnfocusedBlendNight";
+	string UIName = "DOF Fixed Unfocus Blend Night";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.0};
 float doffixedunfocusblend_d
 <
-	string UIName = "DoFFixedUnfocusedBlendDay";
+	string UIName = "DOF Fixed Unfocus Blend Day";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.0};
 float doffixedunfocusblend_in
 <
-	string UIName = "DoFFixedUnfocusedBlendInteriorNight";
+	string UIName = "DOF Fixed Unfocus Blend Interior Night";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.0};
 float doffixedunfocusblend_id
 <
-	string UIName = "DoFFixedUnfocusedBlendInteriorDay";
+	string UIName = "DOF Fixed Unfocus Blend Interior Day";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.0};
 /* disable depth of field */
 bool dofdisable
 <
-	string UIName = "DoFDisable";
+	string UIName = "Disable DOF";
 	string UIWidget = "Checkbox";
 > = {false};
 /* use bilateral filtering for sharper dof blurring */
 bool dofbilateral
 <
-	string UIName = "DoFBilateral";
+	string UIName = "DOF Bilateral Blur";
 	string UIWidget = "Checkbox";
 > = {true};
 float dofbfact
 <
-	string UIName = "DoFBilateralFactor";
+	string UIName = "DOF Bilateral Factor";
 	string UIWidget = "Spinner";
 > = {20.0};
 float dofbradius
 <
-	string UIName = "DoFBlurRadius";
+	string UIName = "DOF Blur Radius";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
 bool dofrelfov
 <
-	string UIName = "DoFRelativeToFoV";
+	string UIName = "DOF Relative to FOV";
 	string UIWidget = "Checkbox";
 > = {true};
 float fovdefault
 <
-	string UIName = "DoFRelativeDefaultFOV";
+	string UIName = "Default FOV";
 	string UIWidget = "Spinner";
 	float UIMin = 1.0;
 	float UIMax = 180.0;
 > = {75.0};
 float relfovfactor_n
 <
-	string UIName = "DoFRelativeFactorNight";
+	string UIName = "DOF Relative Factor Night";
 	string UIWidget = "Spinner";
 > = {2.0};
 float relfovfactor_d
 <
-	string UIName = "DoFRelativeFactorDay";
+	string UIName = "DOF Relative Factor Day";
 	string UIWidget = "Spinner";
 > = {2.0};
 float relfovfactor_in
 <
-	string UIName = "DoFRelativeFactorInteriorNight";
+	string UIName = "DOF Relative Factor Interior Night";
 	string UIWidget = "Spinner";
 > = {2.0};
 float relfovfactor_id
 <
-	string UIName = "DoFRelativeFactorInteriorDay";
+	string UIName = "DOF Relative Factor Interior Day";
 	string UIWidget = "Spinner";
 > = {2.0};
 bool dofdebug
 <
-	string UIName = "DebugDepth";
+	string UIName = "Debug Depth";
 	string UIWidget = "Checkbox";
 > = {false};
 bool dfcdebug
 <
-	string UIName = "DebugFocus";
+	string UIName = "Debug Focus";
 	string UIWidget = "Checkbox";
 > = {false};
 /* enable edge detect filters */
+string str_edge = "Depth Edge Detection";
 bool edgeenable
 <
-	string UIName = "EdgeEnable";
+	string UIName = "Enable Depth Edge Detect";
 	string UIWidget = "Checkbox";
 > = {false};
 /* factors */
 float edgefadepow_n
 <
-	string UIName = "EdgeFadePowerNight";
+	string UIName = "Edge Fade Contrast Night";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {2.0};
 float edgefadepow_d
 <
-	string UIName = "EdgeFadePowerDay";
+	string UIName = "Edge Fade Contrast Day";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {2.0};
 float edgefadepow_in
 <
-	string UIName = "EdgeFadePowerInteriorNight";
+	string UIName = "Edge Fade Contrast Interior Night";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {2.0};
 float edgefadepow_id
 <
-	string UIName = "EdgeFadePowerInteriorDay";
+	string UIName = "Edge Fade Contrast Interior Day";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {2.0};
 float edgefademult_n
 <
-	string UIName = "EdgeFadeMultiplierNight";
+	string UIName = "Edge Fade Intensity Night";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {500.0};
 float edgefademult_d
 <
-	string UIName = "EdgeFadeMultiplierDay";
+	string UIName = "Edge Fade Intensity Day";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {500.0};
 float edgefademult_in
 <
-	string UIName = "EdgeFadeMultiplierInteriorNight";
+	string UIName = "Edge Fade Intensity Interior Night";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {500.0};
 float edgefademult_id
 <
-	string UIName = "EdgeFadeMultiplierInteriorDay";
+	string UIName = "Edge Fade Intensity Interior Day";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {500.0};
 float edgepow
 <
-	string UIName = "EdgePower";
+	string UIName = "Edge Contrast";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.5};
 float edgemult
 <
-	string UIName = "EdgeMultiplier";
+	string UIName = "Edge Intensity";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
 float edgeradius
 <
-	string UIName = "EdgeRadius";
+	string UIName = "Edge Radius";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.01};
 float edgethreshold
 <
-	string UIName = "EdgeThreshold";
+	string UIName = "Edge Threshold";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.01};
 bool edgedebug
 <
-	string UIName = "DebugEdge";
+	string UIName = "Debug Edge";
 	string UIWidget = "Checkbox";
 > = {false};
 /* use luma edge detection filter */
+string str_cel = "Luma Edge Detection";
 bool celenable
 <
-	string UIName = "CelEnable";
+	string UIName = "Enable Luma Edge Detect";
 	string UIWidget = "Checkbox";
 > = {false};
 float celradius
 <
-	string UIName = "CelRadius";
+	string UIName = "Cel Radius";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
 float celmult
 <
-	string UIName = "CelMultiplier";
+	string UIName = "Cel Intensity";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {4.0};
 float celpow
 <
-	string UIName = "CelPower";
+	string UIName = "Cel Contrast";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.5};
 bool celdebug
 <
-	string UIName = "DebugCel";
+	string UIName = "Debug Cel";
 	string UIWidget = "Checkbox";
 > = {false};
 /* use "edge vision" filter */
+string str_view = "Edgevision";
 bool edgevenable
 <
-	string UIName = "EdgeViewEnable";
+	string UIName = "Enable Edgevision";
 	string UIWidget = "Checkbox";
 > = {false};
 /* factors */
 float edgevfadepow_n
 <
-	string UIName = "EdgeViewFadePowerNight";
+	string UIName = "Edgevision Fade Contrast Night";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {2.0};
 float edgevfadepow_d
 <
-	string UIName = "EdgeViewFadePowerDay";
+	string UIName = "Edgevision Fade Contrast Day";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {2.0};
 float edgevfadepow_in
 <
-	string UIName = "EdgeViewFadePowerInteriorNight";
+	string UIName = "Edgevision Fade Contrast Interior Night";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {2.0};
 float edgevfadepow_id
 <
-	string UIName = "EdgeViewFadePowerInteriorDay";
+	string UIName = "Edgevision Fade Contrast Interior Day";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {2.0};
 float edgevfademult_n
 <
-	string UIName = "EdgeViewFadeMultiplierNight";
+	string UIName = "Edgevision Fade Intensity Night";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {500.0};
 float edgevfademult_d
 <
-	string UIName = "EdgeViewFadeMultiplierDay";
+	string UIName = "Edgevision Fade Intensity Day";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {500.0};
 float edgevfademult_in
 <
-	string UIName = "EdgeViewFadeMultiplierInteriorNight";
+	string UIName = "Edgevision Fade Intensity Interior Night";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {500.0};
 float edgevfademult_id
 <
-	string UIName = "EdgeViewFadeMultiplierInteriorDay";
+	string UIName = "Edgevision Fade Intensity Interior Day";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {500.0};
 float edgevpow
 <
-	string UIName = "EdgeViewPower";
+	string UIName = "Edgevision Contrast";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.25};
 float edgevmult
 <
-	string UIName = "EdgeViewMultiplier";
+	string UIName = "Edgevision Intensity";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {4.0};
 float edgevradius
 <
-	string UIName = "EdgeViewRadius";
+	string UIName = "Edgevision Radius";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
 /* ssao filter */
+string str_ssao = "Ray Marching SSAO";
 bool ssaoenable
 <
-	string UIName = "SSAOEnable";
+	string UIName = "Enable SSAO";
 	string UIWidget = "Checkbox";
 > = {false};
 float ssaoradius
 <
-	string UIName = "SSAORadius";
+	string UIName = "SSAO Radius";
 	string UIWidget = "Spinner";
 > = {1.0};
 int ssaonoise
 <
-	string UIName = "SSAONoise";
+	string UIName = "SSAO Noise";
 	string UIWidget = "Spinner";
 	int UIMin = 0;
 	int UIMax = 1;
 > = {1};
 float ssaofadepow_n
 <
-	string UIName = "SSAOFadePowerNight";
+	string UIName = "SSAO Fade Contrast Night";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.05};
 float ssaofadepow_d
 <
-	string UIName = "SSAOFadePowerDay";
+	string UIName = "SSAO Fade Contrast Day";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.05};
 float ssaofadepow_in
 <
-	string UIName = "SSAOFadePowerInteriorNight";
+	string UIName = "SSAO Fade Contrast Interior Night";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.05};
 float ssaofadepow_id
 <
-	string UIName = "SSAOFadePowerInteriorDay";
+	string UIName = "SSAO Fade Contrast Interior Day";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.05};
 float ssaofademult_n
 <
-	string UIName = "SSAOFadeMultiplierNight";
+	string UIName = "SSAO Fade Intensity Night";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
 float ssaofademult_d
 <
-	string UIName = "SSAOFadeMultiplierDay";
+	string UIName = "SSAO Fade Intensity Day";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
 float ssaofademult_in
 <
-	string UIName = "SSAOFadeMultiplierInteriorNight";
+	string UIName = "SSAO Fade Intensity Interior Night";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
 float ssaofademult_id
 <
-	string UIName = "SSAOFadeMultiplierInteriorDay";
+	string UIName = "SSAO Fade Intensity Interior Day";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
 float ssaomult
 <
-	string UIName = "SSAOMultiplier";
+	string UIName = "SSAO Intensity";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.5};
 float ssaopow
 <
-	string UIName = "SSAOPower";
+	string UIName = "SSAO Contrast";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.5};
 float ssaoblend
 <
-	string UIName = "SSAOBlend";
+	string UIName = "SSAO Blending";
 	string UIWidget = "Spinner";
 > = {1.0};
 bool ssaobenable
 <
-	string UIName = "SSAOBlurEnable";
+	string UIName = "SSAO Blur";
 	string UIWidget = "Checkbox";
 > = {true};
 float ssaobfact
 <
-	string UIName = "SSAOBilateralFactor";
+	string UIName = "SSAO Bilateral Factor";
 	string UIWidget = "Spinner";
 > = {10000.0};
 float ssaoclamp
 <
-	string UIName = "SSAOClamp";
+	string UIName = "SSAO Range";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
 float ssaobradius
 <
-	string UIName = "SSAOBlurRadius";
+	string UIName = "SSAO Blur Radius";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
 bool ssaodebug
 <
-	string UIName = "DebugSSAO";
+	string UIName = "Debug SSAO";
 	string UIWidget = "Checkbox";
 > = {false};
 /* luma sharpen because of reasons */
+string str_sharp = "Luma Sharpen";
 bool sharpenable
 <
-	string UIName = "SharpenEnable";
+	string UIName = "Sharpen Enable";
 	string UIWidget = "Checkbox";
 > = {false};
 float sharpradius
 <
-	string UIName = "SharpenRadius";
+	string UIName = "Sharpen Radius";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.8};
 float sharpclamp
 <
-	string UIName = "SharpenClamp";
+	string UIName = "Sharpen Clamp";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.02};
 float sharpblend
 <
-	string UIName = "SharpenBlending";
+	string UIName = "Sharpen Blending";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.2};

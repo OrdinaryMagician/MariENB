@@ -51,6 +51,14 @@ float4 ReducePrepass( in float4 col, in float2 coord )
 	col = saturate(col);
 	return col;
 }
+/*
+   CGA had seven graphic modes (320x200 modes have low/high contrast versions):
+    - 640x200 monochrome, which doesn't really need a palette here, as it can
+	  be done procedurally with minimum effort.
+	- 320x200 black/cyan/magenta/white
+	- 320x200 black/green/red/brown
+	- 320x200 black/cyan/red/white
+*/
 float4 ReduceCGA( in float4 color, in float2 coord )
 {
 	float4 dac = ReducePrepass(color,coord);
@@ -123,6 +131,12 @@ float4 ReduceCGA( in float4 color, in float2 coord )
 	}
 	return color;
 }
+/*
+   EGA technically only had the 320x200 16-colour graphic mode, but when VGA
+   came out, it was possible to tweak the DAC, allowing for custom palettes.
+   AOS EGA is a palette based on my terminal colour scheme on Linux, which I
+   also use for AliceOS.
+*/
 float4 ReduceEGA( in float4 color, in float2 coord )
 {
 	float4 dac = ReducePrepass(color,coord);
@@ -150,24 +164,32 @@ float4 ReduceEGA( in float4 color, in float2 coord )
 	}
 	return color;
 }
+/* A two bits per channel mode that can usually fit VGA mode 13h and mode x */
 float4 ReduceRGB2( in float4 color, in float2 coord )
 {
 	float4 dac = ReducePrepass(color,coord);
 	color.rgb = trunc(dac.rgb*4.0)/4.0;
 	return color;
 }
+/* Effectively has 256 colours, with a magenta tint due to precision loss */
 float4 ReduceRGB323( in float4 color, in float2 coord )
 {
 	float4 dac = ReducePrepass(color,coord);
 	color.rgb = trunc(dac.rgb*float3(8.0,4.0,8.0))/float3(8.0,4.0,8.0);
 	return color;
 }
+/* 4096 colours, no actual graphics hardware existed that used 4bpc, though */
 float4 ReduceRGB4( in float4 color, in float2 coord )
 {
 	float4 dac = ReducePrepass(color,coord);
 	color.rgb = trunc(dac.rgb*16.0)/16.0;
 	return color;
 }
+/*
+   The classic 16-bit colour mode everyone from my generation would remember,
+   especially that subtle green tint and the banding due to lack of dithering
+   in most games and GPUs at that time.
+*/
 float4 ReduceRGB565( in float4 color, in float2 coord )
 {
 	float4 dac = ReducePrepass(color,coord);
@@ -175,10 +197,24 @@ float4 ReduceRGB565( in float4 color, in float2 coord )
 		/float3(32.0,64.0,32.0);
 	return color;
 }
+/*
+   If you see no difference when using this, then it could be because your
+   own screen is already 6bpc. This is the case for a lot of LCDs, both old
+   and modern. 8bpc tends to be the norm on IPS, though. 10bpc is the next
+   step, but for now it's only used internally in video codecs for more
+   efficient compression with lower quality loss. I seem to recall that in
+   most *nix systems such as Linux it's possible to have 10bpc already with
+   NVIDIA, but it causes compatibility issues with a lot of programs.
+*/
 float4 ReduceRGB6( in float4 color, in float2 coord )
 {
 	float4 dac = ReducePrepass(color,coord);
 	color.rgb = trunc(dac.rgb*64.0)/64.0;
+	return color;
+}
+/* TODO this will use Doom's 256-colour palette, just for the heck of it */
+float4 ReduceRGBDoom( in float4 color, in float2 coord )
+{
 	return color;
 }
 /* Retro rockets */
@@ -229,6 +265,14 @@ float4 PS_ASCII( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	float2 fresl = float2(FONT_WIDTH,FONT_HEIGHT);
 	float2 cresl = float2(GLYPH_WIDTH,GLYPH_HEIGHT);
 	float2 bscl = floor(bresl/cresl);
+	/*
+	   Here I use the "cheap" method, based on the overall luminance of each
+	   glyph, rather than attempt to search for the best fitting glyph for
+	   each cell. If you want to know why, take a look at the ASCII filter
+	   bundled with the Dolphin emulator, and be prepared for the resulting
+	   seconds per frame it runs at. The calculations needed for such a filter
+	   are completely insane even for the highest-end GPUs.
+	*/
 	float3 col = tex2D(SamplerColor,floor(bscl*coord)/bscl).rgb;
 	int lum = luminance(col)*FONT_LEVELS;
 	float2 itx = floor(coord*bresl);
@@ -252,6 +296,81 @@ float4 PS_ChromaKey( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	if ( !maskenable ) return res;
 	if ( tex2D(SamplerDepth,coord).x > maskd )
 		return float4(maskr,maskg,maskb,1.0);
+	return res;
+}
+/* 2x2 RGBI dot matrix, not even close to anything that exists IRL but meh */
+float4 PS_DotMatrix( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
+{
+	float2 coord = IN.txcoord.xy;
+	float4 res = tex2D(SamplerColor,coord);
+	if ( !dotenable ) return res;
+	float2 bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
+	bresl.xy *= 1.0/(dotsize*2.0);
+	float4 dac = float4(res.r*0.5,res.g*0.5,res.b*0.5,(res.r+res.g+res.b)/6.0);
+	/*
+	   There are two types of CRTs: aperture grille and shadow mask.
+	   The former is blurry and has scanlines (rather big ones, even), but is
+	   cheap to emulate; while the latter is the one most known for its crisp,
+	   square pixels with minimal distortion. Most individuals into this whole
+	   "retro graphics" stuff prefer aperture grille, which looks like shit,
+	   then again, that's the sort of visual quality they want. The main issue
+	   with shadow mask CRTs is that it's impossible to accurately emulate them
+	   unless done on a screen with a HUGE resolution. After all, the subpixels
+	   need to be clearly visible, and if on top of it you add curvature
+	   distortion, you need to reduce moire patterns that will inevitably show
+	   up at low resolutions.
+	   
+	   It would be more desirable to eventually have flat panels that can
+	   display arbitrary resolutions using a form of scaling that preserves
+	   square pixels with unnoticeable distortion (typically, with nearest
+	   neighbour you'd get some pixels that are bigger/smaller than others if
+	   the upscale resolution isn't an integer multiple of the real resolution.
+	   
+	   This 2x2 RGBI thing is a rather naïve filter I made many years ago, it
+	   looks unlike any real CRT, but scales well. Its only problem is moire
+	   patterns when using the default size of 2x2.
+	*/
+	float4 dots = tex2D(SamplerDots,coord*bresl)*dac;
+	float3 tcol = pow((dots.rgb+dots.a),dotpow)*dotmult;
+	res.rgb = res.rgb*(1-dotblend)+tcol*dotblend;
+	return res;
+}
+/* that's right, CRT curvature */
+float4 PS_Curvature( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
+{
+	float2 coord = IN.txcoord.xy;
+	float4 res = tex2D(SamplerColor,coord);
+	if ( !curveenable ) return res;
+	float2 bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
+	float2 bof = (1.0/bresl)*curvesoft;
+	float3 eta = float3(1+chromaab*0.009,1+chromaab*0.006,1+chromaab*0.003);
+	float2 center = float2(coord.x-0.5,coord.y-0.5);
+	float zfact = 100.0/lenszoom;
+	float r2 = center.x*center.x+center.y*center.y;
+	float f = 1+r2*lensdist*0.01;
+	float x = f*zfact*center.x+0.5;
+	float y = f*zfact*center.y+0.5;
+	float2 rcoord = (f*eta.r)*zfact*(center.xy*0.5)+0.5;
+	float2 gcoord = (f*eta.g)*zfact*(center.xy*0.5)+0.5;
+	float2 bcoord = (f*eta.b)*zfact*(center.xy*0.5)+0.5;
+	int i,j;
+	float4 idist = float4(0,0,0,0);
+	/*
+	   sticking a 5x5 gaussian blur with a tweakable radius in here to attempt
+	   to reduce moire patterns in some cases. Supersampling would be more
+	   useful for that, but ENB sucks ass through a crazy straw in that aspect,
+	   so it would be more desirable to use GeDoSaTo (I sure hope I can port
+	   all my stuff to it one day, at least the damn thing is FOSS).
+	*/
+	[unroll] for ( i=-2; i<=2; i++ ) [unroll] for ( j=-2; j<=2; j++ )
+	{
+		idist += gauss3[abs(i)]*gauss3[abs(j)]
+			*float4(tex2D(SamplerColorb,rcoord+bof*float2(i,j)).r,
+			tex2D(SamplerColorb,gcoord+bof*float2(i,j)).g,
+			tex2D(SamplerColorb,bcoord+bof*float2(i,j)).b,
+			tex2D(SamplerColorb,float2(x,y)+bof*float2(i,j)).a);
+	}
+	res.rgb = idist.rgb;
 	return res;
 }
 technique PostProcess
@@ -294,6 +413,40 @@ technique PostProcess3
 	{
 		VertexShader = compile vs_3_0 VS_Pass();
 		PixelShader = compile ps_3_0 PS_ASCII();
+		DitherEnable = FALSE;
+		ZEnable = FALSE;
+		CullMode = NONE;
+		ALPHATESTENABLE = FALSE;
+		SEPARATEALPHABLENDENABLE = FALSE;
+		AlphaBlendEnable = FALSE;
+		StencilEnable = FALSE;
+		FogEnable = FALSE;
+		SRGBWRITEENABLE = FALSE;
+	}
+}
+technique PostProcess4
+{
+	pass p0
+	{
+		VertexShader = compile vs_3_0 VS_Pass();
+		PixelShader = compile ps_3_0 PS_DotMatrix();
+		DitherEnable = FALSE;
+		ZEnable = FALSE;
+		CullMode = NONE;
+		ALPHATESTENABLE = FALSE;
+		SEPARATEALPHABLENDENABLE = FALSE;
+		AlphaBlendEnable = FALSE;
+		StencilEnable = FALSE;
+		FogEnable = FALSE;
+		SRGBWRITEENABLE = FALSE;
+	}
+}
+technique PostProcess5
+{
+	pass p0
+	{
+		VertexShader = compile vs_3_0 VS_Pass();
+		PixelShader = compile ps_3_0 PS_Curvature();
 		DitherEnable = FALSE;
 		ZEnable = FALSE;
 		CullMode = NONE;

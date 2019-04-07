@@ -62,14 +62,6 @@ texture2D texLens
 <
 	string ResourceName = "menblens.png";
 >;
-texture2D texLensbump
-<
-	string ResourceName = "menblensbump.png";
->;
-texture2D texLensdiff
-<
-	string ResourceName = "menblensdiff.png";
->;
 sampler2D SamplerBloom1 = sampler_state
 {
 	Texture = <texBloom1>;
@@ -169,30 +161,6 @@ sampler2D SamplerBloom8 = sampler_state
 sampler2D SamplerLens = sampler_state
 {
 	Texture = <texLens>;
-	MinFilter = LINEAR;
-	MagFilter = LINEAR;
-	MipFilter = NONE;
-	AddressU = Clamp;
-	AddressV = Clamp;
-	SRGBTexture = FALSE;
-	MaxMipLevel = 0;
-	MipMapLodBias = 0;
-};
-sampler2D SamplerLensbump = sampler_state
-{
-	Texture = <texLensbump>;
-	MinFilter = LINEAR;
-	MagFilter = LINEAR;
-	MipFilter = NONE;
-	AddressU = Clamp;
-	AddressV = Clamp;
-	SRGBTexture = FALSE;
-	MaxMipLevel = 0;
-	MipMapLodBias = 0;
-};
-sampler2D SamplerLensdiff = sampler_state
-{
-	Texture = <texLensdiff>;
 	MinFilter = LINEAR;
 	MagFilter = LINEAR;
 	MipFilter = NONE;

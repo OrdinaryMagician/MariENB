@@ -34,7 +34,7 @@ float3 hsv2rgb( float3 c )
 	float3 p = abs(frac(c.x+K.xyz)*6.0-K.w);
 	return c.z*lerp(K.x,saturate(p-K.x),c.y);
 }
-/* pre-pass bloom texture preparation, nothing is done */
+/* pre-pass bloom texture preparation */
 float4 PS_BloomPrePass(VS_OUTPUT_POST In) : COLOR
 {
 	float2 coord = In.txcoord0.xy;
@@ -60,7 +60,7 @@ float4 PS_BloomPrePass(VS_OUTPUT_POST In) : COLOR
 	res.a = 1.0;
 	return res;
 }
-/* Thankfully this allows for separate axis blur */
+/* Horizontal blur step goes here */
 float4 PS_BloomTexture1(VS_OUTPUT_POST In) : COLOR
 {
 	float2 coord = In.txcoord0.xy;
@@ -72,6 +72,7 @@ float4 PS_BloomTexture1(VS_OUTPUT_POST In) : COLOR
 	res.a = 1.0;
 	return res;
 }
+/* This is the vertical step */
 float4 PS_BloomTexture2(VS_OUTPUT_POST In) : COLOR
 {
 	float2 coord = In.txcoord0.xy;
@@ -95,7 +96,21 @@ float4 PS_BloomTexture2(VS_OUTPUT_POST In) : COLOR
 	res.a = 1.0;
 	return res;
 }
-/* Anamorphic bloom */
+/*
+   Horizontal anamorphic bloom step. This is somewhat realistic except that
+   most lenses (e.g.: glasses, both convex and concave) cause VERTICAL
+   anamorphic bloom due to their curvature. However since ENB doesn't let me
+   switch the order of the blurring, it's impossible to do so. I don't really
+   have a problem with that, this also looks nice.
+
+   I've seen that some ENBs do something almost-maybe-possibly-slightly-similar
+   they call "anamorphic lens flare", which has an ass-backwards-retarded
+   implementation, which serves to showcase their incompetence. Rather than use
+   a single-axis massive-scale blur like I do, they simply awkwardly stretch
+   sampling coordinates along one axis, which doesn't even have the same effect
+   as it just makes it so bright areas ONLY at the very middle of the screen
+   produces sharp bright lines extending towards the sides.
+*/
 float4 PS_AnamPass(VS_OUTPUT_POST In) : COLOR
 {
 	if ( !alfenable ) return float4(0,0,0,1);
@@ -121,7 +136,7 @@ float4 PS_AnamPass(VS_OUTPUT_POST In) : COLOR
 	res.a = 1.0;
 	return res;
 }
-/* end pass */
+/* end pass, mix it all up */
 float4 PS_BloomPostPass(VS_OUTPUT_POST In) : COLOR
 {
 	float2 coord = In.txcoord0.xy;
@@ -140,7 +155,7 @@ float4 PS_BloomPostPass(VS_OUTPUT_POST In) : COLOR
 	res.a = 1.0;
 	return res;
 }
-/* crappy lens filter */
+/* crappy lens filter, useful when playing characters with glasses */
 float4 PS_LensDirtPass(VS_OUTPUT_POST In) : COLOR
 {
 	float4 mud = float4(0,0,0,0);
@@ -149,11 +164,6 @@ float4 PS_LensDirtPass(VS_OUTPUT_POST In) : COLOR
 	float2 ccoord = coord;
 	if ( dirtaspect ) ccoord.y = (coord.y-0.5)*ScreenSize.w+0.5;
 	float4 crap = tex2D(SamplerLens,ccoord);
-	float4 crapb = tex2D(SamplerLensbump,ccoord);
-	float craps = tex2D(SamplerLensdiff,coord).x;
-	craps = (1.0-lstarf)+lstarf*craps;
-	float bump = max(crapb.w+1.0-abs(dot(abs(0.5-coord.xy),crapb.xy)),0.0);
-	bump = pow(bump,crapb.w*ldirtbumpx);
 	mud += dirtmix1*tex2D(SamplerBloom1,coord); // P1
 	mud += dirtmix2*tex2D(SamplerBloom2,coord); // P2
 	mud += dirtmix3*tex2D(SamplerBloom3,coord); // P3
@@ -168,7 +178,7 @@ float4 PS_LensDirtPass(VS_OUTPUT_POST In) : COLOR
 	float mudmax = luminance(mud.rgb);
 	float mudn = max(mudmax/(1.0+mudmax),0.0);
 	mudn = pow(mudn,max(ldirtpow-crap.a,0.0));
-	mud.rgb *= mudn*ldirtfactor*craps*crap.rgb*bump;
+	mud.rgb *= mudn*ldirtfactor*crap.rgb;
 	mud.a = 1.0;
 	return mud;
 }

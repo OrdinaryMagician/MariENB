@@ -93,7 +93,7 @@ float3 hsv2rgb( float3 c )
 	float3 p = abs(frac(c.x+K.xyz)*6.0-K.w);
 	return c.z*lerp(K.x,saturate(p-K.x),c.y);
 }
-/* adaptation */
+/* "eye adaptation" */
 float3 Adaptation( float3 res )
 {
 	float4 adapt = tex2D(_s4,0.5);
@@ -121,7 +121,7 @@ float3 Tonemap( float3 res )
 	float3 uwhite = Uch(W);
 	return ucol/uwhite;
 }
-/* overbright compensation pre-pass */
+/* overbright compensation pre-pass, kinda pointless now that I have tonemap */
 float3 Compensate( float3 res )
 {
 	float comppow = lerp(lerp(comppow_n,comppow_d,tod),lerp(comppow_in,
@@ -135,7 +135,7 @@ float3 Compensate( float3 res )
 	ovr = ovr*compsat+ovrs*(1.0-compsat);
 	return res-ovr*compfactor;
 }
-/* color grading */
+/* colour grading passes */
 float3 GradingRGB( float3 res )
 {
 	float grademul_r = lerp(lerp(grademul_r_n,grademul_r_d,tod),
@@ -197,7 +197,7 @@ float3 GradingGame( float3 res )
 {
 	/*
 	   Skyrim method is slightly different, but it depends explicitly on
-	   vanilla eye adaption which is ass.
+	   vanilla eye adaptation which is ass.
 	*/
 	float3 tgray = luminance(res);
 	float3 tcol = res*_r3.x + tgray*(1.0-_r3.x);
@@ -229,7 +229,7 @@ float3 GradingLUT( float3 res )
 		lutblend_id,tod),ind);
 	return lerp(res,tcol,lutblend);
 }
-/* classic ENB palette colour grading */
+/* classic ENB palette colour grading, seems to kill dark and light values */
 float3 GradingPal( float3 res )
 {
 	float4 adapt = tex2D(_s4,0.5);
@@ -246,7 +246,7 @@ float3 GradingPal( float3 res )
 	palt.b = tex2D(_s7,coord).b;
 	return lerp(res,palt,palblend);
 }
-/* post-pass dithering */
+/* post-pass dithering, something apparently only my ENB does */
 float3 Dither( float3 res, float2 coord )
 {
 	float2 rcoord = coord*float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
@@ -274,6 +274,13 @@ float3 FilmGrain( float3 res, float2 coord )
 	float2 s3 = tcs+float2(ts,ts);
 	float n1, n2, n3;
 	float2 nr = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w)/256.0;
+	/*
+	   There are two methods of making noise here:
+	   1. two-pass algorithm that produces a particular fuzz complete with a
+	       soft horizontal tear, reminiscent of old TV static.
+	   2. simple version that has very noticeable tiling and visible scrolling
+	      at low speeds
+	*/
 	if ( np )
 	{
 		n1 = tex2D(SamplerNoise2,s1*nm11*nr).r;
