@@ -192,6 +192,33 @@ bool nbt
 	string UIName = "Apply Grain Before Tone Mapping";
 	string UIWidget = "Checkbox";
 > = {true};
+/* old dirt filter */
+string str_dirt = "Screen Dirt";
+bool dirtenable
+<
+	string UIName = "Enable Dirt";
+	string UIWidget = "Checkbox";
+> = {false};
+float dirtcfactor
+<
+	string UIName = "Dirt Coord Factor";
+	string UIWidget = "Spinner";
+> = {0.1};
+float dirtlfactor
+<
+	string UIName = "Dirt Luminance Factor";
+	string UIWidget = "Spinner";
+> = {0.0};
+float dirtmc
+<
+	string UIName = "Dirt Coord Zoom";
+	string UIWidget = "Spinner";
+> = {3.0};
+float dirtml
+<
+	string UIName = "Dirt Luminance Zoom";
+	string UIWidget = "Spinner";
+> = {1.0};
 /* eye adaptation */
 string str_adaptation = "Eye Adaptation";
 bool aenable
@@ -536,29 +563,6 @@ float lutblend_i
 	string UIName = "LUT Blend Interior";
 	string UIWidget = "Spinner";
 > = {1.0};
-#ifdef LUTMODE_LEGACY
-int clut_n
-<
-	string UIName = "LUT Preset Night";
-	string UIWidget = "Spinner";
-	int UIMin = 0;
-	int UIMax = 63;
-> = {1};
-int clut_d
-<
-	string UIName = "LUT Preset Day";
-	string UIWidget = "Spinner";
-	int UIMin = 0;
-	int UIMax = 63;
-> = {1};
-int clut_i
-<
-	string UIName = "LUT Preset Interior";
-	string UIWidget = "Spinner";
-	int UIMin = 0;
-	int UIMax = 63;
-> = {1};
-#endif
 /* technicolor shader */
 string str_tech = "Technicolor";
 bool techenable
@@ -654,48 +658,30 @@ Texture2D TextureColor;
 Texture2D TextureBloom;
 Texture2D TextureAdaptation;
 
-Texture2D TextureNoise2
+Texture2D TextureNoise1
 <
 	string ResourceName = "menbnoise1.png";
 >;
-Texture2D TextureNoise3
+Texture2D TextureNoise2
 <
 	string ResourceName = "menbnoise2.png";
 >;
-#ifdef LUTMODE_LEGACY
-Texture2D TextureLUT
+Texture2D TextureNoise3
 <
-	string ResourceName = "menblutpreset.png";
+	string ResourceName = "menbnoise3.png";
 >;
-#else
-Texture2D TextureLUTN
+Texture3D TextureLUTN
 <
-#ifdef LUTMODE_16
-	string ResourceName = "menblut16_night.png";
-#endif
-#ifdef LUTMODE_64
-	string ResourceName = "menblut64_night.png";
-#endif
+	string ResourceName = "menblut_night.dds";
 >;
-Texture2D TextureLUTD
+Texture3D TextureLUTD
 <
-#ifdef LUTMODE_16
-	string ResourceName = "menblut16_day.png";
-#endif
-#ifdef LUTMODE_64
-	string ResourceName = "menblut64_day.png";
-#endif
+	string ResourceName = "menblut_day.dds";
 >;
-Texture2D TextureLUTI
+Texture3D TextureLUTI
 <
-#ifdef LUTMODE_16
-	string ResourceName = "menblut16_interior.png";
-#endif
-#ifdef LUTMODE_64
-	string ResourceName = "menblut64_interior.png";
-#endif
+	string ResourceName = "menblut_interior.dds";
 >;
-#endif
 Texture2D TextureTonemap
 <
 	string ResourceName = "menbfilmlut.png";
@@ -727,30 +713,12 @@ SamplerState Sampler2
 	AddressU = Wrap;
 	AddressV = Wrap;
 };
-
 SamplerState SamplerLUT
 {
 	Filter = MIN_MAG_MIP_LINEAR;
-	AddressU = Wrap;
-	AddressV = Wrap;
-	MaxLOD = 0;
-	MinLOD = 0;
-};
-SamplerState SamplerNoise2
-{
-	Filter = MIN_LINEAR_MAG_MIP_POINT;
-	AddressU = Wrap;
-	AddressV = Wrap;
-	MaxLOD = 0;
-	MinLOD = 0;
-};
-SamplerState SamplerNoise3
-{
-	Filter = MIN_MAG_MIP_LINEAR;
-	AddressU = Wrap;
-	AddressV = Wrap;
-	MaxLOD = 0;
-	MinLOD = 0;
+	AddressU = Clamp;
+	AddressV = Clamp;
+	AddressW = Clamp;
 };
 
 struct VS_INPUT_POST
@@ -914,58 +882,13 @@ float3 GradingHSV( float3 res )
 /* LUT colour grading */
 float3 GradingLUT( float3 res )
 {
-	/*
-	   gross hacks were needed to "fix" the way direct3d interpolates on
-	   sampling, and to manually interpolate on the blue channel
-	   
-	   this could be alleviated if I could have all the LUTs as volume
-	   maps, but I think ENB can't load them.
-	*/
-	float3 tcol = clamp(res,0.0001,0.9999);
-	tcol.rg = tcol.rg*0.5+0.25;
-#ifdef LUTMODE_LEGACY
-	float2 lc1 = float2(tcol.r/16.0+floor(tcol.b*16.0)/16.0,tcol.g/64.0);
-	float2 lc2 = float2(tcol.r/16.0+ceil(tcol.b*16.0)/16.0,tcol.g/64.0);
-	float dec = (ceil(tcol.b*16.0)==16.0)?(0.0):frac(tcol.b*16.0);
-	/* night samples */
-	float3 tcl1_n = TextureLUT.Sample(SamplerLUT,lc1
-		+float2(0,clut_n/64.0)).rgb;
-	float3 tcl2_n = TextureLUT.Sample(SamplerLUT,lc2
-		+float2(0,clut_n/64.0)).rgb;
-	/* day samples */
-	float3 tcl1_d = TextureLUT.Sample(SamplerLUT,lc1
-		+float2(0,clut_d/64.0)).rgb;
-	float3 tcl2_d = TextureLUT.Sample(SamplerLUT,lc2
-		+float2(0,clut_d/64.0)).rgb;
-	/* interior samples */
-	float3 tcl1_i = TextureLUT.Sample(SamplerLUT,lc1
-		+float2(0,clut_i/64.0)).rgb;
-	float3 tcl2_i = TextureLUT.Sample(SamplerLUT,lc2
-		+float2(0,clut_i/64.0)).rgb;
-#else
-#ifdef LUTMODE_16
-	float2 lc1 = float2(tcol.r,tcol.g/16.0+floor(tcol.b*16.0)/16.0);
-	float2 lc2 = float2(tcol.r,tcol.g/16.0+ceil(tcol.b*16.0)/16.0);
-	float dec = (ceil(tcol.b*16.0)==16.0)?(0.0):frac(tcol.b*16.0);
-#endif
-#ifdef LUTMODE_64
-	float2 lc1 = float2(tcol.r,tcol.g/64.0+floor(tcol.b*64.0)/64.0);
-	float2 lc2 = float2(tcol.r,tcol.g/64.0+ceil(tcol.b*64.0)/64.0);
-	float dec = (ceil(tcol.b*64.0)==64.0)?(0.0):frac(tcol.b*64.0);
-#endif
-	/* night samples */
-	float3 tcl1_n = TextureLUTN.Sample(SamplerLUT,lc1).rgb;
-	float3 tcl2_n = TextureLUTN.Sample(SamplerLUT,lc2).rgb;
-	/* day samples */
-	float3 tcl1_d = TextureLUTD.Sample(SamplerLUT,lc1).rgb;
-	float3 tcl2_d = TextureLUTD.Sample(SamplerLUT,lc2).rgb;
-	/* interior samples */
-	float3 tcl1_i = TextureLUTI.Sample(SamplerLUT,lc1).rgb;
-	float3 tcl2_i = TextureLUTI.Sample(SamplerLUT,lc2).rgb;
-#endif
-	float3 tcl1 = tod_ind(tcl1);
-	float3 tcl2 = tod_ind(tcl2);
-	tcol = lerp(tcl1,tcl2,dec);
+	/* night sample */
+	float3 tcl_n = TextureLUTN.Sample(SamplerLUT,res).rgb;
+	/* day sample */
+	float3 tcl_d = TextureLUTD.Sample(SamplerLUT,res).rgb;
+	/* interior sample */
+	float3 tcl_i = TextureLUTI.Sample(SamplerLUT,res).rgb;
+	float3 tcol = tod_ind(tcl);
 	float lutblend = tod_ind(lutblend);
 	return lerp(res,tcol,lutblend);
 }
@@ -998,21 +921,21 @@ float3 FilmGrain( float3 res, float2 coord )
 	*/
 	if ( np )
 	{
-		n1 = TextureNoise2.Sample(SamplerNoise2,s1*nm1.x*nr).r;
-		n2 = TextureNoise2.Sample(SamplerNoise2,s2*nm1.y*nr).g;
-		n3 = TextureNoise2.Sample(SamplerNoise2,s3*nm1.z*nr).b;
+		n1 = TextureNoise2.Sample(Sampler2,s1*nm1.x*nr).r;
+		n2 = TextureNoise2.Sample(Sampler2,s2*nm1.y*nr).g;
+		n3 = TextureNoise2.Sample(Sampler2,s3*nm1.z*nr).b;
 		s1 = tcs+float2(ts+n1*nk,n2*nk);
 		s2 = tcs+float2(n2,ts+n3*nk);
 		s3 = tcs+float2(ts+n3*nk,ts+n1*nk);
-		n1 = TextureNoise2.Sample(SamplerNoise2,s1*nm2.x*nr).r;
-		n2 = TextureNoise2.Sample(SamplerNoise2,s2*nm2.y*nr).g;
-		n3 = TextureNoise2.Sample(SamplerNoise2,s3*nm2.z*nr).b;
+		n1 = TextureNoise2.Sample(Sampler2,s1*nm2.x*nr).r;
+		n2 = TextureNoise2.Sample(Sampler2,s2*nm2.y*nr).g;
+		n3 = TextureNoise2.Sample(Sampler2,s3*nm2.z*nr).b;
 	}
 	else
 	{
-		n1 = TextureNoise3.Sample(SamplerNoise3,s1*nm.x*nr).r;
-		n2 = TextureNoise3.Sample(SamplerNoise3,s2*nm.y*nr).g;
-		n3 = TextureNoise3.Sample(SamplerNoise3,s3*nm.z*nr).b;
+		n1 = TextureNoise3.Sample(Sampler2,s1*nm.x*nr).r;
+		n2 = TextureNoise3.Sample(Sampler2,s2*nm.y*nr).g;
+		n3 = TextureNoise3.Sample(Sampler2,s3*nm.z*nr).b;
 	}
 	float n4 = (n1+n2+n3)/3;
 	float3 ng = float3(n4,n4,n4);
@@ -1098,6 +1021,20 @@ float2 ScreenFrost( float2 coord )
 	return coord+ofs;
 }
 
+/* Old MariENB 0.x screen dirt filter, updated */
+float3 ScreenDirt( float3 res, float2 coord )
+{
+	float2 nr = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w)/256.0;
+	float3 ncolc = TextureNoise1.Sample(Sampler2,coord*dirtmc*nr).rgb;
+	float2 ds = float2(res.r+res.g,res.g+res.b)/2.0;
+	float3 ncoll = TextureNoise1.Sample(Sampler2,ds*dirtml).rgb;
+	res = lerp(res,(ncolc.r+1.0)*res,dirtcfactor
+		*saturate(1.0-(ds.x+ds.y)*0.25));
+	res = lerp(res,(ncoll.r+1.0)*res,dirtlfactor
+		*saturate(1.0-(ds.x+ds.y)*0.25));
+	return res;
+}
+
 float4 PS_Draw( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 {
 	float2 coord = IN.txcoord0.xy;
@@ -1105,41 +1042,28 @@ float4 PS_Draw( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	if ( (fixed.x > 0) && (fixed.y > 0) ) bresl = fixed;
 	else bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
 	float4 res, mud;
-	[branch] if ( frostenable )
+	if ( frostenable )
 	{
 		float2 ofs = ScreenFrost(coord);
 		ofs -= coord;
-		if ( (distcha != 0.0) && (length(ofs) != 0.0) )
-		{
-			float2 ofr, ofg, ofb;
-			ofr = ofs*(1.0-distcha*0.01);
-			ofg = ofs;
-			ofb = ofs*(1.0+distcha*0.01);
-			res = float4(TextureColor.Sample(Sampler0,coord+ofr).r,
-				TextureColor.Sample(Sampler0,coord+ofg).g,
-				TextureColor.Sample(Sampler0,coord+ofb).b,1.0);
+		float2 ofr, ofg, ofb;
+		ofr = ofs*(1.0-distcha*0.01);
+		ofg = ofs;
+		ofb = ofs*(1.0+distcha*0.01);
+		res = float4(TextureColor.Sample(Sampler0,coord+ofr).r,
+			TextureColor.Sample(Sampler0,coord+ofg).g,
+			TextureColor.Sample(Sampler0,coord+ofb).b,1.0);
 #ifdef SKYRIMSE
-			mud = float4(TextureBloom.Sample(Sampler1,coord+ofr).r,
-				TextureBloom.Sample(Sampler1,coord+ofg).g,
-				TextureBloom.Sample(Sampler1,coord+ofb).b,1.0);
+		mud = float4(TextureBloom.Sample(Sampler1,coord+ofr).r,
+			TextureBloom.Sample(Sampler1,coord+ofg).g,
+			TextureBloom.Sample(Sampler1,coord+ofb).b,1.0);
 #else
-			mud = float4(TextureBloom.Sample(Sampler1,
-				Params01[4].zw*(coord+ofr)).r,
-				TextureBloom.Sample(Sampler1,Params01[4].zw
-				*(coord+ofg)).g,TextureBloom.Sample(Sampler1,
-				Params01[4].zw*(coord+ofb)).b,1.0);
+		mud = float4(TextureBloom.Sample(Sampler1,
+			Params01[4].zw*(coord+ofr)).r,
+			TextureBloom.Sample(Sampler1,Params01[4].zw
+			*(coord+ofg)).g,TextureBloom.Sample(Sampler1,
+			Params01[4].zw*(coord+ofb)).b,1.0);
 #endif
-		}
-		else
-		{
-			res = TextureColor.Sample(Sampler0,coord+ofs);
-#ifdef SKYRIMSE
-			mud = TextureBloom.Sample(Sampler1,coord+ofs);
-#else
-			mud = TextureBloom.Sample(Sampler1,Params01[4].zw
-				*(coord+ofs));
-#endif
-		}
 		float2 nc = coord*(bresl/FROSTSIZE)*frostsize;
 		float bmp = pow(max(0,TextureFrost.SampleLevel(Sampler2,nc,
 			0).z),frostbpow);
@@ -1168,6 +1092,7 @@ float4 PS_Draw( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	res.rgb += bcol;
 	if ( aenable ) res.rgb *= adapt.x;
 	if ( nbt && ne ) res.rgb = FilmGrain(res.rgb,coord);
+	if ( dirtenable ) res.rgb = ScreenDirt(res.rgb,coord);
 	res.rgb = Tonemap(res.rgb);
 	if ( vgradeenable ) res.rgb = GradingGame(res.rgb,adapt.y);
 	if ( gradeenable1 ) res.rgb = GradingRGB(res.rgb);

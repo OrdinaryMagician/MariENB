@@ -13,7 +13,7 @@ Texture2D TexturePrevious;
 
 SamplerState Sampler0
 {
-	Filter = MIN_MAG_MIP_LINEAR;
+	Filter = MIN_MAG_MIP_POINT;
 	AddressU = Clamp;
 	AddressV = Clamp;
 };
@@ -50,7 +50,10 @@ float4 PS_Downsample( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	float4 res = float4(0,0,0,0);
 	int x, y;
 	[unroll] for ( y=-8; y<8; y++ ) [unroll] for ( x=-8; x<8; x++ )
-		res += TextureCurrent.Sample(Sampler0,coord+float2(x,y)*ssz);
+	{
+		res += TextureCurrent.Sample(Sampler0,coord
+			+float2(x+0.5,y+0.5)*ssz);
+	}
 	res /= 256.0;
 	res = luminance(res.rgb);
 	res.w = 1.0;
@@ -67,7 +70,8 @@ float4 PS_Adaptation(VS_OUTPUT_POST IN, float4 v0 : SV_Position0) : SV_Target
 	int x, y;
 	[unroll] for ( y=-8; y<8; y++ ) [unroll] for ( x=-8; x<8; x++ )
 	{
-		smp = TextureCurrent.Sample(Sampler0,coord+float2(x,y)*ssz).x;
+		smp = TextureCurrent.Sample(Sampler0,coord
+			+float2(x+0.5,y+0.5)*ssz).x;
 		smpmax = max(smpmax,smp);
 		res += smp;
 	}

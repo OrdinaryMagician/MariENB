@@ -335,7 +335,7 @@ Texture2D RenderTarget256;
 Texture2D RenderTarget128;
 Texture2D RenderTarget64;
 Texture2D RenderTarget32;
-Texture2D RenderTargetRGBA64F;
+Texture2D RenderTarget16;
 
 SamplerState Sampler
 {
@@ -412,11 +412,7 @@ float4 PS_PrePass( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	return res;
 }
 
-/*
-   progressive downsizing of textures, with interpolation.
-   
-   First downsample is unnecessary because both textures are the same size.
-*/
+/* progressive downsizing of textures, with interpolation. */
 float4 PS_Downsize( VS_OUTPUT_POST IN, float4 v0 : SV_Position0,
 	uniform Texture2D intex, uniform float insz ) : SV_Target
 {
@@ -445,7 +441,7 @@ float4 PS_Downsize( VS_OUTPUT_POST IN, float4 v0 : SV_Position0,
 float4 Anamorphic( float2 coord, Texture2D intex, float insz )
 {
 	float4 res = float4(0.0,0.0,0.0,0.0),
-		base = RenderTargetRGBA64F.Sample(Sampler,coord);
+		base = RenderTarget1024.Sample(Sampler,coord);
 	int i;
 	float sum = 0.0;
 	float inc = flen/insz;
@@ -498,7 +494,7 @@ float4 PS_VerticalBlur( VS_OUTPUT_POST IN, float4 v0 : SV_Position0,
 
 	float2 coord = IN.txcoord0.xy;
 	float4 res = float4(0.0,0.0,0.0,0.0),
-		base = RenderTargetRGBA64F.Sample(Sampler,coord);
+		base = RenderTarget1024.Sample(Sampler,coord);
 	int i;
 	float sum = 0.0;
 	float inc = bloomradiusy/insz;
@@ -525,12 +521,12 @@ float4 PS_VerticalBlur( VS_OUTPUT_POST IN, float4 v0 : SV_Position0,
 float4 PS_PostPass( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 {
 	float2 coord = IN.txcoord0.xy;
-	float4 res = bloommix1*RenderTarget1024.Sample(Sampler2,coord);
-	res += bloommix2*RenderTarget512.Sample(Sampler2,coord);
-	res += bloommix3*RenderTarget256.Sample(Sampler2,coord);
-	res += bloommix4*RenderTarget128.Sample(Sampler2,coord);
-	res += bloommix5*RenderTarget64.Sample(Sampler2,coord);
-	res += bloommix6*RenderTarget32.Sample(Sampler2,coord);
+	float4 res = bloommix1*RenderTarget512.Sample(Sampler2,coord);
+	res += bloommix2*RenderTarget256.Sample(Sampler2,coord);
+	res += bloommix3*RenderTarget128.Sample(Sampler2,coord);
+	res += bloommix4*RenderTarget64.Sample(Sampler2,coord);
+	res += bloommix5*RenderTarget32.Sample(Sampler2,coord);
+	res += bloommix6*RenderTarget16.Sample(Sampler2,coord);
 	res.rgb /= 6.0;
 	res.rgb = clamp(res.rgb,0.0,32768.0);
 	res.a = 1.0;
@@ -540,13 +536,13 @@ float4 PS_PostPass( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 float4 PS_SPostPass( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 {
 	float2 coord = IN.txcoord0.xy;
-	float4 res = bloommixs*RenderTarget128.Sample(Sampler2,coord);
+	float4 res = bloommixs*RenderTarget64.Sample(Sampler2,coord);
 	res.rgb = clamp(res.rgb,0.0,32768.0);
 	res.a = 1.0;
 	return res;
 }
 
-technique11 BloomSimplePass <string UIName="MariENB Simple Bloom"; string RenderTarget="RenderTargetRGBA64F";>
+technique11 BloomSimplePass <string UIName="MariENB Simple Bloom"; string RenderTarget="RenderTarget1024";>
 {
 	pass p0
 	{
@@ -554,15 +550,7 @@ technique11 BloomSimplePass <string UIName="MariENB Simple Bloom"; string Render
 		SetPixelShader(CompileShader(ps_5_0,PS_PrePass()));
 	}
 }
-technique11 BloomSimplePass1 <string RenderTarget="RenderTarget1024";>
-{
-	pass p0
-	{
-		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
-		SetPixelShader(CompileShader(ps_5_0,PS_Downsize(RenderTargetRGBA64F,0.0)));
-	}
-}
-technique11 BloomSimplePass2 <string RenderTarget="RenderTarget512";>
+technique11 BloomSimplePass1 <string RenderTarget="RenderTarget512";>
 {
 	pass p0
 	{
@@ -570,7 +558,7 @@ technique11 BloomSimplePass2 <string RenderTarget="RenderTarget512";>
 		SetPixelShader(CompileShader(ps_5_0,PS_Downsize(RenderTarget1024,1024.0)));
 	}
 }
-technique11 BloomSimplePass3 <string RenderTarget="RenderTarget256";>
+technique11 BloomSimplePass2 <string RenderTarget="RenderTarget256";>
 {
 	pass p0
 	{
@@ -578,7 +566,7 @@ technique11 BloomSimplePass3 <string RenderTarget="RenderTarget256";>
 		SetPixelShader(CompileShader(ps_5_0,PS_Downsize(RenderTarget512,512.0)));
 	}
 }
-technique11 BloomSimplePass4 <string RenderTarget="RenderTarget128";>
+technique11 BloomSimplePass3 <string RenderTarget="RenderTarget128";>
 {
 	pass p0
 	{
@@ -586,20 +574,28 @@ technique11 BloomSimplePass4 <string RenderTarget="RenderTarget128";>
 		SetPixelShader(CompileShader(ps_5_0,PS_Downsize(RenderTarget256,256.0)));
 	}
 }
+technique11 BloomSimplePass4 <string RenderTarget="RenderTarget64";>
+{
+	pass p0
+	{
+		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
+		SetPixelShader(CompileShader(ps_5_0,PS_Downsize(RenderTarget128,128.0)));
+	}
+}
 technique11 BloomSimplePass5
 {
 	pass p0
 	{
 		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
-		SetPixelShader(CompileShader(ps_5_0,PS_HorizontalBlur(RenderTarget128,128.0)));
+		SetPixelShader(CompileShader(ps_5_0,PS_HorizontalBlur(RenderTarget64,64.0)));
 	}
 }
-technique11 BloomSimplePass6 <string RenderTarget="RenderTarget128";>
+technique11 BloomSimplePass6 <string RenderTarget="RenderTarget64";>
 {
 	pass p0
 	{
 		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
-		SetPixelShader(CompileShader(ps_5_0,PS_VerticalBlur(TextureColor,128.0,3.0)));
+		SetPixelShader(CompileShader(ps_5_0,PS_VerticalBlur(TextureColor,64.0,3.0)));
 	}
 }
 technique11 BloomSimplePass7
@@ -611,7 +607,7 @@ technique11 BloomSimplePass7
 	}
 }
 
-technique11 BloomPass <string UIName="MariENB Multi Bloom"; string RenderTarget="RenderTargetRGBA64F";>
+technique11 BloomPass <string UIName="MariENB Multi Bloom"; string RenderTarget="RenderTarget1024";>
 {
 	pass p0
 	{
@@ -619,15 +615,7 @@ technique11 BloomPass <string UIName="MariENB Multi Bloom"; string RenderTarget=
 		SetPixelShader(CompileShader(ps_5_0,PS_PrePass()));
 	}
 }
-technique11 BloomPass1 <string RenderTarget="RenderTarget1024";>
-{
-	pass p0
-	{
-		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
-		SetPixelShader(CompileShader(ps_5_0,PS_Downsize(RenderTargetRGBA64F,0.0)));
-	}
-}
-technique11 BloomPass2 <string RenderTarget="RenderTarget512";>
+technique11 BloomPass1 <string RenderTarget="RenderTarget512";>
 {
 	pass p0
 	{
@@ -635,7 +623,7 @@ technique11 BloomPass2 <string RenderTarget="RenderTarget512";>
 		SetPixelShader(CompileShader(ps_5_0,PS_Downsize(RenderTarget1024,1024.0)));
 	}
 }
-technique11 BloomPass3 <string RenderTarget="RenderTarget256";>
+technique11 BloomPass2 <string RenderTarget="RenderTarget256";>
 {
 	pass p0
 	{
@@ -643,7 +631,7 @@ technique11 BloomPass3 <string RenderTarget="RenderTarget256";>
 		SetPixelShader(CompileShader(ps_5_0,PS_Downsize(RenderTarget512,512.0)));
 	}
 }
-technique11 BloomPass4 <string RenderTarget="RenderTarget128";>
+technique11 BloomPass3 <string RenderTarget="RenderTarget128";>
 {
 	pass p0
 	{
@@ -651,7 +639,7 @@ technique11 BloomPass4 <string RenderTarget="RenderTarget128";>
 		SetPixelShader(CompileShader(ps_5_0,PS_Downsize(RenderTarget256,256.0)));
 	}
 }
-technique11 BloomPass5 <string RenderTarget="RenderTarget64";>
+technique11 BloomPass4 <string RenderTarget="RenderTarget64";>
 {
 	pass p0
 	{
@@ -659,7 +647,7 @@ technique11 BloomPass5 <string RenderTarget="RenderTarget64";>
 		SetPixelShader(CompileShader(ps_5_0,PS_Downsize(RenderTarget128,128.0)));
 	}
 }
-technique11 BloomPass6 <string RenderTarget="RenderTarget32";>
+technique11 BloomPass5 <string RenderTarget="RenderTarget32";>
 {
 	pass p0
 	{
@@ -667,23 +655,15 @@ technique11 BloomPass6 <string RenderTarget="RenderTarget32";>
 		SetPixelShader(CompileShader(ps_5_0,PS_Downsize(RenderTarget64,64.0)));
 	}
 }
+technique11 BloomPass6 <string RenderTarget="RenderTarget16";>
+{
+	pass p0
+	{
+		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
+		SetPixelShader(CompileShader(ps_5_0,PS_Downsize(RenderTarget32,32.0)));
+	}
+}
 technique11 BloomPass7
-{
-	pass p0
-	{
-		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
-		SetPixelShader(CompileShader(ps_5_0,PS_HorizontalBlur(RenderTarget1024,1024.0)));
-	}
-}
-technique11 BloomPass8 <string RenderTarget="RenderTarget1024";>
-{
-	pass p0
-	{
-		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
-		SetPixelShader(CompileShader(ps_5_0,PS_VerticalBlur(TextureColor,1024.0,0.0)));
-	}
-}
-technique11 BloomPass9
 {
 	pass p0
 	{
@@ -691,15 +671,15 @@ technique11 BloomPass9
 		SetPixelShader(CompileShader(ps_5_0,PS_HorizontalBlur(RenderTarget512,512.0)));
 	}
 }
-technique11 BloomPass10 <string RenderTarget="RenderTarget512";>
+technique11 BloomPass8 <string RenderTarget="RenderTarget512";>
 {
 	pass p0
 	{
 		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
-		SetPixelShader(CompileShader(ps_5_0,PS_VerticalBlur(TextureColor,512.0,1.0)));
+		SetPixelShader(CompileShader(ps_5_0,PS_VerticalBlur(TextureColor,512.0,0.0)));
 	}
 }
-technique11 BloomPass11
+technique11 BloomPass9
 {
 	pass p0
 	{
@@ -707,15 +687,15 @@ technique11 BloomPass11
 		SetPixelShader(CompileShader(ps_5_0,PS_HorizontalBlur(RenderTarget256,256.0)));
 	}
 }
-technique11 BloomPass12 <string RenderTarget="RenderTarget256";>
+technique11 BloomPass10 <string RenderTarget="RenderTarget256";>
 {
 	pass p0
 	{
 		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
-		SetPixelShader(CompileShader(ps_5_0,PS_VerticalBlur(TextureColor,256.0,2.0)));
+		SetPixelShader(CompileShader(ps_5_0,PS_VerticalBlur(TextureColor,256.0,1.0)));
 	}
 }
-technique11 BloomPass13
+technique11 BloomPass11
 {
 	pass p0
 	{
@@ -723,15 +703,15 @@ technique11 BloomPass13
 		SetPixelShader(CompileShader(ps_5_0,PS_HorizontalBlur(RenderTarget128,128.0)));
 	}
 }
-technique11 BloomPass14 <string RenderTarget="RenderTarget128";>
+technique11 BloomPass12 <string RenderTarget="RenderTarget128";>
 {
 	pass p0
 	{
 		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
-		SetPixelShader(CompileShader(ps_5_0,PS_VerticalBlur(TextureColor,128.0,3.0)));
+		SetPixelShader(CompileShader(ps_5_0,PS_VerticalBlur(TextureColor,128.0,2.0)));
 	}
 }
-technique11 BloomPass15
+technique11 BloomPass13
 {
 	pass p0
 	{
@@ -739,15 +719,15 @@ technique11 BloomPass15
 		SetPixelShader(CompileShader(ps_5_0,PS_HorizontalBlur(RenderTarget64,64.0)));
 	}
 }
-technique11 BloomPass16 <string RenderTarget="RenderTarget64";>
+technique11 BloomPass14 <string RenderTarget="RenderTarget64";>
 {
 	pass p0
 	{
 		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
-		SetPixelShader(CompileShader(ps_5_0,PS_VerticalBlur(TextureColor,64.0,4.0)));
+		SetPixelShader(CompileShader(ps_5_0,PS_VerticalBlur(TextureColor,64.0,3.0)));
 	}
 }
-technique11 BloomPass17
+technique11 BloomPass15
 {
 	pass p0
 	{
@@ -755,12 +735,28 @@ technique11 BloomPass17
 		SetPixelShader(CompileShader(ps_5_0,PS_HorizontalBlur(RenderTarget32,32.0)));
 	}
 }
-technique11 BloomPass18 <string RenderTarget="RenderTarget32";>
+technique11 BloomPass16 <string RenderTarget="RenderTarget32";>
 {
 	pass p0
 	{
 		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
-		SetPixelShader(CompileShader(ps_5_0,PS_VerticalBlur(TextureColor,32.0,5.0)));
+		SetPixelShader(CompileShader(ps_5_0,PS_VerticalBlur(TextureColor,32.0,4.0)));
+	}
+}
+technique11 BloomPass17
+{
+	pass p0
+	{
+		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
+		SetPixelShader(CompileShader(ps_5_0,PS_HorizontalBlur(RenderTarget16,16.0)));
+	}
+}
+technique11 BloomPass18 <string RenderTarget="RenderTarget16";>
+{
+	pass p0
+	{
+		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
+		SetPixelShader(CompileShader(ps_5_0,PS_VerticalBlur(TextureColor,16.0,5.0)));
 	}
 }
 technique11 BloomPass19
