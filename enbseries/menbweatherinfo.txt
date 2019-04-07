@@ -1,16 +1,35 @@
+Weather reference
+
+0 Neutral	Generic or unsupported weathers
+1 General	Most of the temperate areas of the Commonwealth
+2 Dark		Shady areas
+3 Harbor	Fog-less Far Harbor sections
+4 Frosty	FROST weather
+5 Heat		Warmer parts of the Commonwealth
+6 Scorched	Mostly used for the bombs dropping in the intro
+7 General Fog	Temperate fogs
+8 General Rain	Temperate rains
+9 Dark Fog	Shady areas with fog
+A Dark Rain	Shady areas with rain
+B Harbor Fog	The fog, duh
+C Frosty Fog	When you can't see in FROST
+D Harbor Rain	Rainy Far Harbor
+E Heat Fog	Warmth with fog
+F Scorched Fog	Glowing sea, mostly
+
 This is still a work in progress.
 Hopefully the classification will be ready by the time
 Fallout 4 ENB supports weathers.
 
 Fallout4
 
-15E	DefaultWeather				WARM
+15E	DefaultWeather				.
 116B	FXDiamondSunlightBounce			.
 116D	DiamondWeather				.
 116E	DiamondWeatherPastel			.
 16EC	IstWeather				.
 29BB8	FXWthrSunlightOffAtNight		.
-2B52A	CommonwealthClear			WARM
+2B52A	CommonwealthClear			.
 6ED5A	FXWthrInvertDayNight			.
 747C8	FXConcord01				.
 7548F	FXWthrSunlight				.
@@ -19,76 +38,82 @@ Fallout4
 777CF	FXWthrInvertDayNightWarm		.
 88C57	FXWthrMoonlightOnly			.
 96C61	FXWthrMorningOnly			.
-A1588	NeutralWeather				WARM
+A1588	NeutralWeather				.
 A6858	WorldMapWeather				.
 DB2A1	MQ203Weather				.
-F1033	CommonwealthGSOvercast			WARM
-FF98F	PrewarPlayerHouseInteriorWeather	WARM
+F1033	CommonwealthGSOvercast			.
+FF98F	PrewarPlayerHouseInteriorWeather	.
 108640	FXInstituteDayNightCycle		.
 10D573	FXInstituteDayNightCycleKey		.
 10E3D4	EditorCloudPreview			.
-10F781	TCommonwealthMarshOvercast		COLD
+10F781	TCommonwealthMarshOvercast		.
 115C64	GoodneighborWeatherBase			.
-1209AF	NeutralOvercast				COLD
-1256FB	FXNukeWeather				WARM
-12A18E	CommonwealthSanctuaryClear		WARM
+1209AF	NeutralOvercast				.
+1256FB	FXNukeWeather				.
+12A18E	CommonwealthSanctuaryClear		.
 141AB4	FXWthrSunlightWhiteBounce		.
 171621	DefaultInteriorWeatherNoLUT		.
 171636	FXWthrSunlightOffAtNightGlass		.
 191647	FXWthrInvertDayNightGS			.
 1A65E5	ConcMuseumWeather			.
 1A65F0	DefaultInteriorWeather			.
-1A6994	CommonwealthSanctuaryClearNukeFog	WARM
-1BD481	CommonwealthGSFoggy			WARM
-1C3473	CommonwealthFoggy			COLD
-1C3D5E	CommonwealthGSRadstorm			WARM
+1A6994	CommonwealthSanctuaryClearNukeFog	.
+1BD481	CommonwealthGSFoggy			.
+1C3473	CommonwealthFoggy			.
+1C3D5E	CommonwealthGSRadstorm			.
 1C8556	CommonwealthOvercast			.
-1CA7E4	CommonwealthRain			COLD
+1CA7E4	CommonwealthRain			.
 1CC186	CommonwealthMisty			.
-1CD096	CommonwealthMistyRainy			COLD
+1CD096	CommonwealthMistyRainy			.
 1D1CEC	FXWthrSunlightOffAtNightBlack		.
-1D670E	CommonwealthClearestSkies		WARM
+1D670E	CommonwealthClearestSkies		.
 1E5E60	CommonwealthDarkSkies			.
-1EB2FF	CommonwealthPolluted			WARM
+1EB2FF	CommonwealthPolluted			.
 1F2529	CommOvercastTest2			.
 1F61A1	CommonwealthDusty			.
-1F61FD	CGPrewarNukeFXWeather			WARM
+1F61FD	CGPrewarNukeFXWeather			.
 20F46C	CommonwealthOvercastBackup		.
-211221	VideoVaultExit				WARM
-2115D7	CommonwealthMistyRainyBackup		COLD
-216A98	CommonwealthClearBackup			WARM
-21A563	CommonwealthClearTrailer1		WARM
-21A564	CommonwealthClearTrailer2		WARM
-222394	CommonwealthGSRadstormOld		WARM
-22239A	CommonwealthRainBackup			COLD
-225922	CommonwealthSanctuaryClearNoAttach	COLD
+211221	VideoVaultExit				.
+2115D7	CommonwealthMistyRainyBackup		.
+216A98	CommonwealthClearBackup			.
+21A563	CommonwealthClearTrailer1		.
+21A564	CommonwealthClearTrailer2		.
+222394	CommonwealthGSRadstormOld		.
+22239A	CommonwealthRainBackup			.
+225922	CommonwealthSanctuaryClearNoAttach	.
 226448	CommonwealthDarkSkies3			.
 2385FB	CommonwealthDarkSkies2			.
-2385FD	CommonwealthClear2			WARM
-2392A2	CommonwealthFoggyBackup			COLD
-2392A3	CommonwealthGSRadstormBackup		WARM
-2392A4	CommonwealthGSFoggyBackup		WARM
+2385FD	CommonwealthClear2			.
+2392A2	CommonwealthFoggyBackup			.
+2392A3	CommonwealthGSRadstormBackup		.
+2392A4	CommonwealthGSFoggyBackup		.
 2392A5	CommonwealthMistyBackup			.
-2392A6	CommonwealthSanctuaryClearBackup	WARM
-23AB9C	CommonwealthClearBackup2		WARM
-2486A4	CommonwealthClear_VBFog			WARM
-2486A5	CommonwealthOvercast_VBFog		COLD
+2392A6	CommonwealthSanctuaryClearBackup	.
+23AB9C	CommonwealthClearBackup2		.
+2486A4	CommonwealthClear_VBFog			.
+2486A5	CommonwealthOvercast_VBFog		.
 
 DLCCoast
 
-74C6	DLC03_RadStorm					WARM
-74F2	DLC03_UNUSEDMistyFogWeather			COLD
+74C6	DLC03_RadStorm					.
+74F2	DLC03_UNUSEDMistyFogWeather			.
 74F3	DLC03_TestMistyWeather				.
-74F5	DLC03_RadMistWeather				COLD
-74FA	DLC03_RainWeather				COLD
-7FBA	DLC03_RadFogWeather				COLD
+74F5	DLC03_RadMistWeather				.
+74FA	DLC03_RainWeather				.
+7FBA	DLC03_RadFogWeather				.
 9962	DLC03_ClearWeather				.
 23A97	DLC03VirtualWeather01				.
-247B6	DLC03AtomM01_RadStorm				WARM
+247B6	DLC03AtomM01_RadStorm				.
 31416	DLC03VirtualWeather01Original			.
-427EB	DLC03_RadMistWeatherBeforeGrantMessedItUp	COLD
-45F6F	DLC03_ClearWeatherFast				WARM
+427EB	DLC03_RadMistWeatherBeforeGrantMessedItUp	.
+45F6F	DLC03_ClearWeatherFast				.
 54132	DLC03VirtualWeather01OriginalFog		.
 56378	FXWthrWindowNoGlow01				.
-56638	DLC03_ClearWeatherFastBackup			WARM
-5D0C4	dlc03_radmistweatherFast			COLD
+56638	DLC03_ClearWeatherFastBackup			.
+5D0C4	dlc03_radmistweatherFast			.
+
+DLCNukaWorld
+
+7E3B	DLC04NukaWorldClear		.
+30ACD	DLC04NukaWorldRain		.
+367CA	DLC04NukaWorldClearDusty	.

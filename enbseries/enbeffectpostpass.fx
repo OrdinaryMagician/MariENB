@@ -246,7 +246,86 @@ float boxv
 	string UIWidget = "Spinner";
 	float UIMin = 1.0;
 > = {1.0};
+/* vignette */
+string str_vignette = "Vignette with border blur";
+bool vigenable
+<
+	string UIName = "Enable Vignette";
+	string UIWidget = "Checkbox";
+> = {false};
+bool bblurenable
+<
+	string UIName = "Enable Border Blur";
+	string UIWidget = "Checkbox";
+> = {false};
+/* 0 = circle, 1 = box, 2 = texture */
+int vigshape
+<
+	string UIName = "Vignette Shape";
+	string UIWidget = "Spinner";
+	int UIMin = 0;
+	int UIMax = 2;
+> = {0};
+/* 0 = overwrite, 1 = add, 2 = multiply */
+int vigmode
+<
+	string UIName = "Vignette Blending Mode";
+	string UIWidget = "Spinner";
+	int UIMin = 0;
+	int UIMax = 2;
+> = {0};
+float vigpow
+<
+	string UIName = "Vignette Contrast";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float vigmul
+<
+	string UIName = "Vignette Intensity";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float vigbump
+<
+	string UIName = "Vignette Shift";
+	string UIWidget = "Spinner";
+> = {0.0};
+float3 vigcolor
+<
+	string UIName = "Vignette Color";
+	string UIWidget = "Vector";
+> = {0.0,0.0,0.0};
+float bblurpow
+<
+	string UIName = "Border Blur Contrast";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float bblurmul
+<
+	string UIName = "Border Blur Intensity";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float bblurbump
+<
+	string UIName = "Border Blur Shift";
+	string UIWidget = "Spinner";
+> = {0.0};
+float bblurradius
+<
+	string UIName = "Border Blur Radius";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
 
+/* gaussian blur matrices */
+/* radius: 4, std dev: 1.5 */
+static const float gauss4[4] =
+{
+	0.270682, 0.216745, 0.111281, 0.036633
+};
 /*
    dithering threshold maps
    don't touch unless you know what you're doing
@@ -276,11 +355,6 @@ static const float ordered8[64] =
 	d(42),d(26),d(38),d(22),d(41),d(25),d(37),d(21)
 };
 #undef d
-/* gauss stuff */
-float gauss3[3] =
-{
-	0.444814, 0.239936, 0.037657
-};
 
 float4 ScreenSize;
 Texture2D TextureOriginal;
@@ -297,6 +371,14 @@ Texture2D TextureEGA
 Texture2D TextureVGA
 <
 	string ResourceName = "menbvgalut.png";
+>;
+Texture2D TextureVignette
+<
+#ifdef VIGNETTE_DDS
+	string ResourceName = "menbvignette.dds";
+#else
+	string ResourceName = "menbvignette.png";
+#endif
 >;
 
 SamplerState Sampler
@@ -569,6 +651,72 @@ float4 PS_LumaSharp( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	return theywillnotheal;
 }
 
+/* vignette filtering */
+float4 PS_Vignette( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
+{
+	float2 coord = IN.txcoord.xy;
+	float4 res = TextureColor.Sample(Sampler,coord);
+	float4 vigdata = float4(0,0,0,0);
+	if ( vigshape == 0 )
+	{
+		/* circular vignette */
+		float2 uv = ((coord-0.5)*float2(1.0,ScreenSize.w))*2.0;
+		vigdata.a = dot(uv,uv);
+		vigdata.a = clamp(pow(vigdata.a,vigpow)*vigmul+vigbump,
+			0.0,1.0);
+		vigdata.rgb = vigcolor;
+	}
+	else if ( vigshape == 1 )
+	{	
+		/* box vignette */
+		float2 uv = coord.xy*(1.0-coord.yx)*4.0;
+		vigdata.a = 1.0-(uv.x*uv.y);
+		vigdata.a = clamp(pow(vigdata.a,vigpow)*vigmul+vigbump,
+			0.0,1.0);
+		vigdata.rgb = vigcolor;
+	}
+	else
+	{
+		/* textured vignette (rgb = color, alpha = blend) */
+		vigdata = TextureVignette.Sample(Sampler,coord);
+	}
+	/* apply blur */
+	if ( bblurenable )
+	{
+		float2 bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
+		float bfact = clamp(pow(max(vigdata.a,0.0),bblurpow)*bblurmul
+			+bblurbump,0.0,1.0);
+		float2 bof = (1.0/bresl)*bblurradius*bfact;
+		res.rgb *= 0;
+		int i,j;
+		[unroll] for ( i=-3; i<4; i++ ) [unroll] for ( j=-3; j<4; j++ )
+			res.rgb += gauss4[abs(i)]*gauss4[abs(j)]
+				*TextureColor.Sample(Sampler,coord
+				+float2(i,j)*bof);
+	}
+	/* apply color */
+	if ( vigenable )
+	{
+		float3 outcol;
+		if ( vigmode == 0 )
+			outcol = vigdata.rgb;
+		else if ( vigmode == 1 )
+			outcol = res.rgb+vigdata.rgb;
+		else if ( vigmode == 2 )
+			outcol = res.rgb*vigdata.rgb;
+		res.rgb = lerp(res.rgb,outcol,vigdata.a);
+	}
+	return clamp(res,0.0,1.0);
+}
+
+/* TODO paint filter */
+/*float4 PS_Oily( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
+{
+	float2 coord = IN.txcoord.xy;
+	float4 res = TextureColor.Sample(Sampler,coord);
+	return res;
+}*/
+
 /* ultimate super-cinematic immersive black bars */
 float4 PS_Cinematic( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 {
@@ -632,10 +780,19 @@ technique11 ExtraFilters5
 	pass p0
 	{
 		SetVertexShader(CompileShader(vs_5_0,VS_PostProcess()));
+		SetPixelShader(CompileShader(ps_5_0,PS_Vignette()));
+	}
+}
+/* Paint will go between these two */
+technique11 ExtraFilters6
+{
+	pass p0
+	{
+		SetVertexShader(CompileShader(vs_5_0,VS_PostProcess()));
 		SetPixelShader(CompileShader(ps_5_0,PS_Retro()));
 	}
 }
-technique11 ExtraFilters6
+technique11 ExtraFilters7
 {
 	pass p0
 	{
