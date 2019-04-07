@@ -136,25 +136,27 @@ float4 PS_SSAOPrepass( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	else bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
 	float3 normal = pseudonormal(depth,coord);
 	float2 nc = coord*(bresl/256.0);
-	float radiusfade = lerp(1.0,pow(1.0-depth,ssaorfadep),ssaorfade);
-	float2 bof = float2(1.0/bresl.x,1.0/bresl.y)*ssaoradius*radiusfade;
-	float2 nc2 = tex2D(SamplerNoise3,nc+48000.0*Timer.x).xy;
+	float2 bof = float2(1.0/bresl.x,1.0/bresl.y)*ssaoradius;
+	float2 nc2 = tex2D(SamplerNoise3,nc+48000.0*Timer.x*ssaonoise).xy;
 	float3 rnormal = tex2D(SamplerNoise3,nc2).xyz*2.0-1.0;
-	rnormal.z = -abs(rnormal.z);
-	normal = normalize(normal+rnormal*ssaonoise);
+	rnormal = normalize(rnormal);
+	normal = normalize(normal);
 	float occ = 0.0;
 	int i;
 	float3 sample;
-	float sdepth, rangecheck;
-	float sclamp = (ssaocfact/1000.0)/radiusfade;
+	float sdepth, so, delta;
+	float sclamp = ssaoclamp/1000.0;
 	[unroll] for ( i=0; i<64; i++ )
 	{
-		sample = reflect(ssao_samples[i],normal);
-		sdepth = depthlinear(coord+sample.xy*bof);
-		if ( ldepth <= sdepth ) occ += 1.0;
-		else occ += saturate((abs(ldepth-sdepth)-sclamp)/sclamp);
+		sample = reflect(ssao_samples[i],rnormal);
+		sample *= sign(dot(normal,sample));
+		so = ldepth-sample.z*bof;
+		sdepth = depthlinear(coord+bof*sample.xy/ldepth);
+		delta = saturate(so-sdepth);
+		delta *= 1.0-smoothstep(0.0,sclamp,delta);
+		if ( (delta > 0.0) && (delta < sclamp) ) occ += 1.0-delta;
 	}
-	float uocc = saturate(1.0-occ/64.0);
+	float uocc = saturate(occ/64.0);
 	float fade = 1.0-depth;
 	uocc *= saturate(pow(fade,ssaofadepow)*ssaofademult);
 	uocc = saturate(pow(uocc,ssaopow)*ssaomult);

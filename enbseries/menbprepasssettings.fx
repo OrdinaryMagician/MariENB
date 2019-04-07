@@ -666,12 +666,14 @@ float ssaoradius
 <
 	string UIName = "SSAORadius";
 	string UIWidget = "Spinner";
-> = {256.0};
-float ssaonoise
+> = {1.0};
+int ssaonoise
 <
 	string UIName = "SSAONoise";
 	string UIWidget = "Spinner";
-> = {0.15};
+	int UIMin = 0;
+	int UIMax = 1;
+> = {1};
 float ssaofadepow_n
 <
 	string UIName = "SSAOFadePowerNight";
@@ -747,30 +749,18 @@ float ssaobfact
 	string UIName = "SSAOBilateralFactor";
 	string UIWidget = "Spinner";
 > = {10000.0};
-float ssaocfact
+float ssaoclamp
 <
-	string UIName = "SSAOClampFactor";
+	string UIName = "SSAOClamp";
 	string UIWidget = "Spinner";
-> = {0.1};
+	float UIMin = 0.0;
+> = {1.0};
 float ssaobradius
 <
 	string UIName = "SSAOBlurRadius";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
-float ssaorfade
-<
-	string UIName = "SSAORadiusFade";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-	float UIMax = 1.0;
-> = {1.0};
-float ssaorfadep
-<
-	string UIName = "SSAORadiusFadeCurve";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.25};
 bool ssaodebug
 <
 	string UIName = "DebugSSAO";
