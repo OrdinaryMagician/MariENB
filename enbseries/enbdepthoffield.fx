@@ -39,40 +39,6 @@ float distcha
 	string UIName = "Distortion Chromatic Aberration";
 	string UIWidget = "Spinner";
 > = {10.0};
-bool waterenable
-<
-	string UIName = "Enable Underwater";
-	string UIWidget = "Checkbox";
-> = {false};
-float3 uwm
-<
-	string UIName = "Underwater Frequency";
-	string UIWidget = "Vector";
-	float3 UIMin = {0.0,0.0,0.0};
-> = {1.4,1.6,1.4};
-float3 uwf
-<
-	string UIName = "Underwater Speed";
-	string UIWidget = "Vector";
-	float3 UIMin = {0.0,0.0,0.0};
-> = {10.0,8.0,16.0};
-float3 uws
-<
-	string UIName = "Underwater Amplitude";
-	string UIWidget = "Vector";
-	float3 UIMin = {0.0,0.0,0.0};
-> = {0.3,0.5,0.8};
-float uwz
-<
-	string UIName = "Underwater Zoom";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.5};
-bool wateralways
-<
-	string UIName = "Always Underwater";
-	string UIWidget = "Checkbox";
-> = {false};
 bool heatenable
 <
 	string UIName = "Enable Hot Air Refraction";
@@ -123,148 +89,37 @@ float heatfactor_dw
 <
 	string UIName = "Heat Factor Dawn";
 	string UIWidget = "Spinner";
-	float UIMin = 0.0;
 > = {0.2};
 float heatfactor_sr
 <
 	string UIName = "Heat Factor Sunrise";
 	string UIWidget = "Spinner";
-	float UIMin = 0.0;
 > = {0.5};
 float heatfactor_dy
 <
 	string UIName = "Heat Factor Day";
 	string UIWidget = "Spinner";
-	float UIMin = 0.0;
 > = {1.0};
 float heatfactor_ss
 <
 	string UIName = "Heat Factor Sunset";
 	string UIWidget = "Spinner";
-	float UIMin = 0.0;
 > = {0.7};
 float heatfactor_ds
 <
 	string UIName = "Heat Factor Dusk";
 	string UIWidget = "Spinner";
-	float UIMin = 0.0;
 > = {0.1};
 float heatfactor_nt
 <
 	string UIName = "Heat Factor Night";
 	string UIWidget = "Spinner";
-	float UIMin = 0.0;
 > = {0.0};
 float heatfactor_i
 <
 	string UIName = "Heat Factor Interior";
 	string UIWidget = "Spinner";
-	float UIMin = 0.0;
 > = {0.0};
-bool heatalways
-<
-	string UIName = "Heat Always Enable";
-	string UIWidget = "Checkbox";
-> = {false};
-bool frostenable
-<
-	string UIName = "Enable Screen Frost";
-	string UIWidget = "Checkbox";
-> = {false};
-float frostpow
-<
-	string UIName = "Frost Contrast";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float froststrength
-<
-	string UIName = "Frost Strength";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float frostrpow
-<
-	string UIName = "Frost Radial Contrast";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float frostrmult
-<
-	string UIName = "Frost Radial Intensity";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float frostrbump
-<
-	string UIName = "Frost Radial Offset";
-	string UIWidget = "Spinner";
-> = {0.0};
-float frostblend
-<
-	string UIName = "Frost Texture Blend";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float frostbpow
-<
-	string UIName = "Frost Texture Blend Contrast";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float frostsize
-<
-	string UIName = "Frost Texture Size";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float frostfactor_dw
-<
-	string UIName = "Frost Factor Dawn";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.1};
-float frostfactor_sr
-<
-	string UIName = "Frost Factor Sunrise";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.0};
-float frostfactor_dy
-<
-	string UIName = "Frost Factor Day";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.0};
-float frostfactor_ss
-<
-	string UIName = "Frost Factor Sunset";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.0};
-float frostfactor_ds
-<
-	string UIName = "Frost Factor Dusk";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.1};
-float frostfactor_nt
-<
-	string UIName = "Frost Factor Night";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.25};
-float frostfactor_i
-<
-	string UIName = "Frost Factor Interior";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.0};
-bool frostalways
-<
-	string UIName = "Frost Always Enable";
-	string UIWidget = "Checkbox";
-> = {false};
 string str_focus = "Focusing Parameters";
 /*
    focus modes:
@@ -1197,22 +1052,6 @@ Texture2D TextureHeat
 	string ResourceName = "menbheat.png";
 #endif
 >;
-Texture2D TextureFrost
-<
-#ifdef FROST_DDS
-	string ResourceName = "menbfrost.dds";
-#else
-	string ResourceName = "menbfrost.png";
-#endif
->;
-Texture2D TextureFrostBump
-<
-#ifdef FROSTBUMP_DDS
-	string ResourceName = "menbfrostbump.dds";
-#else
-	string ResourceName = "menbfrostbump.png";
-#endif
->;
 
 SamplerState Sampler0
 {
@@ -1541,21 +1380,6 @@ float4 PS_SSAOApply( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	return res*mud;
 }
 
-/*
-   Underwater distortion, which currently has no real use due to Boris being
-   lazy. fWaterLevel doesn't yet provide any usable values.
-*/
-float2 UnderwaterDistort( float2 coord )
-{
-	if ( !wateralways ) return coord;
-	float2 ofs = float2(0.0,0.0);
-	float siny = sin(pi*2.0*(coord.y*uwm.x+Timer.x*uwf.x*100.0))*uws.x;
-	ofs.y = siny+sin(pi*2.0*(coord.x*uwm.y+Timer.x*uwf.y*100.0))*uws.y;
-	ofs.x = siny+sin(pi*2.0*(coord.x*uwm.z+Timer.x*uwf.z*100.0))*uws.z;
-	ofs -= (coord-0.5)*2.0*uwz;
-	return coord+ofs*0.01;
-}
-
 /* Distant hot air refraction. Not very realistic, but does the job. */
 float2 DistantHeat( float2 coord )
 {
@@ -1565,8 +1389,8 @@ float2 DistantHeat( float2 coord )
 	float distfade = clamp(pow(max(0,dep),heatfadepow)*heatfademul
 		+heatfadebump,0.0,1.0);
 	if ( distfade <= 0.0 ) return coord;
-	float todpow = todx_ind(heatfactor);
-	if ( !heatalways && (todpow <= 0.0) ) return coord;
+	float todpow = max(0.0,todx_ind(heatfactor));
+	if ( todpow <= 0.0 ) return coord;
 	if ( (fixed.x > 0) && (fixed.y > 0) ) bresl = fixed;
 	else bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
 	float2 nc = coord*(bresl/HEATSIZE)*heatsize;
@@ -1575,7 +1399,7 @@ float2 DistantHeat( float2 coord )
 	ofs = (ofs-0.5)*2.0;
 	ofs *= pow(length(ofs),heatpow);
 	ofs *= todpow;
-	if ( !heatalways ) ofs *= max(0.0,warmfactor-coldfactor);
+	/*ofs *= max(0.0,warmfactor-coldfactor);*/
 	odep = TextureDepth.SampleLevel(Sampler1,coord+ofs*heatstrength
 		*distfade*0.01,0).x;
 	float odistfade = clamp(pow(max(0,odep),heatfadepow)*heatfademul
@@ -1592,7 +1416,6 @@ float4 PS_Distortion( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	if ( (fixed.x > 0) && (fixed.y > 0) ) bresl = fixed;
 	else bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
 	float2 ofs = coord;
-	if ( waterenable ) ofs = UnderwaterDistort(ofs);
 	if ( heatenable ) ofs = DistantHeat(ofs);
 	ofs -= coord;
 	float4 res;
@@ -1843,61 +1666,11 @@ float4 PS_DoFPostBlur( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	return res;
 }
 
-/* Screen frost shader. Not very realistic either, but looks fine too. */
-float2 ScreenFrost( float2 coord )
-{
-	float2 bresl;
-	if ( (fixed.x > 0) && (fixed.y > 0) ) bresl = fixed;
-	else bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
-	float2 nc = coord*(bresl/FROSTSIZE)*frostsize;
-	float2 ofs = TextureFrostBump.Sample(Sampler2,nc).xy;
-	ofs = (ofs-0.5)*2.0;
-	ofs *= pow(length(ofs),frostpow)*froststrength;
-	float todpow = todx_ind(frostfactor);
-	if ( !frostalways ) ofs *= max(0.0,coldfactor-warmfactor)*todpow;
-	else ofs *= todpow;
-	float dist = distance(coord,float2(0.5,0.5))*2.0;
-	ofs *= clamp(pow(dist,frostrpow)*frostrmult+frostrbump,0.0,1.0);
-	return coord+ofs;
-}
-
 /* screen frost overlay */
-float4 PS_FrostPass( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
+float4 PS_DebugFocus( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 {
 	float2 coord = IN.txcoord.xy;
-	float2 bresl;
-	if ( (fixed.x > 0) && (fixed.y > 0) ) bresl = fixed;
-	else bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
-	float4 res;
-	[branch] if ( frostenable )
-	{
-		float2 ofs = ScreenFrost(coord);
-		ofs -= coord;
-		if ( (distcha != 0.0) && (length(ofs) != 0.0) )
-		{
-			float2 ofr, ofg, ofb;
-			ofr = ofs*(1.0-distcha*0.01);
-			ofg = ofs;
-			ofb = ofs*(1.0+distcha*0.01);
-			res = float4(TextureColor.Sample(Sampler1,coord+ofr).r,
-				TextureColor.Sample(Sampler1,coord+ofg).g,
-				TextureColor.Sample(Sampler1,coord+ofb).b,1.0);
-		}
-		else res = TextureColor.Sample(Sampler1,coord+ofs);
-		float2 nc = coord*(bresl/FROSTSIZE)*frostsize;
-		float bmp = pow(max(0,TextureFrost.SampleLevel(Sampler2,nc,
-			0).x),frostbpow);
-		float dist = distance(coord,float2(0.5,0.5))*2.0;
-		dist = clamp(pow(dist,frostrpow)*frostrmult+frostrbump,0.0,
-			1.0)*frostblend;
-		float todpow = todx_ind(frostfactor);
-		/* Weathers not implemented in FO4 ENB as of 0.291 */
-		if ( !frostalways )
-			dist *= max(0.0,coldfactor-warmfactor)*todpow;
-		else dist *= todpow;
-		res.rgb *= 1.0+bmp*dist;
-	}
-	else res = TextureColor.Sample(Sampler1,coord);
+	float4 res = TextureColor.Sample(Sampler1,coord);
 	if ( !focusdisplay || (focuscircle == -1) ) return res;
 	if ( focuscircle == -2 )
 	{
@@ -2032,7 +1805,7 @@ technique11 Prepass8
 	pass p0
 	{
 		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
-		SetPixelShader(CompileShader(ps_5_0,PS_FrostPass()));
+		SetPixelShader(CompileShader(ps_5_0,PS_DebugFocus()));
 	}
 }
 
@@ -2105,7 +1878,7 @@ technique11 PrepassB8
 	pass p0
 	{
 		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
-		SetPixelShader(CompileShader(ps_5_0,PS_FrostPass()));
+		SetPixelShader(CompileShader(ps_5_0,PS_DebugFocus()));
 	}
 }
 
