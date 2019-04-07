@@ -14,36 +14,56 @@
 	*TimeOfDay1.z+a##_ss*TimeOfDay1.w+a##_ds*TimeOfDay2.x+a##_nt\
 	*TimeOfDay2.y,a##_i,EInteriorFactor)
 /* weather macros (not very useful yet) */
-#define WT_TEMPERATE 0.0
-#define WT_HOT 1.0
-#define WT_COLD 2.0
 #define weatherfactor(id) ((Weather.x==id)?(Weather.y==id)?(1.0):(Weather.z)\
 	:(Weather.y==id)?(1.0-Weather.z):(0.0))
 /*
    Explanation of macro, because some of the people reading this likely don't
    know what a ternary conditional is:
 
-   (WeatherAndTime.x==id)  -> transitioning to wanted weather?
-   ?(WeatherAndTime.y==id) -> coming from wanted weather?
+   (Weather.x==id)  -> transitioning to wanted weather?
+   ?(Weather.y==id) -> coming from wanted weather?
    ?(1.0)                  -> if so, always 1
-   :(WeatherAndTime.z)     -> if not, return transition
-   :(WeatherAndTime.y==id) -> not transitioning but coming from wanted weather?
-   ?(1.0-WeatherAndTime.z) -> return inverse transition
+   :(Weather.z)     -> if not, return transition
+   :(Weather.y==id) -> not transitioning but coming from wanted weather?
+   ?(1.0-Weather.z) -> return inverse transition
    :(0.0)                  -> otherwise return 0
 */
+/* temperate no fog */
+#define WT_NEUTRAL	0.0
+#define WT_GENERAL	1.0
+#define WT_DARK		2.0
+/* cold no fog */
+#define WT_HARBOR	3.0
+#define WT_FROSTY	4.0
+/* warm no fog */
+#define WT_HEAT		5.0
+#define WT_SCORCHED	6.0
+/* temperate fog */
+#define WT_GENERALFOG	7.0
+#define WT_GENERALRAIN	8.0
+#define WT_DARKFOG	9.0
+#define WT_DARKRAIN	10.0
+/* cold fog */
+#define WT_HARBORFOG	11.0
+#define WT_FROSTYFOG	12.0
+#define WT_HARBORRAIN	13.0
+/* warm fog */
+#define WT_HEATFOG	14.0
+#define WT_SCORCHEDFOG	15.0
+/* temperature and fog interpolation macros */
+#define istemperate(x) (((x>=0.0)&&(x<=2.0))||((x>=7.0)&&(x<=10.0)))
+#define iscold(x) (((x>=3.0)&&(x<=4.0))||((x>=11.0)&&(x<=13.0)))
+#define iswarm(x) (((x>=5.0)&&(x<=6.0))||((x>=14.0)&&(x<=15.0)))
+#define isfog(x) ((x>=7.0)&&(x<=15.0))
+#define temperatefactor (istemperate(Weather.x)?istemperate(Weather.y)?(1.0)\
+	:(Weather.z):istemperate(Weather.y)?(1.0-Weather.z):(0.0))
+#define coldfactor (iscold(Weather.x)?iscold(Weather.y)?(1.0):(Weather.z)\
+	:iscold(Weather.y)?(1.0-Weather.z):(0.0))
+#define warmfactor (iswarm(Weather.x)?iswarm(Weather.y)?(1.0):(Weather.z)\
+	:iswarm(Weather.y)?(1.0-Weather.z):(0.0))
+#define fogfactor (isfog(Weather.x)?isfog(Weather.y)?(1.0):(Weather.z)\
+	:isfog(Weather.y)?(1.0-Weather.z):(0.0))
 /* asset definitions */
-/* ascii art font */
-#define FONT_WIDTH   8
-#define FONT_HEIGHT  4096
-#define GLYPH_WIDTH  8
-#define GLYPH_HEIGHT 16
-#define FONT_LEVELS  255
-/*
-   aspect correction for certain overlays
-    uncommented : the textures are 1:1 and must be corrected
-    commented : the textures are 16:9 or whatever ratio you use
-*/
-//#define ASPECT_LENSDIRT
 /* texture sizes */
 #define NOISESIZE 256.0
 #define HEATSIZE 1024.0
@@ -54,6 +74,6 @@
 #define LUTMODE_64
 /* some textures can be provided as DDS rather than PNG to save space */
 //#define HEAT_DDS
-//#define LENSDIRT_DDS
 //#define FROST_DDS
 //#define FROSTBUMP_DDS
+//#define VIGNETTE_DDS

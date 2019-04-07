@@ -604,17 +604,68 @@ bool dofdisable
 	string UIName = "Disable DOF";
 	string UIWidget = "Checkbox";
 > = {false};
+bool doffixedonly
+<
+	string UIName = "Use Only Fixed DOF";
+	string UIWidget = "Checkbox";
+> = {false};
 float dofpradius
 <
-	string UIName = "DOF Blur Radius";
+	string UIName = "DOF Gather Blur Radius";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {6.0};
+bool dofpostblur
+<
+	string UIName = "Enable DOF Post-Blur";
+	string UIWidget = "Checkbox";
+> = {true};
+float dofpbradius
+<
+	string UIName = "DOF Post-Blur Radius";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
 float dofpcha
 <
 	string UIName = "DOF Blur Chromatic Aberration";
 	string UIWidget = "Spinner";
 > = {0.0};
+bool dofhilite
+<
+	string UIName = "Enable DOF Highlights";
+	string UIWidget = "Checkbox";
+> = {false};
+float dofbthreshold
+<
+	string UIName = "DOF Highlight Threshold";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {0.5};
+float dofbgain
+<
+	string UIName = "DOF Highlight Gain";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {2.0};
+float dofbradius
+<
+	string UIName = "DOF Bokeh Blur Radius";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float dofbbias
+<
+	string UIName = "DOF Bokeh Edge Bias";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {0.5};
+float dofbnoise
+<
+	string UIName = "DOF Bokeh Fuzz";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {0.01};
 /* tilting */
 float doftiltxcenter
 <
@@ -826,6 +877,236 @@ bool ssaodebug
 	string UIName = "Debug SSAO";
 	string UIWidget = "Checkbox";
 > = {false};
+/* depth-based colour grading suite */
+string str_grade = "Depth Color Grading Suite";
+float dgradedfoc
+<
+	string UIName = "Depth Grading Center Depth";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {0.0};
+float dgradedpow_n
+<
+	string UIName = "Depth Grading Contrast Night";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float dgradedpow_d
+<
+	string UIName = "Depth Grading Contrast Day";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float dgradedpow_i
+<
+	string UIName = "Depth Grading Contrast Interior";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float dgradedmul_n
+<
+	string UIName = "Depth Grading Intensity Night";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float dgradedmul_d
+<
+	string UIName = "Depth Grading Intensity Day";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float dgradedmul_i
+<
+	string UIName = "Depth Grading Intensity Interior";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float dgradedbump_n
+<
+	string UIName = "Depth Grading Shift Night";
+	string UIWidget = "Spinner";
+> = {0.0};
+float dgradedbump_d
+<
+	string UIName = "Depth Grading Shift Day";
+	string UIWidget = "Spinner";
+> = {0.0};
+float dgradedbump_i
+<
+	string UIName = "Depth Grading Shift Interior";
+	string UIWidget = "Spinner";
+> = {0.0};
+float dgradedblend_n
+<
+	string UIName = "Depth Grading Blend Night";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {1.0};
+float dgradedblend_d
+<
+	string UIName = "Depth Grading Blend Day";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {1.0};
+float dgradedblend_i
+<
+	string UIName = "Depth Grading Blend Interior";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {1.0};
+bool dgradeenable1
+<
+	string UIName = "Enable RGB Grading";
+	string UIWidget = "Checkbox";
+> = {false};
+/* color component multipliers */
+float3 dgrademul_n
+<
+	string UIName = "Grading Intensity Night";
+	string UIWidget = "Vector";
+> = {1.0,1.0,1.0};
+float3 dgrademul_d
+<
+	string UIName = "Grading Intensity Day";
+	string UIWidget = "Vector";
+> = {1.0,1.0,1.0};
+float3 dgrademul_i
+<
+	string UIName = "Grading Intensity Interior";
+	string UIWidget = "Vector";
+> = {1.0,1.0,1.0};
+/* color component contrasts */
+float3 dgradepow_n
+<
+	string UIName = "Grading Contrast Night";
+	string UIWidget = "Vector";
+> = {1.0,1.0,1.0};
+float3 dgradepow_d
+<
+	string UIName = "Grading Contrast Day";
+	string UIWidget = "Vector";
+> = {1.0,1.0,1.0};
+float3 dgradepow_i
+<
+	string UIName = "Grading Contrast Interior";
+	string UIWidget = "Vector";
+> = {1.0,1.0,1.0};
+/* colorization factors */
+bool dgradeenable2
+<
+	string UIName = "Enable Vibrance Grading";
+	string UIWidget = "Checkbox";
+> = {false};
+float3 dgradecol_n
+<
+	string UIName = "Grading Color Night";
+	string UIWidget = "Vector";
+> = {1.0,1.0,1.0};
+float3 dgradecol_d
+<
+	string UIName = "Grading Color Day";
+	string UIWidget = "Vector";
+> = {1.0,1.0,1.0};
+float3 dgradecol_i
+<
+	string UIName = "Grading Color Interior";
+	string UIWidget = "Vector";
+> = {1.0,1.0,1.0};
+/* blend factor for colorization (negative values are quite fancy) */
+float dgradecolfact_n
+<
+	string UIName = "Grading Color Factor Night";
+	string UIWidget = "Spinner";
+> = {0.0};
+float dgradecolfact_d
+<
+	string UIName = "Grading Color Factor Day";
+	string UIWidget = "Spinner";
+> = {0.0};
+float dgradecolfact_i
+<
+	string UIName = "Grading Color Factor Interior";
+	string UIWidget = "Spinner";
+> = {0.0};
+/* HSV grading */
+bool dgradeenable3
+<
+	string UIName = "Enable HSV Grading";
+	string UIWidget = "Checkbox";
+> = {false};
+/* saturation multiplier */
+float dgradesatmul_n
+<
+	string UIName = "Grading Saturation Intensity Night";
+	string UIWidget = "Spinner";
+> = {1.0};
+float dgradesatmul_d
+<
+	string UIName = "Grading Saturation Intensity Day";
+	string UIWidget = "Spinner";
+> = {1.0};
+float dgradesatmul_i
+<
+	string UIName = "Grading Saturation Intensity Interior";
+	string UIWidget = "Spinner";
+> = {1.0};
+/* saturation power */
+float dgradesatpow_n
+<
+	string UIName = "Grading Saturation Contrast Night";
+	string UIWidget = "Spinner";
+> = {1.0};
+float dgradesatpow_d
+<
+	string UIName = "Grading Saturation Contrast Day";
+	string UIWidget = "Spinner";
+> = {1.0};
+float dgradesatpow_i
+<
+	string UIName = "Grading Saturation Contrast Interior";
+	string UIWidget = "Spinner";
+> = {1.0};
+/* value multiplier */
+float dgradevalmul_n
+<
+	string UIName = "Grading Value Intensity Night";
+	string UIWidget = "Spinner";
+> = {1.0};
+float dgradevalmul_d
+<
+	string UIName = "Grading Value Intensity Day";
+	string UIWidget = "Spinner";
+> = {1.0};
+float dgradevalmul_i
+<
+	string UIName = "Grading Value Intensity Interior";
+	string UIWidget = "Spinner";
+> = {1.0};
+/* value power */
+float dgradevalpow_n
+<
+	string UIName = "Grading Value Contrast Night";
+	string UIWidget = "Spinner";
+> = {1.0};
+float dgradevalpow_d
+<
+	string UIName = "Grading Value Contrast Day";
+	string UIWidget = "Spinner";
+> = {1.0};
+float dgradevalpow_i
+<
+	string UIName = "Grading Value Contrast Interior";
+	string UIWidget = "Spinner";
+> = {1.0};
+bool dcolorizeafterhsv
+<
+	string UIName = "Colorize After HSV";
+	string UIWidget = "Checkbox";
+> = {true};
 
 /* mathematical constants */
 static const float pi = 3.1415926535898;
@@ -976,7 +1257,21 @@ VS_OUTPUT_POST VS_Quad( VS_INPUT_POST IN )
 #define luminance(x) dot(x,float3(0.2126,0.7152,0.0722))
 /* CCIR601 */
 //#define luminance(x) dot(x,float3(0.299,0.587,0.114))
-/* these are znear/zfar values for Skyrim, but MAY match Fallout too */
+float3 rgb2hsv( float3 c )
+{
+	float4 K = float4(0.0,-1.0/3.0,2.0/3.0,-1.0);
+	float4 p = (c.g<c.b)?float4(c.bg,K.wz):float4(c.gb,K.xy);
+	float4 q = (c.r<p.x)?float4(p.xyw,c.r):float4(c.r,p.yzx);
+	float d = q.x-min(q.w,q.y);
+	float e = 1.0e-10;
+	return float3(abs(q.z+(q.w-q.y)/(6.0*d+e)),d/(q.x+e),q.x);
+}
+float3 hsv2rgb( float3 c )
+{
+	float4 K = float4(1.0,2.0/3.0,1.0/3.0,3.0);
+	float3 p = abs(frac(c.x+K.xyz)*6.0-K.w);
+	return c.z*lerp(K.x,saturate(p-K.x),c.y);
+}
 float depthlinear( float2 coord )
 {
 	float z = TextureDepth.SampleLevel(Sampler1,coord,0).x;
@@ -1122,7 +1417,7 @@ float4 PS_DoFPrepass( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	/* cheap tilt */
 	foc = foc+0.01*doftiltx*(doftiltxcenter-coord.x)
 		+0.01*doftilty*(doftiltycenter-coord.y);
-	float dff = abs(dep-doffixedfocusdepth);
+	float dff = abs((dep-doffixedfocusdepth)*1.0/doffixedfocuscap);
 	dff = clamp(pow(dff,doffixedfocuspow)*doffixedfocusmult
 		+doffixedfocusbump,0.0,1.0);
 	if ( dep > doffixedfocuscap ) dff = 1.0;
@@ -1132,20 +1427,10 @@ float4 PS_DoFPrepass( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	if ( doffixedcut && (dep >= cutoff*0.000001) ) dfu *= 0;
 	float dfc = abs(dep-foc);
 	dfc = clamp(pow(dfc,dofpow)*dofmult+dofbump,0.0,1.0);
+	if ( doffixedonly ) dfc *= 0;
 	dfc += lerp(0.0,dfu,doffixedunfocusblend);
 	dfc *= lerp(1.0,dff,doffixedfocusblend);
 	return clamp(dfc,0.0,1.0);
-}
-
-/* apply SSAO to screen */
-float4 PS_SSAOApply( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
-{
-	float2 coord = IN.txcoord.xy;
-	float4 res = TextureOriginal.Sample(Sampler1,coord);
-	if ( !ssaoenable ) return res;
-	float mud = RenderTargetR16F.Sample(Sampler1,coord).x;
-	if ( ssaodebug ) return saturate(mud);
-	return res*mud;
 }
 
 /* old Edgevision mode */
@@ -1193,13 +1478,67 @@ float3 EdgeView( float3 res, float2 coord )
 	return mud;
 }
 
-/* Edgevision and Sharpen */
-float4 PS_Edge( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
+/* Colour grading based on depth */
+float3 DepthGradeRGB( float3 res, float dfc )
+{
+	float3 dgrademul = tod_ind(dgrademul);
+	float3 dgradepow = tod_ind(dgradepow);
+	return lerp(res,pow(max(0,res),dgradepow)*dgrademul,dfc);
+}
+float3 DepthGradeColor( float3 res, float dfc )
+{
+	float dgradecolfact = tod_ind(dgradecolfact);
+	float3 dgradecol = tod_ind(dgradecol);
+	float tonev = luminance(res);
+	float3 tonecolor = dgradecol*tonev;
+	return lerp(res,res*(1.0-dgradecolfact)+tonecolor*dgradecolfact,dfc);
+}
+float3 DepthGradeHSV( float3 res, float dfc )
+{
+	float dgradesatmul = tod_ind(dgradesatmul);
+	float dgradesatpow = tod_ind(dgradesatpow);
+	float dgradevalmul = tod_ind(dgradevalmul);
+	float dgradevalpow = tod_ind(dgradevalpow);
+	float3 hsv = rgb2hsv(res);
+	hsv.y = clamp(pow(max(0,hsv.y),dgradesatpow)*dgradesatmul,0.0,1.0);
+	hsv.z = pow(max(0,hsv.z),dgradevalpow)*dgradevalmul;
+	return lerp(res,hsv2rgb(hsv),dfc);
+}
+float3 DepthGrade( float3 res, float2 coord )
+{
+	float dep = TextureDepth.Sample(Sampler1,coord).x;
+	float dfc = abs(dep-dgradedfoc);
+	float dgradedpow = tod_ind(dgradedpow);
+	float dgradedmul = tod_ind(dgradedmul);
+	float dgradedbump = tod_ind(dgradedbump);
+	float dgradedblend = tod_ind(dgradedblend);
+	dfc = clamp(pow(dfc,dgradedpow)*dgradedmul+dgradedbump,0.0,1.0)
+		*dgradedblend;
+	if ( dgradeenable1 ) res = DepthGradeRGB(res,dfc);
+	if ( dcolorizeafterhsv )
+	{
+		if ( dgradeenable3 ) res = DepthGradeHSV(res,dfc);
+		if ( dgradeenable2 ) res = DepthGradeColor(res,dfc);
+	}
+	else
+	{
+		if ( dgradeenable2 ) res = DepthGradeColor(res,dfc);
+		if ( dgradeenable3 ) res = DepthGradeHSV(res,dfc);
+	}
+	return res;
+}
+
+/* apply SSAO to screen */
+float4 PS_SSAOApply( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 {
 	float2 coord = IN.txcoord.xy;
-	float4 res = TextureColor.Sample(Sampler1,coord);
+	float4 res = TextureOriginal.Sample(Sampler1,coord);
 	if ( edgevenable ) res.rgb = EdgeView(res.rgb,coord);
-	return res;
+	res.rgb = DepthGrade(res.rgb,coord);
+	if ( !ssaoenable ) return res;
+	float mud = RenderTargetR16F.Sample(Sampler1,coord).x;
+	if ( ssaodebug ) return saturate(mud);
+	return res*mud;
 }
 
 /*
@@ -1236,7 +1575,7 @@ float2 DistantHeat( float2 coord )
 	ofs = (ofs-0.5)*2.0;
 	ofs *= pow(length(ofs),heatpow);
 	ofs *= todpow;
-	if ( !heatalways ) ofs *= weatherfactor(WT_HOT);
+	if ( !heatalways ) ofs *= max(0.0,warmfactor-coldfactor);
 	odep = TextureDepth.SampleLevel(Sampler1,coord+ofs*heatstrength
 		*distfade*0.01,0).x;
 	float odistfade = clamp(pow(max(0,odep),heatfadepow)*heatfademul
@@ -1350,7 +1689,45 @@ float4 PS_Focus( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 		TextureCurrent.Sample(Sampler0,0.5).x,
 		saturate(DofParameters.w)),0.0);
 }
-
+/* helper code for simplifying these */
+#define gcircle(x) float2(cos(x),sin(x))
+float4 dofsample( float2 coord, float2 bsz, float blur, bool bDoHighlight,
+	out float4 deps, out float4 dfcs )
+{
+	float4 res;
+	float cstep = 2.0*pi*(1.0/3.0);
+	float ang = 0.5*pi;
+	res.r = TextureColor.SampleLevel(Sampler1,coord
+		+gcircle(ang)*bsz*dofpcha*0.1,0,0).r;
+	deps.r = TextureDepth.SampleLevel(Sampler1,coord
+		+gcircle(ang)*bsz*dofpcha*0.1,0,0).x;
+	dfcs.r = RenderTargetR32F.SampleLevel(Sampler1,coord
+		+gcircle(ang)*bsz*dofpcha*0.1,0,0).x;
+	ang += cstep;
+	res.g = TextureColor.SampleLevel(Sampler1,coord
+		+gcircle(ang)*bsz*dofpcha*0.1,0,0).g;
+	deps.g = TextureDepth.SampleLevel(Sampler1,coord
+		+gcircle(ang)*bsz*dofpcha*0.1,0,0).x;
+	dfcs.g = RenderTargetR32F.SampleLevel(Sampler1,coord
+		+gcircle(ang)*bsz*dofpcha*0.1,0,0).x;
+	ang += cstep;
+	res.b = TextureColor.SampleLevel(Sampler1,coord
+		+gcircle(ang)*bsz*dofpcha*0.1,0,0).b;
+	deps.b = TextureDepth.SampleLevel(Sampler1,coord
+		+gcircle(ang)*bsz*dofpcha*0.1,0,0).x;
+	dfcs.b = RenderTargetR32F.SampleLevel(Sampler1,coord
+		+gcircle(ang)*bsz*dofpcha*0.1,0,0).x;
+	if ( bDoHighlight )
+	{
+		float l = luminance(res.rgb);
+		float threshold = max((l-dofbthreshold)*dofbgain,0.0);
+		res += lerp(0,res,threshold*blur);
+	}
+	res.a = TextureColor.SampleLevel(Sampler1,coord,0,0).a;
+	deps.a = TextureDepth.SampleLevel(Sampler1,coord,0,0).x;
+	dfcs.a = RenderTargetR32F.SampleLevel(Sampler1,coord,0,0).x;
+	return res;
+}
 /* gather blur pass */
 float4 PS_DoFBlur( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 {
@@ -1366,24 +1743,17 @@ float4 PS_DoFBlur( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	if ( dfc <= dofminblur ) return TextureColor.Sample(Sampler1,coord);
 	float4 res = float4(0,0,0,0);
 	float dep = TextureDepth.Sample(Sampler1,coord).x;
-	float sd, ds, sw, tw = 0;
 	float2 bsz = bof*dofpradius*dfc;
-	float4 sc;
+	float4 sc, ds, sd, sw, tw = float4(0,0,0,0);
+	float cstep = 2.0*pi*(1.0/3.0);
+	float ang = 0.5*pi;
 	[unroll] for ( int i=0; i<32; i++ )
 	{
-		sc = float4(TextureColor.SampleLevel(Sampler1,coord
-			+poisson32[i]*bsz*(1+dofpcha*0.1),dfc*4.0).r,
-			TextureColor.SampleLevel(Sampler1,coord
-			+poisson32[i]*bsz,dfc*4.0).g,
-			TextureColor.SampleLevel(Sampler1,coord
-			+poisson32[i]*bsz*(1-dofpcha*0.1),dfc*4.0).b,
-			TextureColor.SampleLevel(Sampler1,coord
-			+poisson32[i]*bsz,dfc*4.0).a);
-		ds = TextureDepth.SampleLevel(Sampler1,coord+poisson32[i]*bsz,
-			0).x;
-		sd = RenderTargetR32F.SampleLevel(Sampler1,coord+poisson32[i]
-			*bsz,0).x;
-		sw = (ds>dep)?1.0:sd;
+		sc = dofsample(coord+poisson32[i]*bsz,bsz,dfc,dofhilite,ds,sd);
+		sw.r = (ds.r>dep)?1.0:sd.r;
+		sw.g = (ds.g>dep)?1.0:sd.g;
+		sw.b = (ds.b>dep)?1.0:sd.b;
+		sw.a = (ds.a>dep)?1.0:sd.a;
 		tw += sw;
 		res += sc*sw;
 	}
@@ -1410,33 +1780,31 @@ float4 PS_DoFBorkeh( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	*/
 	if ( dfc <= dofminblur ) return res;
 	float dep = TextureDepth.Sample(Sampler1,coord).x;
-	float sr = dofpradius*dfc;
-	float w = max(0,(1/(sr*sr+1))*luminance(res.rgb+0.01));
-	res *= w;
-	float tw = w;
-	float2 bsz = bof*sr;
-	float4 pc;
-	float sc, ds;
-	[unroll] for ( int i=0; i<32; i++ )
+	float2 sf = bof+(TextureNoise3.SampleLevel(Sampler2,coord
+		*(bresl/256.0),0,0).xy*2.0-1.0)*dofbnoise*0.001;
+	float2 sr = sf*dofbradius*dfc;
+	int rsamples;
+	float bstep, bw;
+	float4 sc, ds, sd, sw, tw = float4(1,1,1,1);
+	float2 rcoord;
+	#define dofbrings 7
+	#define dofbsamples 3
+	[unroll] for ( int i=1; i<=dofbrings; i++ )
 	{
-		pc = float4(TextureColor.SampleLevel(Sampler1,coord
-			+poisson32[i]*bsz*(1+dofpcha*0.1),dfc*4.0).r,
-			TextureColor.SampleLevel(Sampler1,coord
-			+poisson32[i]*bsz,dfc*4.0).g,
-			TextureColor.SampleLevel(Sampler1,coord
-			+poisson32[i]*bsz*(1-dofpcha*0.1),dfc*4.0).b,
-			TextureColor.SampleLevel(Sampler1,coord
-			+poisson32[i]*bsz,dfc*4.0).a);
-		ds = TextureDepth.SampleLevel(Sampler1,coord+poisson32[i]*bsz,
-			0).x;
-		sc = abs(pc.a*dofpradius);
-		if ( sr < 0.0 ) sc = max(abs(sr),sc);
-		w = (1.0/(pow(sc,2)+1))*luminance(pc.rgb+0.01);
-		w *= saturate(1-smoothstep(sc,sc*1.1,length(poisson32[i]*bsz)
-			*abs(sr)));
-		w *= (ds>dep)?1.0:sc;
-		res += pc*w;
-		tw += w;
+		rsamples = i*dofbsamples;
+		[unroll] for ( int j=0; j<rsamples; j++ )
+		{
+			bstep = pi*2.0/(float)rsamples;
+			rcoord = gcircle(j*bstep)*i;
+			bw = lerp(1.0,(float)i/(float)dofbrings,dofbbias);
+			sc = dofsample(coord+rcoord*sr,sr*i,dfc,dofhilite,ds,sd);
+			sw.r = (ds.r>dep)?1.0:sd.r;
+			sw.g = (ds.g>dep)?1.0:sd.g;
+			sw.b = (ds.b>dep)?1.0:sd.b;
+			sw.a = (ds.a>dep)?1.0:sd.a;
+			res += sc*sw*bw;
+			tw += sw*bw;
+		}
 	}
 	res /= tw;
 	return res;
@@ -1451,7 +1819,7 @@ float4 PS_DoFPostBlur( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	float2 bresl;
 	if ( (fixed.x > 0) && (fixed.y > 0) ) bresl = fixed;
 	else bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
-	float2 bof = 1.0/bresl;
+	float2 bof = (1.0/bresl)*dofpbradius;
 	float2 ofs[16] =
 	{
 		float2(1.0,1.0), float2(-1.0,-1.0),
@@ -1467,6 +1835,7 @@ float4 PS_DoFPostBlur( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 		float2(-1.41,1.41), float2(1.41,-1.41)
 	};
 	float4 res = TextureColor.Sample(Sampler1,coord);
+	if ( !dofpostblur ) return res;
 	int i;
 	[unroll] for ( i=0; i<16; i++ )
 		res += TextureColor.Sample(Sampler1,coord+ofs[i]*bof*dfc);
@@ -1485,8 +1854,7 @@ float2 ScreenFrost( float2 coord )
 	ofs = (ofs-0.5)*2.0;
 	ofs *= pow(length(ofs),frostpow)*froststrength;
 	float todpow = todx_ind(frostfactor);
-	if ( !frostalways ) ofs *= weatherfactor(WT_COLD)
-		+(1.0-weatherfactor(WT_HOT))*todpow;
+	if ( !frostalways ) ofs *= max(0.0,coldfactor-warmfactor)*todpow;
 	else ofs *= todpow;
 	float dist = distance(coord,float2(0.5,0.5))*2.0;
 	ofs *= clamp(pow(dist,frostrpow)*frostrmult+frostrbump,0.0,1.0);
@@ -1524,8 +1892,8 @@ float4 PS_FrostPass( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 			1.0)*frostblend;
 		float todpow = todx_ind(frostfactor);
 		/* Weathers not implemented in FO4 ENB as of 0.291 */
-		if ( !frostalways ) dist *= weatherfactor(WT_COLD)
-			+(1.0-weatherfactor(WT_HOT))*todpow;
+		if ( !frostalways )
+			dist *= max(0.0,coldfactor-warmfactor)*todpow;
 		else dist *= todpow;
 		res.rgb *= 1.0+bmp*dist;
 	}
@@ -1640,7 +2008,7 @@ technique11 Prepass5
 	pass p0
 	{
 		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
-		SetPixelShader(CompileShader(ps_5_0,PS_Edge()));
+		SetPixelShader(CompileShader(ps_5_0,PS_Distortion()));
 	}
 }
 technique11 Prepass6
@@ -1648,7 +2016,7 @@ technique11 Prepass6
 	pass p0
 	{
 		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
-		SetPixelShader(CompileShader(ps_5_0,PS_Distortion()));
+		SetPixelShader(CompileShader(ps_5_0,PS_DoFBlur()));
 	}
 }
 technique11 Prepass7
@@ -1656,18 +2024,10 @@ technique11 Prepass7
 	pass p0
 	{
 		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
-		SetPixelShader(CompileShader(ps_5_0,PS_DoFBlur()));
-	}
-}
-technique11 Prepass8
-{
-	pass p0
-	{
-		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
 		SetPixelShader(CompileShader(ps_5_0,PS_DoFPostBlur()));
 	}
 }
-technique11 Prepass9
+technique11 Prepass8
 {
 	pass p0
 	{
@@ -1676,7 +2036,7 @@ technique11 Prepass9
 	}
 }
 
-technique11 PrepassB <string UIName="MariENB (WIP Bokeh)";>
+technique11 PrepassB <string UIName="MariENB (HQ Bokeh)";>
 {
 	pass p0
 	{
@@ -1721,7 +2081,7 @@ technique11 PrepassB5
 	pass p0
 	{
 		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
-		SetPixelShader(CompileShader(ps_5_0,PS_Edge()));
+		SetPixelShader(CompileShader(ps_5_0,PS_Distortion()));
 	}
 }
 technique11 PrepassB6
@@ -1729,7 +2089,7 @@ technique11 PrepassB6
 	pass p0
 	{
 		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
-		SetPixelShader(CompileShader(ps_5_0,PS_Distortion()));
+		SetPixelShader(CompileShader(ps_5_0,PS_DoFBorkeh()));
 	}
 }
 technique11 PrepassB7
@@ -1737,18 +2097,10 @@ technique11 PrepassB7
 	pass p0
 	{
 		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
-		SetPixelShader(CompileShader(ps_5_0,PS_DoFBorkeh()));
-	}
-}
-technique11 PrepassB8
-{
-	pass p0
-	{
-		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
 		SetPixelShader(CompileShader(ps_5_0,PS_DoFPostBlur()));
 	}
 }
-technique11 PrepassB9
+technique11 PrepassB8
 {
 	pass p0
 	{

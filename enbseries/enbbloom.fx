@@ -423,10 +423,10 @@ float4 PS_Downsize( VS_OUTPUT_POST IN, float4 v0 : SV_Position0,
 	float2 coord = IN.txcoord0.xy;
 	float2 ssz;
 	if ( insz <= 0.0 ) return intex.Sample(Sampler2,coord);
-	ssz = float2(1.0/insz,1.0/insz);
-	float4 res = 0.25*(intex.Sample(Sampler2,coord)
-		+intex.Sample(Sampler2,coord+float2(ssz.x,0.0))
-		+intex.Sample(Sampler2,coord+float2(0.0,ssz.y))
+	ssz = float2(1.0/insz,1.0/insz)*0.5;
+	float4 res = 0.25*(intex.Sample(Sampler2,coord+float2(-ssz.x,-ssz.y))
+		+intex.Sample(Sampler2,coord+float2(ssz.x,-ssz.y))
+		+intex.Sample(Sampler2,coord+float2(-ssz.x,ssz.y))
 		+intex.Sample(Sampler2,coord+float2(ssz.x,ssz.y)));
 	return res;
 }

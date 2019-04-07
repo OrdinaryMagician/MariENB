@@ -1,3 +1,22 @@
+Weather reference
+
+0 Neutral	Generic or unsupported weathers
+1 General	Most of the temperate areas of the Commonwealth
+2 Dark		Shady areas
+3 Harbor	Fog-less Far Harbor sections
+4 Frosty	FROST weather
+5 Heat		Warmer parts of the Commonwealth
+6 Scorched	Mostly used for the bombs dropping in the intro
+7 General Fog	Temperate fogs
+8 General Rain	Temperate rains
+9 Dark Fog	Shady areas with fog
+A Dark Rain	Shady areas with rain
+B Harbor Fog	The fog, duh
+C Frosty Fog	When you can't see in FROST
+D Harbor Rain	Rainy Far Harbor
+E Heat Fog	Warmth with fog
+F Scorched Fog	Glowing sea, mostly
+
 Only weathers used in FROST will be included.
 If there's any I've missed, please notify me.
 It's not like it really matters for now, ENB
@@ -5,24 +24,24 @@ doesn't yet handle weathers.
 
 Fallout4
 
-f1033	CommonwealthGSOvercast		Temperate Fog
-171621	DefaultInteriorWeatherNoLUT	Temperate
-1a65f0	DefaultInteriorWeather		Temperate
-1c3473	CommonwealthFoggy		Cold Fog
-1c3d5e	CommonwealthGSRadstorm		Cold
-1c8556	CommonwealthOvercast		Cold
-222394	CommonwealthGSRadstormOld	Temperate Fog (unused? no references to it)
-2392a3	CommonwealthGSRadstormBackup	Cold Fog
+f1033	CommonwealthGSOvercast		-
+171621	DefaultInteriorWeatherNoLUT	-
+1a65f0	DefaultInteriorWeather		-
+1c3473	CommonwealthFoggy		-
+1c3d5e	CommonwealthGSRadstorm		-
+1c8556	CommonwealthOvercast		-
+222394	CommonwealthGSRadstormOld	-
+2392a3	CommonwealthGSRadstormBackup	-
 
 DLCCoast
 
-74c6	DLC03_RadStorm			Cold Fog
-74f5	DLC03_RadMistWeather		Cold Fog
-74fa	DLC03_RainWeather		Cold
-7fba	DLC03_RadFogWeather		Cold Fog
-9962	DLC03_ClearWeather		Cold
-45f6f	DLC03_ClearWeatherFast		Temperate
-5d0c4	DLC03_radmistweatherFast	Cold Fog
+74c6	DLC03_RadStorm			-
+74f5	DLC03_RadMistWeather		-
+74fa	DLC03_RainWeather		-
+7fba	DLC03_RadFogWeather		-
+9962	DLC03_ClearWeather		-
+45f6f	DLC03_ClearWeatherFast		-
+5d0c4	DLC03_radmistweatherFast	-
 
 DLCNukaWorld (worldspace not implemented in FROST)
 
@@ -30,8 +49,7 @@ DLCNukaWorld (worldspace not implemented in FROST)
 30acd	DLC04NukaWorldRain		-
 367ca	DLC04NukaWorldClearDusty	-
 
-
 FROST
 
-2224b	CommonwealthFoggyLight		Cold Fog
-25054	CommonwealthOvercastStormy	Cold Fog
+2224b	CommonwealthFoggyLight		-
+25054	CommonwealthOvercastStormy	-
