@@ -59,9 +59,15 @@ float4 PS_BloomTexture1(VS_OUTPUT_POST In) : COLOR
 	float2 coord = In.txcoord0.xy;
 	float4 res = float4(0,0,0,0);
 	int i;
+	float sum = 0;
+	float2 pp;
 	[unroll] for ( i=-7; i<=7; i++ )
-		res += gauss8[abs(i)]*tex2D(SamplerBloom1,coord+float2(i,0)
-			*TempParameters.z*bloomradius);
+	{
+		pp = coord+float2(i,0)*TempParameters.z*bloomradius;
+		res += gauss8[abs(i)]*tex2D(SamplerBloom1,pp);
+		sum += ((pp.x>=0)&&(pp.x<1))?gauss8[abs(i)]:0;
+	}
+	res *= 1.0/sum;
 	res.a = 1.0;
 	return res;
 }
@@ -71,9 +77,15 @@ float4 PS_BloomTexture2(VS_OUTPUT_POST In) : COLOR
 	float2 coord = In.txcoord0.xy;
 	float4 res = float4(0,0,0,0), base = tex2D(SamplerBloom5,coord);
 	int i;
+	float sum = 0;
+	float2 pp;
 	[unroll] for ( i=-7; i<=7; i++ )
-		res += gauss8[abs(i)]*tex2D(SamplerBloom1,coord+float2(0,i)
-			*TempParameters.z*bloomradius);
+	{
+		pp = coord+float2(0,i)*TempParameters.z*bloomradius;
+		res += gauss8[abs(i)]*tex2D(SamplerBloom1,pp);
+		sum += ((pp.y>=0)&&(pp.y<1))?gauss8[abs(i)]:0;
+	}
+	res *= 1.0/sum;
 	/* blue shift */
 	float3 blu_n = float3(blu_n_r,blu_n_g,blu_n_b);
 	float3 blu_d = float3(blu_d_r,blu_d_g,blu_d_b);
@@ -110,9 +122,15 @@ float4 PS_AnamPass(VS_OUTPUT_POST In) : COLOR
 	float2 coord = In.txcoord0.xy;
 	float4 res = float4(0,0,0,0), base = tex2D(SamplerBloom5,coord);
 	int i;
+	float sum = 0;
+	float2 pp;
 	[unroll] for ( i=-79; i<=79; i++ )
-		res += gauss80[abs(i)]*tex2D(SamplerBloom1,coord+float2(i,0)
-			*TempParameters.z*bloomradius*flen);
+	{
+		pp = coord+float2(i,0)*TempParameters.z*bloomradius*flen;
+		res += gauss80[abs(i)]*tex2D(SamplerBloom1,pp);
+		sum += ((pp.x>=0)&&(pp.x<1))?gauss80[abs(i)]:0;
+	}
+	res *= 1.0/sum;
 	/* blue shift */
 	float3 flu_n = float3(flu_n_r,flu_n_g,flu_n_b);
 	float3 flu_d = float3(flu_d_r,flu_d_g,flu_d_b);
