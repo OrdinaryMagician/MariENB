@@ -60,10 +60,11 @@ float4 PS_BloomTexture1(VS_OUTPUT_POST In) : COLOR
 	float4 res = float4(0,0,0,0);
 	int i;
 	float sum = 0;
+	float inc = TempParameters.z*bloomradiusx;
 	float2 pp;
 	[unroll] for ( i=-7; i<=7; i++ )
 	{
-		pp = coord+float2(i,0)*TempParameters.z*bloomradiusx;
+		pp = coord+float2(i,0)*inc;
 		res += gauss8[abs(i)]*tex2D(SamplerBloom1,pp);
 		sum += ((pp.x>=0)&&(pp.x<1))?gauss8[abs(i)]:0;
 	}
@@ -78,10 +79,11 @@ float4 PS_BloomTexture2(VS_OUTPUT_POST In) : COLOR
 	float4 res = float4(0,0,0,0), base = tex2D(SamplerBloom5,coord);
 	int i;
 	float sum = 0;
+	float inc = TempParameters.z*bloomradiusy;
 	float2 pp;
 	[unroll] for ( i=-7; i<=7; i++ )
 	{
-		pp = coord+float2(0,i)*TempParameters.z*bloomradiusy;
+		pp = coord+float2(0,i)*inc;
 		res += gauss8[abs(i)]*tex2D(SamplerBloom1,pp);
 		sum += ((pp.y>=0)&&(pp.y<1))?gauss8[abs(i)]:0;
 	}
@@ -123,10 +125,11 @@ float4 PS_AnamPass(VS_OUTPUT_POST In) : COLOR
 	float4 res = float4(0,0,0,0), base = tex2D(SamplerBloom5,coord);
 	int i;
 	float sum = 0;
+	float inc = TempParameters.z*bloomradiusx*flen;
 	float2 pp;
 	[unroll] for ( i=-79; i<=79; i++ )
 	{
-		pp = coord+float2(i,0)*TempParameters.z*bloomradiusx*flen;
+		pp = coord+float2(i,0)*inc;
 		res += gauss80[abs(i)]*tex2D(SamplerBloom1,pp);
 		sum += ((pp.x>=0)&&(pp.x<1))?gauss80[abs(i)]:0;
 	}
@@ -164,36 +167,6 @@ float4 PS_BloomPostPass(VS_OUTPUT_POST In) : COLOR
 	res.rgb = clamp(res.rgb,0,32768);
 	res.a = 1.0;
 	return res;
-}
-/* crappy lens filter, useful when playing characters with glasses */
-float4 PS_LensDirtPass(VS_OUTPUT_POST In) : COLOR
-{
-	float4 mud = float4(0,0,0,0);
-	if ( !dirtenable ) return mud;
-	float2 coord = In.txcoord0.xy;
-	float2 ccoord = coord;
-#ifdef ASPECT_LENSDIRT
-	ccoord.y = (coord.y-0.5)*ScreenSize.w+0.5;
-#endif
-	float4 crap = tex2D(SamplerLens,ccoord);
-	mud += dirtmix1*tex2D(SamplerBloomC1,coord); // P1
-	mud += dirtmix2*tex2D(SamplerBloomC2,coord); // P2
-	mud += dirtmix3*tex2D(SamplerBloomC3,coord); // P3
-	mud += dirtmix4*tex2D(SamplerBloomC4,coord); // P4
-	mud += dirtmix5*tex2D(SamplerBloomC5,coord); // Prepass
-	mud += dirtmix6*tex2D(SamplerBloomC6,coord); // Base
-	mud += dirtmix7*tex2D(SamplerBloomC7,coord); // P5
-	mud += dirtmix8*tex2D(SamplerBloomC8,coord); // P6
-	mud.rgb /= 6.0;
-	float3 hsv = rgb2hsv(mud.rgb);
-	hsv.y = clamp(hsv.y*dirtsaturation,0.0,1.0);
-	mud.rgb = clamp(hsv2rgb(hsv),0,32768);
-	float mudmax = luminance(mud.rgb);
-	float mudn = max(mudmax/(1.0+mudmax),0.0);
-	mudn = pow(mudn,max(ldirtpow-crap.a,0.0));
-	mud.rgb *= mudn*ldirtfactor*crap.rgb;
-	mud.a = 1.0;
-	return mud;
 }
 /* techniques */
 technique BloomPrePass
@@ -261,12 +234,5 @@ technique BloomPostPass
 		SEPARATEALPHABLENDENABLE = FALSE;
 		FogEnable = FALSE;
 		SRGBWRITEENABLE = FALSE;
-	}
-	pass p1
-	{
-		AlphaBlendEnable = true;
-		SrcBlend = One;
-		DestBlend = One;
-		PixelShader = compile ps_3_0 PS_LensDirtPass();
 	}
 }

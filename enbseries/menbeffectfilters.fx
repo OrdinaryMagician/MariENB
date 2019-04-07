@@ -161,10 +161,14 @@ float3 GradingGame( float3 res )
 	*/
 	float3 tgray = luminance(res);
 	/* saturation */
-	float3 tcol = res*_r3.x + tgray*(1.0-_r3.x);
+	float satv = (_r3.x<0.0)?(-pow(abs(_r3.x),vsatpow)*vsatmul)
+		:(pow(max(_r3.x,0.0),vsatpow)*vsatmul);
+	float3 tcol = res*satv + tgray*(1.0-satv);
 	tcol = lerp(res,tcol,vsatblend);
 	/* tint */
-	tcol = _r4.w*(tgray*_r4.rgb-tcol)+tcol;
+	float tintv = (_r4.w<0.0)?(-pow(abs(_r4.w),vtintpow)*vtintmul)
+		:(pow(max(_r4.w,0.0),vtintpow)*vtintmul);
+	tcol = tintv*(tgray*_r4.rgb-tcol)+tcol;
 	tcol = lerp(res,tcol,vtintblend);
 	/* contrast(?) stuff */
 #ifdef FALLOUT
@@ -444,9 +448,10 @@ float4 PS_Mari( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	float2 coord = IN.txcoord0.xy;
 	float4 res = tex2D(_s0,coord);
 	if ( aenable ) res.rgb = Adaptation(res.rgb);
+	if ( nbt && ne ) res.rgb = FilmGrain(res.rgb,coord);
+	if ( vgradeenable ) res.rgb = GradingGame(res.rgb);
 	if ( tmapenable ) res.rgb = Tonemap(res.rgb);
 	if ( bloomdebug	) res.rgb *= 0;
-	if ( vgradeenable ) res.rgb = GradingGame(res.rgb);
 	if ( gradeenable1 ) res.rgb = GradingRGB(res.rgb);
 	if ( colorizeafterhsv )
 	{
@@ -459,14 +464,11 @@ float4 PS_Mari( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 		if ( gradeenable3 ) res.rgb = GradingHSV(res.rgb);
 	}
 	float3 bcol = tex2D(_s3,coord).rgb*EBloomAmount;
-	if ( bloomlighten )
-		res.rgb = float3(max(res.r,bcol.r),max(res.g,bcol.g),
-			max(res.b,bcol.b));
-	else res.rgb += bcol;
+	res.rgb += bcol;
 	if ( lutenable ) res.rgb = GradingLUT(res.rgb);
 	if ( palenable ) res.rgb = GradingPal(res.rgb);
 	if ( techenable ) res.rgb = Technicolor(res.rgb);
-	if ( ne ) res.rgb = FilmGrain(res.rgb,coord);
+	if ( !nbt && ne ) res.rgb = FilmGrain(res.rgb,coord);
 #ifdef FALLOUT
 	res.rgb = _r5.rgb*_r5.a + res.rgb*(1.0-_r5.a);
 #else

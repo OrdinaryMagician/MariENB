@@ -65,14 +65,6 @@ texture2D texBloom5;
 texture2D texBloom6;
 texture2D texBloom7;
 texture2D texBloom8;
-texture2D texLens
-<
-#ifdef LENSDIRT_DDS
-	string ResourceName = "menblens.dds";
-#else
-	string ResourceName = "menblens.png";
-#endif
->;
 sampler2D SamplerBloom1 = sampler_state
 {
 	Texture = <texBloom1>;
@@ -256,18 +248,6 @@ sampler2D SamplerBloomC7 = sampler_state
 sampler2D SamplerBloomC8 = sampler_state
 {
 	Texture = <texBloom8>;
-	MinFilter = LINEAR;
-	MagFilter = LINEAR;
-	MipFilter = NONE;
-	AddressU = Clamp;
-	AddressV = Clamp;
-	SRGBTexture = FALSE;
-	MaxMipLevel = 0;
-	MipMapLodBias = 0;
-};
-sampler2D SamplerLens = sampler_state
-{
-	Texture = <texLens>;
 	MinFilter = LINEAR;
 	MagFilter = LINEAR;
 	MipFilter = NONE;

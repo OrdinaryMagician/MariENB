@@ -115,6 +115,11 @@ float nj
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {2.0};
+bool nbt
+<
+	string UIName = "Apply Grain Before Tone Mapping";
+	string UIWidget = "Checkbox";
+> = {true};
 /* "adaptation" factors */
 string str_adaptation = "Eye Adaptation";
 bool aenable
@@ -661,6 +666,30 @@ float vconblend
 	float UIMin = 0.0;
 	float UIMax = 1.0;
 > = {1.0};
+float vtintpow
+<
+	string UIName = "Vanilla Tint Contrast";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float vtintmul
+<
+	string UIName = "Vanilla Tint Strength";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float vsatpow
+<
+	string UIName = "Vanilla Vibrance Contrast";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float vsatmul
+<
+	string UIName = "Vanilla Vibrance Strength";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
 /* LUT grading */
 string str_lut = "RGB Lookup Table Grading";
 bool lutenable
@@ -738,12 +767,6 @@ int dither
 	int UIMin = 0;
 	int UIMax = 2;
 > = {2};
-string str_bloom = "Bloom Settings";
-bool bloomlighten
-<
-	string UIName = "Use Lighten Blend";
-	string UIWidget = "Checkbox";
-> = {false};
 string str_debug = "Debugging";
 bool bloomdebug
 <

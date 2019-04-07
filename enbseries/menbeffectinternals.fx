@@ -33,6 +33,7 @@ static const float ordered8[64] =
 	d(42),d(26),d(38),d(22),d(41),d(25),d(37),d(21)
 };
 #undef d
+
 /* standard stuff */
 float4 ScreenSize;
 float4 Timer;

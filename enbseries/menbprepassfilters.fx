@@ -418,7 +418,7 @@ float4 PS_DoFGather( VS_OUTPUT_POST IN, float2 vPos : VPOS) : COLOR
 		res += sc*sw;
 	}
 	res /= tw;
-	res.a = 1.0;
+	res.a = dfc;
 	return res;
 }
 /* "bokeh" blur pass */
@@ -725,6 +725,23 @@ technique PostProcess6
 	}
 }
 technique PostProcess7
+{
+	pass p0
+	{
+		VertexShader = compile vs_3_0 VS_Pass();
+		PixelShader = compile ps_3_0 PS_DoFPostBlur();
+		DitherEnable = FALSE;
+		ZEnable = FALSE;
+		CullMode = NONE;
+		ALPHATESTENABLE = FALSE;
+		SEPARATEALPHABLENDENABLE = FALSE;
+		AlphaBlendEnable = FALSE;
+		StencilEnable = FALSE;
+		FogEnable = FALSE;
+		SRGBWRITEENABLE = FALSE;
+	}
+}
+technique PostProcess8
 {
 	pass p0
 	{
