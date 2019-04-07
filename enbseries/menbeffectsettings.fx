@@ -169,6 +169,16 @@ float amax_id
 > = {1.0};
 /* tone mapping */
 string str_tonemap = "Tone Mapping";
+/*
+   algorithms:
+    -1 : Disabled
+     0 : Linear
+     1 : Reinhard
+     2 : Uncharted 2
+     3 : Hejl Dawson
+     4 : Haarm-Peter Duiker
+     5 : SweetFX
+*/
 int tmapenable
 <
 	string UIName = "Tonemapping Method";

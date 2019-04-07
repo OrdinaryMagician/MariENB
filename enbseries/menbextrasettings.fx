@@ -260,3 +260,86 @@ float boxv
 	string UIWidget = "Spinner";
 	float UIMin = 1.0;
 > = {1.0};
+/* vignette */
+string str_vignette = "Vignette with border blur";
+bool vigenable
+<
+	string UIName = "Enable Vignette";
+	string UIWidget = "Checkbox";
+> = {false};
+bool bblurenable
+<
+	string UIName = "Enable Border Blur";
+	string UIWidget = "Checkbox";
+> = {false};
+/* 0 = circle, 1 = box, 2 = texture */
+int vigshape
+<
+	string UIName = "Vignette Shape";
+	string UIWidget = "Spinner";
+	int UIMin = 0;
+	int UIMax = 2;
+> = {0};
+/* 0 = overwrite, 1 = add, 2 = multiply */
+int vigmode
+<
+	string UIName = "Vignette Blending Mode";
+	string UIWidget = "Spinner";
+	int UIMin = 0;
+	int UIMax = 2;
+> = {0};
+float vigpow
+<
+	string UIName = "Vignette Contrast";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float vigmul
+<
+	string UIName = "Vignette Intensity";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float vigbump
+<
+	string UIName = "Vignette Shift";
+	string UIWidget = "Spinner";
+> = {0.0};
+float vigcolor_r
+<
+	string UIName = "Vignette Color Red";
+	string UIWidget = "Spinner";
+> = {0.0};
+float vigcolor_g
+<
+	string UIName = "Vignette Color Green";
+	string UIWidget = "Spinner";
+> = {0.0};
+float vigcolor_b
+<
+	string UIName = "Vignette Color Blue";
+	string UIWidget = "Spinner";
+> = {0.0};
+float bblurpow
+<
+	string UIName = "Border Blur Contrast";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float bblurmul
+<
+	string UIName = "Border Blur Intensity";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float bblurbump
+<
+	string UIName = "Border Blur Shift";
+	string UIWidget = "Spinner";
+> = {0.0};
+float bblurradius
+<
+	string UIName = "Border Blur Radius";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};

@@ -159,12 +159,26 @@ float heatpow
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.2};
-float heattodpow
+float heatfactor_n
 <
-	string UIName = "Heat Time-of-day Contrast";
+	string UIName = "Heat Factor Night";
 	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.2};
+> = {1.0};
+float heatfactor_d
+<
+	string UIName = "Heat Factor Day";
+	string UIWidget = "Spinner";
+> = {1.0};
+float heatfactor_in
+<
+	string UIName = "Heat Factor Interior Night";
+	string UIWidget = "Spinner";
+> = {1.0};
+float heatfactor_id
+<
+	string UIName = "Heat Factor Interior Day";
+	string UIWidget = "Spinner";
+> = {1.0};
 bool heatalways
 <
 	string UIName = "Heat Always Enable";
@@ -222,18 +236,26 @@ float frostsize
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
-float frostind
+float frostfactor_n
 <
-	string UIName = "Frost Indoor Factor";
+	string UIName = "Frost Factor Night";
 	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.05};
-float frostnight
+> = {1.0};
+float frostfactor_d
 <
-	string UIName = "Frost Night Factor";
+	string UIName = "Frost Factor Day";
 	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.25};
+> = {1.0};
+float frostfactor_in
+<
+	string UIName = "Frost Factor Interior Night";
+	string UIWidget = "Spinner";
+> = {1.0};
+float frostfactor_id
+<
+	string UIName = "Frost Factor Interior Day";
+	string UIWidget = "Spinner";
+> = {1.0};
 bool frostalways
 <
 	string UIName = "Frost Always Enable";
@@ -267,23 +289,23 @@ float focusmanualvalue
 	string UIName = "Manual Focus Depth";
 	string UIWidget = "Checkbox";
 	float UIMin = 0.0;
-	float UIMax = 1.0;
-> = {0.5};
+	float UIMax = 1000.0;
+> = {500.0};
 /* center point of focus */
 float focuscenter_x
 <
 	string UIName = "Focus Point Center X";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
-	float UIMax = 1.0;
-> = {0.5};
+	float UIMax = 100.0;
+> = {50.0};
 float focuscenter_y
 <
 	string UIName = "Focus Point Center Y";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
-	float UIMax = 1.0;
-> = {0.5};
+	float UIMax = 100.0;
+> = {50.0};
 float focuscircleangle
 <
 	string UIName = "Focus Triangle Angle";
@@ -520,6 +542,20 @@ float doffixedfocusblend_id
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.0};
+float doffixedfocusdepth
+<
+	string UIName = "DOF Fixed Focus Depth";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {0.0};
+float doffixedfocuscap
+<
+	string UIName = "DOF Fixed Focus Cap";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {0.0};
 /* fixed unfocused depth factors */
 float doffixedunfocusmult_n
 <
@@ -613,12 +649,20 @@ float doffixedunfocusblend_id
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.0};
+float doffixedunfocusdepth
+<
+	string UIName = "DOF Fixed Unfocus Depth";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {0.0};
 /* prevents fixed dof from blurring the skybox */
 bool doffixedcut
 <
 	string UIName = "DOF Fixed Use Cutoff";
 	string UIWidget = "Checkbox";
 > = {true};
+#ifndef FALLOUT
 /* fixed dof for foggy weathers */
 bool doffogenable
 <
@@ -717,6 +761,14 @@ float doffogblend_id
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.0};
+float doffogdepth
+<
+	string UIName = "DOF Fog Depth";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {0.0};
+#endif
 /* disable depth of field */
 bool dofdisable
 <
@@ -730,15 +782,61 @@ bool doffixedonly
 > = {false};
 float dofpradius
 <
-	string UIName = "DOF Blur Radius";
+	string UIName = "DOF Gather Blur Radius";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {6.0};
+bool dofpostblur
+<
+	string UIName = "Enable DOF Post-Blur";
+	string UIWidget = "Checkbox";
+> = {true};
+float dofpbradius
+<
+	string UIName = "DOF Post-Blur Radius";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
 float dofpcha
 <
 	string UIName = "DOF Blur Chromatic Aberration";
 	string UIWidget = "Spinner";
 > = {0.0};
+bool dofhilite
+<
+	string UIName = "Enable DOF Highlights";
+	string UIWidget = "Checkbox";
+> = {false};
+float dofbthreshold
+<
+	string UIName = "DOF Highlight Threshold";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {0.5};
+float dofbgain
+<
+	string UIName = "DOF Highlight Gain";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {2.0};
+float dofbradius
+<
+	string UIName = "DOF Bokeh Blur Radius";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float dofbbias
+<
+	string UIName = "DOF Bokeh Edge Bias";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {0.5};
+float dofbnoise
+<
+	string UIName = "DOF Bokeh Fuzz";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {0.01};
 #ifndef FALLOUT
 bool dofrelfov
 <
@@ -1033,3 +1131,429 @@ float sharpblend
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.2};
+/* depth-based colour grading suite */
+string str_grade = "Depth Color Grading Suite";
+float dgradedfoc
+<
+	string UIName = "Depth Grading Center Depth";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1000.0;
+> = {500.0};
+float dgradedpow_n
+<
+	string UIName = "Depth Grading Contrast Night";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float dgradedpow_d
+<
+	string UIName = "Depth Grading Contrast Day";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float dgradedpow_in
+<
+	string UIName = "Depth Grading Contrast Interior Night";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float dgradedpow_id
+<
+	string UIName = "Depth Grading Contrast Interior Day";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float dgradedmul_n
+<
+	string UIName = "Depth Grading Intensity Night";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float dgradedmul_d
+<
+	string UIName = "Depth Grading Intensity Day";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float dgradedmul_in
+<
+	string UIName = "Depth Grading Intensity Interior Night";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float dgradedmul_id
+<
+	string UIName = "Depth Grading Intensity Interior Day";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float dgradedbump_n
+<
+	string UIName = "Depth Grading Shift Night";
+	string UIWidget = "Spinner";
+> = {0.0};
+float dgradedbump_d
+<
+	string UIName = "Depth Grading Shift Day";
+	string UIWidget = "Spinner";
+> = {0.0};
+float dgradedbump_in
+<
+	string UIName = "Depth Grading Shift Interior Night";
+	string UIWidget = "Spinner";
+> = {0.0};
+float dgradedbump_id
+<
+	string UIName = "Depth Grading Shift Interior Day";
+	string UIWidget = "Spinner";
+> = {0.0};
+float dgradedblend_n
+<
+	string UIName = "Depth Grading Blend Night";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {1.0};
+float dgradedblend_d
+<
+	string UIName = "Depth Grading Blend Day";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {1.0};
+float dgradedblend_in
+<
+	string UIName = "Depth Grading Blend Interior Night";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {1.0};
+float dgradedblend_id
+<
+	string UIName = "Depth Grading Blend Interior Day";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {1.0};
+bool dgradeenable1
+<
+	string UIName = "Enable RGB Grading";
+	string UIWidget = "Checkbox";
+> = {false};
+/* color component multipliers */
+float dgrademul_r_n
+<
+	string UIName = "Grading Intensity Night Red";
+	string UIWidget = "Spinner";
+> = {1.0};
+float dgrademul_g_n
+<
+	string UIName = "Grading Intensity Night Green";
+	string UIWidget = "Spinner";
+> = {1.0};
+float dgrademul_b_n
+<
+	string UIName = "Grading Intensity Night Blue";
+	string UIWidget = "Spinner";
+> = {1.0};
+float dgrademul_r_d
+<
+	string UIName = "Grading Intensity Day Red";
+	string UIWidget = "Spinner";
+> = {1.0};
+float dgrademul_g_d
+<
+	string UIName = "Grading Intensity Day Green";
+	string UIWidget = "Spinner";
+> = {1.0};
+float dgrademul_b_d
+<
+	string UIName = "Grading Intensity Day Blue";
+	string UIWidget = "Spinner";
+> = {1.0};
+float dgrademul_r_in
+<
+	string UIName = "Grading Intensity Interior Night Red";
+	string UIWidget = "Spinner";
+> = {1.0};
+float dgrademul_g_in
+<
+	string UIName = "Grading Intensity Interior Night Green";
+	string UIWidget = "Spinner";
+> = {1.0};
+float dgrademul_b_in
+<
+	string UIName = "Grading Intensity Interior Night Blue";
+	string UIWidget = "Spinner";
+> = {1.0};
+float dgrademul_r_id
+<
+	string UIName = "Grading Intensity Interior Day Red";
+	string UIWidget = "Spinner";
+> = {1.0};
+float dgrademul_g_id
+<
+	string UIName = "Grading Intensity Interior Day Green";
+	string UIWidget = "Spinner";
+> = {1.0};
+float dgrademul_b_id
+<
+	string UIName = "Grading Intensity Interior Day Blue";
+	string UIWidget = "Spinner";
+> = {1.0};
+/* color component contrasts */
+float dgradepow_r_n
+<
+	string UIName = "Grading Contrast Night Red";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float dgradepow_g_n
+<
+	string UIName = "Grading Contrast Night Green";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float dgradepow_b_n
+<
+	string UIName = "Grading Contrast Night Blue";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float dgradepow_r_d
+<
+	string UIName = "Grading Contrast Day Red";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float dgradepow_g_d
+<
+	string UIName = "Grading Contrast Day Green";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float dgradepow_b_d
+<
+	string UIName = "Grading Contrast Day Blue";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float dgradepow_r_in
+<
+	string UIName = "Grading Contrast Interior Night Red";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float dgradepow_g_in
+<
+	string UIName = "Grading Contrast Interior Night Green";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float dgradepow_b_in
+<
+	string UIName = "Grading Contrast Interior Night Blue";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float dgradepow_r_id
+<
+	string UIName = "Grading Contrast Interior Day Red";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float dgradepow_g_id
+<
+	string UIName = "Grading Contrast Interior Day Green";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float dgradepow_b_id
+<
+	string UIName = "Grading Contrast Interior Day Blue";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+/* colorization factors */
+bool dgradeenable2
+<
+	string UIName = "Enable Vibrance Grading";
+	string UIWidget = "Checkbox";
+> = {false};
+float dgradecol_r_n
+<
+	string UIName = "Grading Color Night Red";
+	string UIWidget = "Spinner";
+> = {1.0};
+float dgradecol_g_n
+<
+	string UIName = "Grading Color Night Green";
+	string UIWidget = "Spinner";
+> = {1.0};
+float dgradecol_b_n
+<
+	string UIName = "Grading Color Night Blue";
+	string UIWidget = "Spinner";
+> = {1.0};
+float dgradecol_r_d
+<
+	string UIName = "Grading Color Day Red";
+	string UIWidget = "Spinner";
+> = {1.0};
+float dgradecol_g_d
+<
+	string UIName = "Grading Color Day Green";
+	string UIWidget = "Spinner";
+> = {1.0};
+float dgradecol_b_d
+<
+	string UIName = "Grading Color Day Blue";
+	string UIWidget = "Spinner";
+> = {1.0};
+float dgradecol_r_in
+<
+	string UIName = "Grading Color Interior Night Red";
+	string UIWidget = "Spinner";
+> = {1.0};
+float dgradecol_g_in
+<
+	string UIName = "Grading Color Interior Night Green";
+	string UIWidget = "Spinner";
+> = {1.0};
+float dgradecol_b_in
+<
+	string UIName = "Grading Color Interior Night Blue";
+	string UIWidget = "Spinner";
+> = {1.0};
+float dgradecol_r_id
+<
+	string UIName = "Grading Color Interior Day Red";
+	string UIWidget = "Spinner";
+> = {1.0};
+float dgradecol_g_id
+<
+	string UIName = "Grading Color Interior Day Green";
+	string UIWidget = "Spinner";
+> = {1.0};
+float dgradecol_b_id
+<
+	string UIName = "Grading Color Interior Day Blue";
+	string UIWidget = "Spinner";
+> = {1.0};
+/* blend factor for colorization (negative values are quite fancy) */
+float dgradecolfact_n
+<
+	string UIName = "Grading Color Factor Night";
+	string UIWidget = "Spinner";
+> = {0.0};
+float dgradecolfact_d
+<
+	string UIName = "Grading Color Factor Day";
+	string UIWidget = "Spinner";
+> = {0.0};
+float dgradecolfact_in
+<
+	string UIName = "Grading Color Factor Interior Night";
+	string UIWidget = "Spinner";
+> = {0.0};
+float dgradecolfact_id
+<
+	string UIName = "Grading Color Factor Interior Day";
+	string UIWidget = "Spinner";
+> = {0.0};
+/* HSV grading */
+bool dgradeenable3
+<
+	string UIName = "Enable HSV Grading";
+	string UIWidget = "Checkbox";
+> = {false};
+/* saturation multiplier */
+float dgradesatmul_n
+<
+	string UIName = "Grading Saturation Intensity Night";
+	string UIWidget = "Spinner";
+> = {1.0};
+float dgradesatmul_d
+<
+	string UIName = "Grading Saturation Intensity Day";
+	string UIWidget = "Spinner";
+> = {1.0};
+float dgradesatmul_in
+<
+	string UIName = "Grading Saturation Intensity Interior Night";
+	string UIWidget = "Spinner";
+> = {1.0};
+float dgradesatmul_id
+<
+	string UIName = "Grading Saturation Intensity Interior Day";
+	string UIWidget = "Spinner";
+> = {1.0};
+/* saturation power */
+float dgradesatpow_n
+<
+	string UIName = "Grading Saturation Contrast Night";
+	string UIWidget = "Spinner";
+> = {1.0};
+float dgradesatpow_d
+<
+	string UIName = "Grading Saturation Contrast Day";
+	string UIWidget = "Spinner";
+> = {1.0};
+float dgradesatpow_in
+<
+	string UIName = "Grading Saturation Contrast Interior Night";
+	string UIWidget = "Spinner";
+> = {1.0};
+float dgradesatpow_id
+<
+	string UIName = "Grading Saturation Contrast Interior Day";
+	string UIWidget = "Spinner";
+> = {1.0};
+/* value multiplier */
+float dgradevalmul_n
+<
+	string UIName = "Grading Value Intensity Night";
+	string UIWidget = "Spinner";
+> = {1.0};
+float dgradevalmul_d
+<
+	string UIName = "Grading Value Intensity Day";
+	string UIWidget = "Spinner";
+> = {1.0};
+float dgradevalmul_in
+<
+	string UIName = "Grading Value Intensity Interior Night";
+	string UIWidget = "Spinner";
+> = {1.0};
+float dgradevalmul_id
+<
+	string UIName = "Grading Value Intensity Interior Day";
+	string UIWidget = "Spinner";
+> = {1.0};
+/* value power */
+float dgradevalpow_n
+<
+	string UIName = "Grading Value Contrast Night";
+	string UIWidget = "Spinner";
+> = {1.0};
+float dgradevalpow_d
+<
+	string UIName = "Grading Value Contrast Day";
+	string UIWidget = "Spinner";
+> = {1.0};
+float dgradevalpow_in
+<
+	string UIName = "Grading Value Contrast Interior Night";
+	string UIWidget = "Spinner";
+> = {1.0};
+float dgradevalpow_id
+<
+	string UIName = "Grading Value Contrast Interior Day";
+	string UIWidget = "Spinner";
+> = {1.0};
+bool dcolorizeafterhsv
+<
+	string UIName = "Colorize After HSV";
+	string UIWidget = "Checkbox";
+> = {true};
