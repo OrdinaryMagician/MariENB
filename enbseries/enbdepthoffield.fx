@@ -266,12 +266,24 @@ bool frostalways
 	string UIWidget = "Checkbox";
 > = {false};
 string str_focus = "Focusing Parameters";
-/* circle (triangle, actually) average focus */
-bool focuscircle
+/*
+   focus modes:
+   -2 : mouse
+   -1 : manual
+    0 : center spot
+    1 : center + triangle
+    2 : 8x8 grid average
+    TODO
+    3 : 8x8 grid average of 8 closest points
+    4 : 8x8 grid average of 8 farthest points
+*/
+int focuscircle
 <
-	string UIName = "Enable Focus Triangle";
+	string UIName = "Focus Mode";
 	string UIWidget = "Checkbox";
-> = {true};
+	int UIMin = -2;
+	int UIMax = 2;
+> = {1};
 bool focusdisplay
 <
 	string UIName = "Display Focus Points";
@@ -470,18 +482,35 @@ float doffixedfocusblend_n
 	string UIName = "DOF Fixed Focus Blend Night";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
+	float UIMax = 1.0;
 > = {0.0};
 float doffixedfocusblend_d
 <
 	string UIName = "DOF Fixed Focus Blend Day";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
+	float UIMax = 1.0;
 > = {0.0};
 float doffixedfocusblend_i
 <
 	string UIName = "DOF Fixed Focus Blend Interior";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {0.0};
+float doffixedfocusdepth
+<
+	string UIName = "DOF Fixed Focus Depth";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {0.0};
+float doffixedfocuscap
+<
+	string UIName = "DOF Fixed Focus Cap";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
 > = {0.0};
 /* fixed unfocused depth factors */
 float doffixedunfocusmult_n
@@ -540,18 +569,28 @@ float doffixedunfocusblend_n
 	string UIName = "DOF Fixed Unfocus Blend Night";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
+	float UIMax = 1.0;
 > = {0.0};
 float doffixedunfocusblend_d
 <
 	string UIName = "DOF Fixed Unfocus Blend Day";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
+	float UIMax = 1.0;
 > = {0.0};
 float doffixedunfocusblend_i
 <
 	string UIName = "DOF Fixed Unfocus Blend Interior";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {0.0};
+float doffixedunfocusdepth
+<
+	string UIName = "DOF Fixed Unfocus Depth";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
 > = {0.0};
 /* prevents fixed dof from blurring the skybox */
 bool doffixedcut
@@ -853,6 +892,7 @@ float EInteriorFactor;
 float4 TimeOfDay1;
 float4 TimeOfDay2;
 float4 DofParameters;
+float4 tempInfo2;
 
 Texture2D TextureCurrent;
 Texture2D TexturePrevious;
@@ -1082,18 +1122,19 @@ float4 PS_DoFPrepass( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	/* cheap tilt */
 	foc = foc+0.01*doftiltx*(doftiltxcenter-coord.x)
 		+0.01*doftilty*(doftiltycenter-coord.y);
-	float dfc = abs(dep-foc);
-	float dff = abs(dep);
-	float dfu = dff;
-	if ( doffixedcut && (dep >= cutoff*0.000001) ) dfu *= 0;
-	dfc = clamp(pow(dfc,dofpow)*dofmult+dofbump,0.0,1.0);
+	float dff = abs(dep-doffixedfocusdepth);
 	dff = clamp(pow(dff,doffixedfocuspow)*doffixedfocusmult
 		+doffixedfocusbump,0.0,1.0);
+	if ( dep > doffixedfocuscap ) dff = 1.0;
+	float dfu = abs(dep-doffixedunfocusdepth);
 	dfu = clamp(pow(dfu,doffixedunfocuspow)*doffixedunfocusmult
 		+doffixedunfocusbump,0.0,1.0);
-	dfc *= lerp(1.0,dff,doffixedfocusblend);
+	if ( doffixedcut && (dep >= cutoff*0.000001) ) dfu *= 0;
+	float dfc = abs(dep-foc);
+	dfc = clamp(pow(dfc,dofpow)*dofmult+dofbump,0.0,1.0);
 	dfc += lerp(0.0,dfu,doffixedunfocusblend);
-	return max(0.0,dfc);
+	dfc *= lerp(1.0,dff,doffixedfocusblend);
+	return clamp(dfc,0.0,1.0);
 }
 
 /* apply SSAO to screen */
@@ -1239,11 +1280,26 @@ float4 PS_Aperture( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 float4 PS_ReadFocus( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 {
 	if ( dofdisable ) return 0.0;
-	if ( focusmanual ) return focusmanualvalue;
+	if ( focuscircle == -2 )
+		return TextureDepth.Sample(Sampler1,tempInfo2.zw).x;
+	if ( focuscircle < 0 ) return focusmanualvalue;
 	float focusmax = tod_ind(focusmax);
 	float cfocus = min(TextureDepth.Sample(Sampler1,focuscenter).x,
 		focusmax*0.001);
-	if ( !focuscircle ) return cfocus;
+	if ( focuscircle == 0 ) return cfocus;
+	if ( focuscircle == 2 )
+	{
+		int i, j;
+		float mfocus = 0.0;
+		float2 px;
+		[unroll] for( j=0; j<8; j++ ) [unroll] for( i=0; i<8; i++ )
+		{
+			px = float2((i+0.5)/8.0,(j+0.5)/8.0);
+			mfocus += min(TextureDepth.Sample(Sampler1,px).x,
+				focusmax*0.001);
+		}
+		return mfocus/64.0;
+	}
 	/* using polygons inscribed into a circle, in this case a triangle */
 	float focusradius = tod_ind(focusradius);
 	float focusmix = tod_ind(focusmix);
@@ -1385,7 +1441,7 @@ float4 PS_DoFBorkeh( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	res /= tw;
 	return res;
 }
-float4 PS_DoFBorkehB( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
+float4 PS_DoFPostBlur( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 {
 	float2 coord = IN.txcoord.xy;
 	if ( dofdisable ) return TextureColor.Sample(Sampler1,coord);
@@ -1474,8 +1530,27 @@ float4 PS_FrostPass( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 		res.rgb *= 1.0+bmp*dist;
 	}
 	else res = TextureColor.Sample(Sampler1,coord);
-	if ( !focusdisplay ) return res;
+	if ( !focusdisplay || (focuscircle == -1) ) return res;
+	if ( focuscircle == -2 )
+	{
+		if ( distance(coord,tempInfo2.zw) < 0.01 )
+			res.rgb = float3(1,0,0);
+		return res;
+	}
+	if ( focuscircle == 2 )
+	{
+		int i, j;
+		float2 px;
+		[unroll] for( j=0; j<8; j++ ) [unroll] for( i=0; i<8; i++ )
+		{
+			px = float2((i+0.5)/8.0,(j+0.5)/8.0);
+			if ( distance(coord,px) < 0.005 )
+				res.rgb = float3(1,0,0);
+		}
+		return res;
+	}
 	if ( distance(coord,focuscenter) < 0.01 ) res.rgb = float3(1,0,0);
+	if ( focuscircle == 0 ) return res;
 	float cstep = (1.0/3.0);
 	float2 tcoord;
 	float focusradius = tod_ind(focusradius);
@@ -1589,6 +1664,14 @@ technique11 Prepass8
 	pass p0
 	{
 		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
+		SetPixelShader(CompileShader(ps_5_0,PS_DoFPostBlur()));
+	}
+}
+technique11 Prepass9
+{
+	pass p0
+	{
+		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
 		SetPixelShader(CompileShader(ps_5_0,PS_FrostPass()));
 	}
 }
@@ -1662,7 +1745,7 @@ technique11 PrepassB8
 	pass p0
 	{
 		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
-		SetPixelShader(CompileShader(ps_5_0,PS_DoFBorkehB()));
+		SetPixelShader(CompileShader(ps_5_0,PS_DoFPostBlur()));
 	}
 }
 technique11 PrepassB9
