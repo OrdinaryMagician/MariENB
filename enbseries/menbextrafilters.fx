@@ -215,6 +215,69 @@ float4 PS_Shift( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	res.a = 1.0;
 	return res;
 }
+/* vignette filtering */
+float4 PS_Vignette( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
+{
+	float2 coord = IN.txcoord.xy;
+	float4 res = tex2D(SamplerColor,coord);
+	float4 vigdata = float4(0,0,0,0);
+	if ( vigshape == 0 )
+	{
+		/* circular vignette */
+		float2 uv = ((coord-0.5)*float2(1.0,ScreenSize.w))*2.0;
+		vigdata.a = dot(uv,uv);
+		vigdata.a = clamp(pow(vigdata.a,vigpow)*vigmul+vigbump,
+			0.0,1.0);
+		vigdata.rgb = float3(vigcolor_r,vigcolor_g,vigcolor_b);
+	}
+	else if ( vigshape == 1 )
+	{	
+		/* box vignette */
+		float2 uv = coord.xy*(1.0-coord.yx)*4.0;
+		vigdata.a = 1.0-(uv.x*uv.y);
+		vigdata.a = clamp(pow(vigdata.a,vigpow)*vigmul+vigbump,
+			0.0,1.0);
+		vigdata.rgb = float3(vigcolor_r,vigcolor_g,vigcolor_b);
+	}
+	else
+	{
+		/* textured vignette (rgb = color, alpha = blend) */
+		vigdata = tex2D(SamplerVignette,coord);
+	}
+	/* apply blur */
+	if ( bblurenable )
+	{
+		float2 bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
+		float bfact = clamp(pow(max(vigdata.a,0.0),bblurpow)*bblurmul
+			+bblurbump,0.0,1.0);
+		float2 bof = (1.0/bresl)*bblurradius*bfact;
+		res.rgb *= 0;
+		int i,j;
+		[unroll] for ( i=-3; i<4; i++ ) [unroll] for ( j=-3; j<4; j++ )
+			res.rgb += gauss4[abs(i)]*gauss4[abs(j)]
+				*tex2D(SamplerColor,coord+float2(i,j)*bof);
+	}
+	/* apply color */
+	if ( vigenable )
+	{
+		float3 outcol;
+		if ( vigmode == 0 )
+			outcol = vigdata.rgb;
+		else if ( vigmode == 1 )
+			outcol = res.rgb+vigdata.rgb;
+		else if ( vigmode == 2 )
+			outcol = res.rgb*vigdata.rgb;
+		res.rgb = lerp(res.rgb,outcol,vigdata.a);
+	}
+	return clamp(res,0.0,1.0);
+}
+/* TODO paint filter */
+/*float4 PS_Oily( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
+{
+	float2 coord = IN.txcoord.xy;
+	float4 res = tex2D(SamplerColor,coord);
+	return res;
+}*/
 /* ultimate super-cinematic immersive black bars */
 float4 PS_Cinematic( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 {
@@ -306,6 +369,24 @@ technique PostProcess5
 	pass p0
 	{
 		VertexShader = compile vs_3_0 VS_Pass();
+		PixelShader = compile ps_3_0 PS_Vignette();
+		DitherEnable = FALSE;
+		ZEnable = FALSE;
+		CullMode = NONE;
+		ALPHATESTENABLE = FALSE;
+		SEPARATEALPHABLENDENABLE = FALSE;
+		AlphaBlendEnable = FALSE;
+		StencilEnable = FALSE;
+		FogEnable = FALSE;
+		SRGBWRITEENABLE = FALSE;
+	}
+}
+/* Paint will go between these two */
+technique PostProcess6
+{
+	pass p0
+	{
+		VertexShader = compile vs_3_0 VS_Pass();
 		PixelShader = compile ps_3_0 PS_Retro();
 		DitherEnable = FALSE;
 		ZEnable = FALSE;
@@ -318,7 +399,7 @@ technique PostProcess5
 		SRGBWRITEENABLE = FALSE;
 	}
 }
-technique PostProcess6
+technique PostProcess7
 {
 	pass p0
 	{
