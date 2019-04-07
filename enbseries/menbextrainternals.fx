@@ -1,8 +1,8 @@
 /*
 	menbextrainternals.fx : MariENB extra internal variables.
-	(C)2013-2014 Marisa Kirisame, UnSX Team.
+	(C)2013-2015 Marisa Kirisame, UnSX Team.
 	Part of MariENB, the personal ENB of Marisa.
-	Released under the WTFPL.
+	Released under the GNU GPLv3 (or later).
 */
 /*
    dithering threshold maps
@@ -141,6 +141,8 @@ static const float3 aosega[16] =
 /* standard stuff */
 float4 ScreenSize;
 float4 Timer;
+float ENightDayFactor;
+float EInteriorFactor;
 /* samplers and textures */
 texture2D texColor;
 texture2D texNoise2

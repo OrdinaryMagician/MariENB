@@ -1,16 +1,9 @@
 /*
 	menbeffectinternals.fx : MariENB base internal variables.
-	(C)2013-2014 Marisa Kirisame, UnSX Team.
+	(C)2013-2015 Marisa Kirisame, UnSX Team.
 	Part of MariENB, the personal ENB of Marisa.
-	Released under the WTFPL.
+	Released under the GNU GPLv3 (or later).
 */
-/* gaussian blur matrices */
-static const float3x3 gauss5 =
-{
-	0.0865051903114,0.0692041522491,0.0346020761246,
-	0.0692041522491,0.0553633217993,0.0276816609,
-	0.0346020761246,0.0276816609,0.01384083045
-};
 /* standard stuff */
 float4 ScreenSize;
 float ENightDayFactor;

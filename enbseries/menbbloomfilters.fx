@@ -1,9 +1,11 @@
 /*
 	menbbloomfilters.fx : MariENB bloom shader routines.
-	(C)2013-2014 Marisa Kirisame, UnSX Team.
+	(C)2013-2015 Marisa Kirisame, UnSX Team.
 	Part of MariENB, the personal ENB of Marisa.
-	Released under the WTFPL.
+	Released under the GNU GPLv3 (or later).
 */
+#define tod ENightDayFactor
+#define ind EInteriorFactor
 VS_OUTPUT_POST VS_Bloom(VS_INPUT_POST IN)
 {
 	VS_OUTPUT_POST OUT;
@@ -12,11 +14,28 @@ VS_OUTPUT_POST VS_Bloom(VS_INPUT_POST IN)
 	OUT.txcoord0.xy = IN.txcoord0.xy+TempParameters.xy;
 	return OUT;
 }
-/* pre-pass bloom texture preparation */
+/* helper functions */
+float3 rgb2hsv( float3 c )
+{
+	float4 K = float4(0.0,-1.0/3.0,2.0/3.0,-1.0);
+	float4 p = (c.g<c.b)?float4(c.bg,K.wz):float4(c.gb,K.xy);
+	float4 q = (c.r<p.x)?float4(p.xyw,c.r):float4(c.r,p.yzx);
+	float d = q.x-min(q.w,q.y);
+	float e = 1.0e-10;
+	return float3(abs(q.z+(q.w-q.y)/(6.0*d+e)),d/(q.x+e),q.x);
+}
+float3 hsv2rgb( float3 c )
+{
+	float4 K = float4(1.0,2.0/3.0,1.0/3.0,3.0);
+	float3 p = abs(frac(c.x+K.xyz)*6.0-K.w);
+	return c.z*lerp(K.x,saturate(p-K.x),c.y);
+}
+/* pre-pass bloom texture preparation, nothing is done */
 float4 PS_BloomPrePass(VS_OUTPUT_POST In) : COLOR
 {
-	float tod = ENightDayFactor;
-	float ind = EInteriorFactor;
+	float2 coord = In.txcoord0.xy;
+	float bloomcap = lerp(lerp(bloomcap_n,bloomcap_d,tod),lerp(bloomcap_in,
+		bloomcap_id,tod),ind);
 	float bloombump = lerp(lerp(bloombump_n,bloombump_d,tod),
 		lerp(bloombump_in,bloombump_id,tod),ind);
 	float bloompower = lerp(lerp(bloompower_n,bloompower_d,tod),
@@ -25,95 +44,102 @@ float4 PS_BloomPrePass(VS_OUTPUT_POST In) : COLOR
 		tod),lerp(bloomsaturation_in,bloomsaturation_id,tod),ind);
 	float bloomintensity = lerp(lerp(bloomintensity_n,bloomintensity_d,
 		tod),lerp(bloomintensity_in,bloomintensity_id,tod),ind);
-	float2 coord = In.txcoord0.xy;
 	float4 res = tex2D(SamplerBloom1,coord);
-	res = pow(saturate(res+bloombump),bloompower);
-	float ress = (res.r+res.g+res.b)/3.0;
-	res = res*bloomsaturation+ress*(1.0-bloomsaturation);
-	res.rgb *= bloomintensity;
+	float3 hsv = rgb2hsv(res.rgb);
+	if ( hsv.z > bloomcap ) hsv.z = bloomcap;
+	res.rgb = hsv2rgb(hsv);
+	res = max(res+bloombump,0);
+	hsv = rgb2hsv(res.rgb);
+	hsv.y *= bloomsaturation;
+	hsv.z = pow(hsv.z,bloompower);
+	res.rgb = hsv2rgb(hsv)*bloomintensity;
+	res.a = 1.0;
 	return res;
 }
-/*
-   multipass (cannot specify how many bloom textures to use, so considerable
-   performance rape. good job, boris)
-*/
-float4 PS_BloomTexture(VS_OUTPUT_POST In) : COLOR
+/* Thankfully this allows for separate axis blur */
+float4 PS_BloomTexture1(VS_OUTPUT_POST In) : COLOR
 {
 	float2 coord = In.txcoord0.xy;
-	float2 bresl;
-	if ( (fixedx > 0) && (fixedy > 0) )
-		bresl = float2(fixedx,fixedy);
-	else
-		bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
-	float2 bof = float2(1.0/bresl.x,1.0/bresl.y)*pow(4,TempParameters.w);
-	/* loop unrolled for speeding up compilation (this is retarded) */
-	float4 res;
-	res = gauss7[3][3]*tex2D(SamplerBloom1,coord+float2(-3,-3)*bof);
-	res += gauss7[2][3]*tex2D(SamplerBloom1,coord+float2(-2,-3)*bof);
-	res += gauss7[1][3]*tex2D(SamplerBloom1,coord+float2(-1,-3)*bof);
-	res += gauss7[0][3]*tex2D(SamplerBloom1,coord+float2(0,-3)*bof);
-	res += gauss7[1][3]*tex2D(SamplerBloom1,coord+float2(1,-3)*bof);
-	res += gauss7[2][3]*tex2D(SamplerBloom1,coord+float2(2,-3)*bof);
-	res += gauss7[3][3]*tex2D(SamplerBloom1,coord+float2(3,-3)*bof);
-	res += gauss7[3][2]*tex2D(SamplerBloom1,coord+float2(-3,-2)*bof);
-	res += gauss7[2][2]*tex2D(SamplerBloom1,coord+float2(-2,-2)*bof);
-	res += gauss7[1][2]*tex2D(SamplerBloom1,coord+float2(-1,-2)*bof);
-	res += gauss7[0][2]*tex2D(SamplerBloom1,coord+float2(0,-2)*bof);
-	res += gauss7[1][2]*tex2D(SamplerBloom1,coord+float2(1,-2)*bof);
-	res += gauss7[2][2]*tex2D(SamplerBloom1,coord+float2(2,-2)*bof);
-	res += gauss7[3][2]*tex2D(SamplerBloom1,coord+float2(3,-2)*bof);
-	res += gauss7[3][1]*tex2D(SamplerBloom1,coord+float2(-3,-1)*bof);
-	res += gauss7[2][1]*tex2D(SamplerBloom1,coord+float2(-2,-1)*bof);
-	res += gauss7[1][1]*tex2D(SamplerBloom1,coord+float2(-1,-1)*bof);
-	res += gauss7[0][1]*tex2D(SamplerBloom1,coord+float2(0,-1)*bof);
-	res += gauss7[1][1]*tex2D(SamplerBloom1,coord+float2(1,-1)*bof);
-	res += gauss7[2][1]*tex2D(SamplerBloom1,coord+float2(2,-1)*bof);
-	res += gauss7[3][1]*tex2D(SamplerBloom1,coord+float2(3,-1)*bof);
-	res += gauss7[3][0]*tex2D(SamplerBloom1,coord+float2(-3,0)*bof);
-	res += gauss7[2][0]*tex2D(SamplerBloom1,coord+float2(-2,0)*bof);
-	res += gauss7[1][0]*tex2D(SamplerBloom1,coord+float2(-1,0)*bof);
-	res += gauss7[0][0]*tex2D(SamplerBloom1,coord+float2(0,0)*bof);
-	res += gauss7[1][0]*tex2D(SamplerBloom1,coord+float2(1,0)*bof);
-	res += gauss7[2][0]*tex2D(SamplerBloom1,coord+float2(2,0)*bof);
-	res += gauss7[3][0]*tex2D(SamplerBloom1,coord+float2(3,0)*bof);
-	res += gauss7[3][1]*tex2D(SamplerBloom1,coord+float2(-3,1)*bof);
-	res += gauss7[2][1]*tex2D(SamplerBloom1,coord+float2(-2,1)*bof);
-	res += gauss7[1][1]*tex2D(SamplerBloom1,coord+float2(-1,1)*bof);
-	res += gauss7[0][1]*tex2D(SamplerBloom1,coord+float2(0,1)*bof);
-	res += gauss7[1][1]*tex2D(SamplerBloom1,coord+float2(1,1)*bof);
-	res += gauss7[2][1]*tex2D(SamplerBloom1,coord+float2(2,1)*bof);
-	res += gauss7[3][1]*tex2D(SamplerBloom1,coord+float2(3,1)*bof);
-	res += gauss7[3][2]*tex2D(SamplerBloom1,coord+float2(-3,2)*bof);
-	res += gauss7[2][2]*tex2D(SamplerBloom1,coord+float2(-2,2)*bof);
-	res += gauss7[1][2]*tex2D(SamplerBloom1,coord+float2(-1,2)*bof);
-	res += gauss7[0][2]*tex2D(SamplerBloom1,coord+float2(0,2)*bof);
-	res += gauss7[1][2]*tex2D(SamplerBloom1,coord+float2(1,2)*bof);
-	res += gauss7[2][2]*tex2D(SamplerBloom1,coord+float2(2,2)*bof);
-	res += gauss7[3][2]*tex2D(SamplerBloom1,coord+float2(3,2)*bof);
-	res += gauss7[3][3]*tex2D(SamplerBloom1,coord+float2(-3,3)*bof);
-	res += gauss7[2][3]*tex2D(SamplerBloom1,coord+float2(-2,3)*bof);
-	res += gauss7[1][3]*tex2D(SamplerBloom1,coord+float2(-1,3)*bof);
-	res += gauss7[0][3]*tex2D(SamplerBloom1,coord+float2(0,3)*bof);
-	res += gauss7[1][3]*tex2D(SamplerBloom1,coord+float2(1,3)*bof);
-	res += gauss7[2][3]*tex2D(SamplerBloom1,coord+float2(2,3)*bof);
-	res += gauss7[3][3]*tex2D(SamplerBloom1,coord+float2(3,3)*bof);
+	float4 res = float4(0,0,0,0);
+	int i;
+	for ( i=-2; i<=2; i++ )
+		res += gauss3[abs(i)]*tex2D(SamplerBloom1,coord+float2(i,0)
+			*TempParameters.z);
+	res.a = 1.0;
+	return res;
+}
+float4 PS_BloomTexture2(VS_OUTPUT_POST In) : COLOR
+{
+	float2 coord = In.txcoord0.xy;
+	float4 res = float4(0,0,0,0), base = tex2D(SamplerBloom1,coord);
+	int i;
+	for ( i=-2; i<=2; i++ )
+		res += gauss3[abs(i)]*tex2D(SamplerBloom1,coord+float2(0,i)
+			*TempParameters.z*ScreenSize.z);
+	/* blue shift */
+	float3 blu_n = float3(blu_n_r,blu_n_g,blu_n_b);
+	float3 blu_d = float3(blu_d_r,blu_d_g,blu_d_b);
+	float3 blu_in = float3(blu_in_r,blu_in_g,blu_in_b);
+	float3 blu_id = float3(blu_id_r,blu_id_g,blu_id_b);
+	float3 blu = lerp(lerp(blu_n,blu_d,tod),lerp(blu_in,blu_id,tod),ind);
+	float bsi = lerp(lerp(bsi_n,bsi_d,tod),lerp(bsi_in,bsi_id,tod),ind);
+	float lm = max(0,dot(res.rgb,0.33)-dot(base.rgb,0.33))*10*bsi;
+	lm = lm/(1.0+lm);
+	lm *= 1.0-saturate((TempParameters.w-1.0)*0.22);
+	blu = saturate(blu+(TempParameters.w-1.0)*0.33);
+	res.rgb *= lerp(1.0,blu,lm);
+	res.a = 1.0;
+	return res;
+}
+/* Anamorphic lens flare */
+float4 PS_FlarePass(VS_OUTPUT_POST In) : COLOR
+{
+	if ( !alfenable ) return float4(0,0,0,1);
+	float2 coord = In.txcoord0.xy;
+	float4 res = float4(0,0,0,0), base = tex2D(SamplerBloom1,coord);
+	int i;
+	for ( i=-35; i<=35; i++ )
+		res += gauss36[abs(i)]*tex2D(SamplerBloom1,coord+float2(i,0)
+			*TempParameters.z);
+	/* blue shift */
+	float3 flu_n = float3(flu_n_r,flu_n_g,flu_n_b);
+	float3 flu_d = float3(flu_d_r,flu_d_g,flu_d_b);
+	float3 flu_in = float3(flu_in_r,flu_in_g,flu_in_b);
+	float3 flu_id = float3(flu_id_r,flu_id_g,flu_id_b);
+	float3 flu = lerp(lerp(flu_n,flu_d,tod),lerp(flu_in,flu_id,tod),ind);
+	float fsi = lerp(lerp(fsi_n,fsi_d,tod),lerp(fsi_in,fsi_id,tod),ind);
+	float lm = max(0,dot(res.rgb,0.33)-dot(base.rgb,0.33))*10*fsi;
+	lm = lm/(1.0+lm);
+	float fbl = lerp(lerp(fbl_n,fbl_d,tod),lerp(fbl_in,fbl_id,tod),ind);
+	float fpw = lerp(lerp(fpw_n,fpw_d,tod),lerp(fpw_in,fpw_id,tod),ind);
+	res.rgb *= lerp(1.0,flu,lm);
+	res.rgb = pow(res.rgb,fpw)*fbl;
+	res.a = 1.0;
 	return res;
 }
 /* end pass */
 float4 PS_BloomPostPass(VS_OUTPUT_POST In) : COLOR
 {
 	float2 coord = In.txcoord0.xy;
-	float4 res = (tex2D(SamplerBloom1,coord)+tex2D(SamplerBloom2,coord)
-		+tex2D(SamplerBloom3,coord)+tex2D(SamplerBloom4,coord)
-		+tex2D(SamplerBloom5,coord)+tex2D(SamplerBloom6,coord)
-		+tex2D(SamplerBloom7,coord)+tex2D(SamplerBloom8,coord))*0.125;
+	float4 res = float4(0,0,0,0);
+	res += bloommix1*tex2D(SamplerBloom1,coord); // P1
+	res += bloommix2*tex2D(SamplerBloom2,coord); // P2
+	res += bloommix3*tex2D(SamplerBloom3,coord); // P3
+	res += bloommix4*tex2D(SamplerBloom4,coord); // P4
+	res += bloommix5*tex2D(SamplerBloom5,coord); // Prepass
+	res += bloommix6*tex2D(SamplerBloom6,coord); // Base
+	res += bloommix7*tex2D(SamplerBloom7,coord); // P5
+	res += bloommix8*tex2D(SamplerBloom8,coord); // P6
+	res.rgb /= 6.0;
+	if ( alfenable ) res.rgb *= 0.5;
+	res.a = 1.0;
 	return res;
 }
 /* techniques */
 technique BloomPrePass
 {
-    pass p0
-    {
+	pass p0
+	{
 		VertexShader = compile vs_3_0 VS_Bloom();
 		PixelShader = compile ps_3_0 PS_BloomPrePass();
 		ColorWriteEnable = ALPHA|RED|GREEN|BLUE;
@@ -127,10 +153,32 @@ technique BloomPrePass
 }
 technique BloomTexture1
 {
-    pass p0
-    {
+	pass p0
+	{
 		VertexShader = compile vs_3_0 VS_Bloom();
-		PixelShader = compile ps_3_0 PS_BloomTexture();
+		PixelShader = compile ps_3_0 PS_BloomTexture1();
+		ColorWriteEnable = ALPHA|RED|GREEN|BLUE;
+		CullMode = NONE;
+		AlphaBlendEnable = FALSE;
+		AlphaTestEnable = FALSE;
+		SEPARATEALPHABLENDENABLE = FALSE;
+		FogEnable = FALSE;
+		SRGBWRITEENABLE = FALSE;
+	}
+	pass p1
+	{
+		AlphaBlendEnable = true;
+		SrcBlend = One;
+		DestBlend = One;
+		PixelShader = compile ps_3_0 PS_FlarePass();
+	}
+}
+technique BloomTexture2
+{
+	pass p0
+	{
+		VertexShader = compile vs_3_0 VS_Bloom();
+		PixelShader = compile ps_3_0 PS_BloomTexture2();
 		ColorWriteEnable = ALPHA|RED|GREEN|BLUE;
 		CullMode = NONE;
 		AlphaBlendEnable = FALSE;
@@ -142,8 +190,8 @@ technique BloomTexture1
 }
 technique BloomPostPass
 {
-    pass p0
-    {
+	pass p0
+	{
 		VertexShader = compile vs_3_0 VS_Bloom();
 		PixelShader = compile ps_3_0 PS_BloomPostPass();
 		ColorWriteEnable = ALPHA|RED|GREEN|BLUE;

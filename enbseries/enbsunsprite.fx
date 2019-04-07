@@ -1,8 +1,8 @@
 /*
 	enbsunsprite.fx : MariENB sun sprite filters.
-	(C)2013-2014 Marisa Kirisame, UnSX Team.
+	(C)2013-2015 Marisa Kirisame, UnSX Team.
 	Part of MariENB, the personal ENB of Marisa.
-	Released under the WTFPL.
+	Released under the GNU GPLv3 (or later).
 */
 /* This shader intentionally does nothing */
 struct VS_OUTPUT_POST

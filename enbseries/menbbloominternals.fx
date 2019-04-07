@@ -1,20 +1,26 @@
 /*
 	menbbloominternals.fx : MariENB bloom internal variables.
-	(C)2013-2014 Marisa Kirisame, UnSX Team.
+	(C)2013-2015 Marisa Kirisame, UnSX Team.
 	Part of MariENB, the personal ENB of Marisa.
-	Released under the WTFPL.
+	Released under the GNU GPLv3 (or later).
 */
 /* gaussian blur matrices */
-static const float4x4 gauss7 =
+/* radius: 3, std dev: 0.7014 */
+static const float gauss3[3] = {0.568780, 0.205851, 0.009759};
+/* radius: 36, std dev: 32 */
+static const float gauss36[36] =
 {
-	0.0632507440209,0.0527089533508,0.0301194019147,0.011294775718,
-	0.0527089533508,0.0439241277923,0.0250995015956,0.00941231309835,
-	0.0301194019147,0.0250995015956,0.01434257234,0.00537846462763,
-	0.011294775718,0.00941231309835,0.00537846462763,0.00201692423536
+	0.017014, 0.017006, 0.016981, 0.016939, 0.016881, 0.016807,
+	0.016717, 0.016612, 0.016490, 0.016354, 0.016203, 0.016038,
+	0.015859, 0.015666, 0.015461, 0.015244, 0.015015, 0.014775,
+	0.014524, 0.014264, 0.013995, 0.013718, 0.013433, 0.013141,
+	0.012843, 0.012539, 0.012231, 0.011918, 0.011602, 0.011284,
+	0.010964, 0.010642, 0.010319, 0.009997, 0.009675, 0.009355
 };
 /* standard stuff */
 float4 ScreenSize;
 float4 TempParameters;
+float4 BloomParameters;
 float ENightDayFactor;
 float EInteriorFactor;
 /* samplers and textures */
@@ -32,8 +38,8 @@ sampler2D SamplerBloom1 = sampler_state
 	MinFilter = LINEAR;
 	MagFilter = LINEAR;
 	MipFilter = NONE;
-	AddressU = Clamp;
-	AddressV = Clamp;
+	AddressU = Border;
+	AddressV = Border;
 	SRGBTexture = FALSE;
 	MaxMipLevel = 0;
 	MipMapLodBias = 0;
@@ -44,8 +50,8 @@ sampler2D SamplerBloom2 = sampler_state
 	MinFilter = LINEAR;
 	MagFilter = LINEAR;
 	MipFilter = NONE;
-	AddressU = Clamp;
-	AddressV = Clamp;
+	AddressU = Border;
+	AddressV = Border;
 	SRGBTexture = FALSE;
 	MaxMipLevel = 0;
 	MipMapLodBias = 0;
@@ -56,8 +62,8 @@ sampler2D SamplerBloom3 = sampler_state
 	MinFilter = LINEAR;
 	MagFilter = LINEAR;
 	MipFilter = NONE;
-	AddressU = Clamp;
-	AddressV = Clamp;
+	AddressU = Border;
+	AddressV = Border;
 	SRGBTexture = FALSE;
 	MaxMipLevel = 0;
 	MipMapLodBias = 0;
@@ -68,8 +74,8 @@ sampler2D SamplerBloom4 = sampler_state
 	MinFilter = LINEAR;
 	MagFilter = LINEAR;
 	MipFilter = NONE;
-	AddressU = Clamp;
-	AddressV = Clamp;
+	AddressU = Border;
+	AddressV = Border;
 	SRGBTexture = FALSE;
 	MaxMipLevel = 0;
 	MipMapLodBias = 0;
@@ -80,8 +86,8 @@ sampler2D SamplerBloom5 = sampler_state
 	MinFilter = LINEAR;
 	MagFilter = LINEAR;
 	MipFilter = NONE;
-	AddressU = Clamp;
-	AddressV = Clamp;
+	AddressU = Border;
+	AddressV = Border;
 	SRGBTexture = FALSE;
 	MaxMipLevel = 0;
 	MipMapLodBias = 0;
@@ -92,8 +98,8 @@ sampler2D SamplerBloom6 = sampler_state
 	MinFilter = LINEAR;
 	MagFilter = LINEAR;
 	MipFilter = NONE;
-	AddressU = Clamp;
-	AddressV = Clamp;
+	AddressU = Border;
+	AddressV = Border;
 	SRGBTexture = FALSE;
 	MaxMipLevel = 0;
 	MipMapLodBias = 0;
@@ -104,8 +110,8 @@ sampler2D SamplerBloom7 = sampler_state
 	MinFilter = LINEAR;
 	MagFilter = LINEAR;
 	MipFilter = NONE;
-	AddressU = Clamp;
-	AddressV = Clamp;
+	AddressU = Border;
+	AddressV = Border;
 	SRGBTexture = FALSE;
 	MaxMipLevel = 0;
 	MipMapLodBias = 0;
@@ -116,8 +122,8 @@ sampler2D SamplerBloom8 = sampler_state
 	MinFilter = LINEAR;
 	MagFilter = LINEAR;
 	MipFilter = NONE;
-	AddressU = Clamp;
-	AddressV = Clamp;
+	AddressU = Border;
+	AddressV = Border;
 	SRGBTexture = FALSE;
 	MaxMipLevel = 0;
 	MipMapLodBias = 0;

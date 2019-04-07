@@ -1,8 +1,8 @@
 /*
 	menbprepasssettings.fx : MariENB prepass user-tweakable variables.
-	(C)2013-2014 Marisa Kirisame, UnSX Team.
+	(C)2013-2015 Marisa Kirisame, UnSX Team.
 	Part of MariENB, the personal ENB of Marisa.
-	Released under the WTFPL.
+	Released under the GNU GPLv3 (or later).
 */
 /* fixed resolution, keeps blur filters at a consistent internal resolution */
 int fixedx
@@ -10,19 +10,26 @@ int fixedx
 	string UIName = "_FixedResolutionX";
 	string UIWidget = "Spinner";
 	int UIMin = 0;
-> = {0};
+> = {1920};
 int fixedy
 <
 	string UIName = "_FixedResolutionY";
 	string UIWidget = "Spinner";
 	int UIMin = 0;
-> = {0};
+> = {1080};
+float cutoff
+<
+	string UIName = "DepthCutoff";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1000000.0;
+> = {999949.0};
 /* circle (triangle, actually) average focus */
 bool focuscircle
 <
 	string UIName = "FocusCircleEnable";
 	string UIWidget = "Checkbox";
-> = {false};
+> = {true};
 /* radius of the focus point triangle */
 float focusradius_n
 <
@@ -93,50 +100,50 @@ float dofmult_n
 	string UIName = "DoFMultNight";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
-> = {1.0};
+> = {1000.0};
 float dofmult_d
 <
 	string UIName = "DoFMultDay";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
-> = {1.0};
+> = {1000.0};
 float dofmult_in
 <
 	string UIName = "DoFMultInteriorNight";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
-> = {1.0};
+> = {1000.0};
 float dofmult_id
 <
 	string UIName = "DoFMultInteriorDay";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
-> = {1.0};
+> = {1000.0};
 /* dof power (falloff, kinda) */
 float dofpow_n
 <
 	string UIName = "DoFPowNight";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
-> = {1.0};
+> = {4.0};
 float dofpow_d
 <
 	string UIName = "DoFPowDay";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
-> = {1.0};
+> = {4.0};
 float dofpow_in
 <
 	string UIName = "DoFPowInteriorNight";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
-> = {1.0};
+> = {4.0};
 float dofpow_id
 <
 	string UIName = "DoFPowInteriorDay";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
-> = {1.0};
+> = {4.0};
 /* fixed focused depth factors */
 float doffixedfocusmult_n
 <
@@ -240,25 +247,25 @@ float doffixedunfocuspow_n
 	string UIName = "DoFFixedUnfocusedPowNight";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
-> = {1.0};
+> = {1000.0};
 float doffixedunfocuspow_d
 <
 	string UIName = "DoFFixedUnfocusedPowDay";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
-> = {1.0};
+> = {1000.0};
 float doffixedunfocuspow_in
 <
 	string UIName = "DoFFixedUnfocusedPowInteriorNight";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
-> = {1.0};
+> = {1000.0};
 float doffixedunfocuspow_id
 <
 	string UIName = "DoFFixedUnfocusedPowInteriorDay";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
-> = {1.0};
+> = {1000.0};
 float doffixedunfocusblend_n
 <
 	string UIName = "DoFFixedUnfocusedBlendNight";
@@ -283,110 +290,203 @@ float doffixedunfocusblend_id
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.0};
-/* display dof factors per pixel, or just the whole depth buffer */
-int dofdebug
-<
-	string UIName = "DoFDebug";
-	string UIWidget = "Checkbox";
-	int UIMin = 0;
-	int UIMax = 2;
-> = 0;
-/* two-pass blur, makes you shortsighted */
-bool doftwopass
-<
-	string UIName = "DoFTwoPass";
-	string UIWidget = "Checkbox";
-> = {false};
-/* disable depth of field, in case you want just the contour filter */
+/* disable depth of field */
 bool dofdisable
 <
 	string UIName = "DoFDisable";
 	string UIWidget = "Checkbox";
 > = {false};
-/* enable depth of field smoothing (3x3 gaussian blur, slight fps loss) */
-bool dofsmooth
+/* use bilateral filtering for sharper dof blurring */
+bool dofbilateral
 <
-	string UIName = "DoFSmoothing";
+	string UIName = "DoFBilateral";
 	string UIWidget = "Checkbox";
 > = {true};
-/* enable depth of field sky cutoff (keeps sky sharp, but may look weird) */
-bool dofcutoff
+float dofbfact
 <
-	string UIName = "DoFCutoff";
+	string UIName = "DoFBilateralFactor";
+	string UIWidget = "Spinner";
+> = {5.0};
+float dofbradius
+<
+	string UIName = "DoFBlurRadius";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+bool dofrelfov
+<
+	string UIName = "DoFRelativeToFoV";
 	string UIWidget = "Checkbox";
 > = {false};
-/* disable edge detect filters */
-bool noedge
+float fovdefault
 <
-	string UIName = "EdgeDisable";
+	string UIName = "DoFRelativeDefaultFOV";
+	string UIWidget = "Spinner";
+	float UIMin = 1.0;
+	float UIMax = 180.0;
+> = {75.0};
+float relfovfactor_n
+<
+	string UIName = "DoFRelativeFactorNight";
+	string UIWidget = "Spinner";
+> = {0.0};
+float relfovfactor_d
+<
+	string UIName = "DoFRelativeFactorDay";
+	string UIWidget = "Spinner";
+> = {0.0};
+float relfovfactor_in
+<
+	string UIName = "DoFRelativeFactorInteriorNight";
+	string UIWidget = "Spinner";
+> = {0.0};
+float relfovfactor_id
+<
+	string UIName = "DoFRelativeFactorInteriorDay";
+	string UIWidget = "Spinner";
+> = {0.0};
+bool dofdebug
+<
+	string UIName = "DebugDepth";
 	string UIWidget = "Checkbox";
-> = {true};
+> = {false};
+/* enable edge detect filters */
+bool edgeenable
+<
+	string UIName = "EdgeEnable";
+	string UIWidget = "Checkbox";
+> = {false};
 /* use "edge vision" instead of contour filter (just because it looks fancy) */
 bool edgeview
 <
 	string UIName = "EdgeView";
 	string UIWidget = "Checkbox";
-> = {false};
+> = {true};
 /* factors */
-float edgefadepow
+float edgefadepow_n
 <
-	string UIName = "EdgeFadePower";
+	string UIName = "EdgeFadePowerNight";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
-> = {1.6};
-float edgefademult
+> = {1.5};
+float edgefadepow_d
 <
-	string UIName = "EdgeFadeMultiplier";
+	string UIName = "EdgeFadePowerDay";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
-> = {16.0};
+> = {1.5};
+float edgefadepow_in
+<
+	string UIName = "EdgeFadePowerInteriorNight";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.5};
+float edgefadepow_id
+<
+	string UIName = "EdgeFadePowerInteriorDay";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.5};
+float edgefademult_n
+<
+	string UIName = "EdgeFadeMultiplierNight";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {5000.0};
+float edgefademult_d
+<
+	string UIName = "EdgeFadeMultiplierDay";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {5000.0};
+float edgefademult_in
+<
+	string UIName = "EdgeFadeMultiplierInteriorNight";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {5000.0};
+float edgefademult_id
+<
+	string UIName = "EdgeFadeMultiplierInteriorDay";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {5000.0};
 float edgepow
 <
 	string UIName = "EdgePower";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
-> = {1.5};
+> = {0.25};
 float edgemult
 <
 	string UIName = "EdgeMultiplier";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
-> = {32.0};
+> = {2.0};
 /* ssao filter */
 bool ssaoenable
 <
 	string UIName = "SSAOEnable";
 	string UIWidget = "Checkbox";
 > = {false};
-int ssaodebug
-<
-	string UIName = "SSAODebug";
-	string UIWidget = "Spinner";
-	int UIMin = 0;
-	int UIMax = 2;
-> = 0;
 float ssaoradius
 <
 	string UIName = "SSAORadius";
 	string UIWidget = "Spinner";
-> = {1.0};
+> = {128.0};
 float ssaonoise
 <
 	string UIName = "SSAONoise";
 	string UIWidget = "Spinner";
-> = {0.5};
-float ssaofadepow
+> = {1.0};
+float ssaofadepow_n
 <
-	string UIName = "SSAOFadePower";
+	string UIName = "SSAOFadePowerNight";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.5};
-float ssaofademult
+float ssaofadepow_d
 <
-	string UIName = "SSAOFadeMultiplier";
+	string UIName = "SSAOFadePowerDay";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
-> = {15.0};
+> = {1.5};
+float ssaofadepow_in
+<
+	string UIName = "SSAOFadePowerInteriorNight";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.5};
+float ssaofadepow_id
+<
+	string UIName = "SSAOFadePowerInteriorDay";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.5};
+float ssaofademult_n
+<
+	string UIName = "SSAOFadeMultiplierNight";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {15000.0};
+float ssaofademult_d
+<
+	string UIName = "SSAOFadeMultiplierDay";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {15000.0};
+float ssaofademult_in
+<
+	string UIName = "SSAOFadeMultiplierInteriorNight";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {15000.0};
+float ssaofademult_id
+<
+	string UIName = "SSAOFadeMultiplierInteriorDay";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {15000.0};
 float ssaomult
 <
 	string UIName = "SSAOMultiplier";
@@ -398,7 +498,7 @@ float ssaopow
 	string UIName = "SSAOPower";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
-> = {1.0};
+> = {2.5};
 float ssaoblend
 <
 	string UIName = "SSAOBlend";
@@ -407,5 +507,55 @@ float ssaoblend
 bool ssaobenable
 <
 	string UIName = "SSAOBlurEnable";
-	string UIWidget = "Spinner";
+	string UIWidget = "Checkbox";
 > = {true};
+float ssaobfact
+<
+	string UIName = "SSAOBilateralFactor";
+	string UIWidget = "Spinner";
+> = {800000.0};
+float ssaocfact
+<
+	string UIName = "SSAOClampFactor";
+	string UIWidget = "Spinner";
+> = {0.5};
+float ssaobradius
+<
+	string UIName = "SSAOBlurRadius";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+bool ssaohq
+<
+	string UIName = "SSAOHighQualitySampling";
+	string UIWidget = "Checkbox";
+> = {false};
+bool ssaodebug
+<
+	string UIName = "DebugSSAO";
+	string UIWidget = "Checkbox";
+> = {false};
+/* luma sharpen because of reasons */
+bool sharpenable
+<
+	string UIName = "SharpenEnable";
+	string UIWidget = "Checkbox";
+> = {false};
+float sharpradius
+<
+	string UIName = "SharpenRadius";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float sharpclamp
+<
+	string UIName = "SharpenClamp";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float sharpblend
+<
+	string UIName = "SharpenBlending";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};

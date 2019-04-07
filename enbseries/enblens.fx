@@ -1,8 +1,8 @@
 /*
 	enblens.fx : MariENB Lens filters.
-	(C)2013-2014 Marisa Kirisame, UnSX Team.
+	(C)2013-2015 Marisa Kirisame, UnSX Team.
 	Part of MariENB, the personal ENB of Marisa.
-	Released under the WTFPL.
+	Released under the GNU GPLv3 (or later).
 */
 /*
    This shader left unimplemented. Development of the filter is a massive pain

@@ -1,9 +1,100 @@
 /*
 	menbextrasettings.fx : MariENB extra user-tweakable variables.
-	(C)2013-2014 Marisa Kirisame, UnSX Team.
+	(C)2013-2015 Marisa Kirisame, UnSX Team.
 	Part of MariENB, the personal ENB of Marisa.
-	Released under the WTFPL.
+	Released under the GNU GPLv3 (or later).
 */
+/* Border darkening */
+bool dkenable
+<
+	string UIName = "UseDark";
+	string UIWidget = "Checkbox";
+> = {false};
+/* radius of darkening (relative to screen width) */
+float dkradius_n
+<
+	string UIName = "DarkRadiusNight";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {0.25};
+float dkradius_d
+<
+	string UIName = "DarkRadiusDay";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {0.25};
+float dkradius_in
+<
+	string UIName = "DarkRadiusInteriorNight";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {0.25};
+float dkradius_id
+<
+	string UIName = "DarkRadiusInteriorDay";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {0.25};
+/* falloff of darkening */
+float dkcurve_n
+<
+	string UIName = "DarkCurveNight";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float dkcurve_d
+<
+	string UIName = "DarkCurveDay";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float dkcurve_in
+<
+	string UIName = "DarkCurveInteriorNight";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float dkcurve_id
+<
+	string UIName = "DarkCurveInteriorDay";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+/* bump of darkening */
+float dkbump_n
+<
+	string UIName = "DarkBumpNight";
+	string UIWidget = "Spinner";
+> = {-1.0};
+float dkbump_d
+<
+	string UIName = "DarkBumpDay";
+	string UIWidget = "Spinner";
+> = {-1.0};
+float dkbump_in
+<
+	string UIName = "DarkBumpInteriorNight";
+	string UIWidget = "Spinner";
+> = {-1.0};
+float dkbump_id
+<
+	string UIName = "DarkBumpInteriorDay";
+	string UIWidget = "Spinner";
+> = {-1.0};
+/* Letterbox */
+bool boxenable
+<
+	string UIName = "UseBox";
+	string UIWidget = "Checkbox";
+> = {false};
+/* vertical factor */
+float boxv
+<
+	string UIName = "BoxVertical";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {0.80};
 /* film grain */
 bool ne
 <
@@ -15,13 +106,13 @@ float nf
 <
 	string UIName = "GrainFrequency";
 	string UIWidget = "Spinner";
-> = {0.25};
+> = {2500.0};
 /* intensity of grain */
 float ni
 <
 	string UIName = "GrainIntensity";
 	string UIWidget = "Spinner";
-> = {0.15};
+> = {0.05};
 /* saturation of grain */
 float ns
 <
@@ -33,7 +124,7 @@ bool np
 <
 	string UIName = "GrainTwoPass";
 	string UIWidget = "Checkbox";
-> = {false};
+> = {true};
 /*
    blending mode for grain:
    0 -> normal
@@ -47,7 +138,7 @@ int nb
 	string UIWidget = "Spinner";
 	int UIMin = 0;
 	int UIMax = 3;
-> = {0};
+> = {1};
 /* dark mask blend mode contrast for mask image */
 float bnp
 <
@@ -113,7 +204,7 @@ float nj
 	string UIName = "GrainPower";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
-> = {4.33};
+> = {2.5};
 /* use curvature + chromatic aberration filter */
 bool usecurve
 <
@@ -125,30 +216,7 @@ float chromaab
 <
 	string UIName = "CurveChromaAberration";
 	string UIWidget = "Spinner";
-> = {0.07};
-/* zoom factor for curve lens (50.0 = no zoom) */
-float lenszoom
-<
-	string UIName = "CurveLensZoom";
-	string UIWidget = "Spinner";
-> = {50.25};
-/* distortion factors for lens */
-float lensdist
-<
-	string UIName = "CurveLensDistortion";
-	string UIWidget = "Spinner";
-> = {0.0};
-float lensdistc
-<
-	string UIName = "CurveLensDistortionCubic";
-	string UIWidget = "Spinner";
-> = {0.0};
-/* clamp borders of lens with black */
-bool lensclamp
-<
-	string UIName = "CurveLensClamp";
-	string UIWidget = "Checkbox";
-> = {true};
+> = {0.05};
 /* BlockGFX filter, I'm proud of it */
 bool useblock
 <
@@ -173,6 +241,19 @@ float bresy
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.5};
+/* zooming factors (<=0 for stretch) */
+float sresx
+<
+	string UIName = "ZoomedResX";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {0.0};
+float sresy
+<
+	string UIName = "ZoomedResY";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {0.0};
 /*
    palette type:
     -1 : disable
@@ -236,22 +317,10 @@ int dither
 	int UIMin = -1;
 	int UIMax = 4;
 > = {4};
-/* gamma modifiers for base color, lower values raise midtones and viceversa */
-float bgammar
+/* gamma modifier for base color, lower values raise midtones and viceversa */
+float bgamma
 <
-	string UIName = "GammaModR";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.65};
-float bgammag
-<
-	string UIName = "GammaModG";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.65};
-float bgammab
-<
-	string UIName = "GammaModB";
+	string UIName = "GammaMod";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.65};
@@ -268,19 +337,9 @@ float bdmult
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.3};
-/* saturation modifiers for base color, helps with limited palettes */
-float bsaturationr
+/* saturation modifier for base color, helps with limited palettes */
+float bsaturation
 <
-	string UIName = "SaturationModR";
-	string UIWidget = "Spinner";
-> = {1.0};
-float bsaturationg
-<
-	string UIName = "SaturationModG";
-	string UIWidget = "Spinner";
-> = {1.0};
-float bsaturationb
-<
-	string UIName = "SaturationModB";
+	string UIName = "SaturationMod";
 	string UIWidget = "Spinner";
 > = {1.0};
