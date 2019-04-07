@@ -3,9 +3,9 @@ ID	NAME				TEMPERATURE
 Skyrim
 
 15E	DefaultWeather			TEMPERATE
-81A	SkyrimClear			HOT
-12F89	SkyrimCloudy			HOT
-2E7AB	TESTCloudyRain			HOT
+81A	SkyrimClear			TEMPERATE
+12F89	SkyrimCloudy			TEMPERATE
+2E7AB	TESTCloudyRain			TEMPERATE
 48C14	BlackreachWeather		TEMPERATE
 4D7FB	SkyrimOvercastSnow		COLD FOG
 5ED7A	FXWthrInvertLightsSolitude	TEMPERATE
@@ -18,7 +18,7 @@ Skyrim
 8277A	FXWthrInvertWindowsWhiterun	TEMPERATE
 8282A	FXWthrInvertLightsWhiterun	TEMPERATE
 923FD	SovngardeFog			TEMPERATE FOG
-A6858	WorldMapWeather			HOT
+A6858	WorldMapWeather			TEMPERATE
 AEE84	FXWthrInvertWindowsWindhelm	COLD
 C821E	SkyrimFog			COLD FOG
 C821F	SkyrimOvercastRain		COLD FOG
@@ -45,21 +45,21 @@ ECC96	FXWthrInvertWindowsWindhelm2	COLD
 10A234	SkyrimClearCO			TEMPERATE
 10A235	SkyrimFogCO			TEMPERATE FOG
 10A236	SkyrimCloudyCO			TEMPERATE
-10A237	SkyrimClearRE			HOT
+10A237	SkyrimClearRE			TEMPERATE
 10A238	SkyrimOvercastRainRE		TEMPERATE FOG
 10A239	SkyrimFogRE			TEMPERATE FOG
-10A23A	SkyrimCloudyRE			HOT
+10A23A	SkyrimCloudyRE			TEMPERATE
 10A23B	SkyrimClearFF			HOT
 10A23C	SkyrimStormRainFF		TEMPERATE FOG
 10A23D	SkyrimOvercastRainFF		TEMPERATE FOG
 10A23E	SkyrimFogFF			TEMPERATE FOG
 10A23F	SkyrimCloudyFF			HOT
-10A240	SkyrimClearTU			HOT
+10A240	SkyrimClearTU			TEMPERATE
 10A241	SkyrimStormRainTU		TEMPERATE FOG
 10A242	SkyrimOvercastRainTU		TEMPERATE FOG
-10A243	SkyrimCloudyTU			HOT
-10A244	SkyrimClearSN			TEMPERATE
-10A245	SkyrimCloudySN			TEMPERATE
+10A243	SkyrimCloudyTU			TEMPERATE
+10A244	SkyrimClearSN			COLD
+10A245	SkyrimCloudySN			COLD
 10A7A5	SkyrimClearVT			HOT
 10A7A6	SkyrimOvercastRainVT		TEMPERATE FOG
 10A7A7	SkyrimFogVT			TEMPERATE FOG
@@ -73,16 +73,16 @@ ECC96	FXWthrInvertWindowsWindhelm2	COLD
 10E1E6	SkyrimClearMA_A			HOT
 10E1E7	SkyrimCloudyCO_A		TEMPERATE
 10E1E8	SkyrimClearCO_A			TEMPERATE
-10E1E9	SkyrimCloudyRE_A		HOT
-10E1EA	SkyrimClearRE_A			HOT
+10E1E9	SkyrimCloudyRE_A		TEMPERATE
+10E1EA	SkyrimClearRE_A			TEMPERATE
 10E1EB	SkyrimCloudyFF_A		HOT
 10E1EC	SkyrimClearFF_A			HOT
-10E1ED	SkyrimCloudyTU_A		HOT
-10E1EE	SkyrimClearTU_A			HOT
-10E1EF	SkyrimCloudySN_A		TEMPERATE
-10E1F0	SkyrimClearSN_A			TEMPERATE
-10E1F1	SkyrimCloudy_A			HOT
-10E1F2	SkyrimClear_A			HOT
+10E1ED	SkyrimCloudyTU_A		TEMPERATE
+10E1EE	SkyrimClearTU_A			TEMPERATE
+10E1EF	SkyrimCloudySN_A		COLD
+10E1F0	SkyrimClearSN_A			COLD
+10E1F1	SkyrimCloudy_A			TEMPERATE
+10E1F2	SkyrimClear_A			TEMPERATE
 10E3D4	EditorCloudPreview		TEMPERATE
 10FE7E	RiftenOvercastFog		TEMPERATE FOG
 10FEF8	SovngardeDark			COLD

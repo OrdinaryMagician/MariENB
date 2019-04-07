@@ -98,7 +98,7 @@ float3 Adaptation( float3 res )
 	amax = tod_ind(amax);
 	return res/(adapts*amax+amin);
 }
-/* "uncharted 2" filmic tone mapping */
+/* Uncharted 2 tone mapping */
 float3 Uch( float3 res )
 {
 	float A = tod_ind(unA);
@@ -109,12 +109,88 @@ float3 Uch( float3 res )
 	float F = tod_ind(unF);
 	return ((res*(A*res+C*B)+D*E)/(res*(A*res+B)+D*F))-E/F;
 }
-float3 Tonemap( float3 res )
+float3 TonemapUC2( float3 res )
 {
 	float W = tod_ind(unW);
 	float3 ucol = Uch(res);
 	float3 uwhite = Uch(W);
-	return ucol/uwhite;
+	return pow(max(ucol/uwhite,0.0),1.0/2.2);
+}
+/* Ugly old Reinhard tone mapping */
+float3 TonemapReinhard( float3 res )
+{
+	float3 tcol = res/(1+res);
+	return pow(max(tcol,0.0),1.0/2.2);
+}
+/* That thing used in watch_dogs */
+float3 TonemapHaarmPeterDuiker( float3 res )
+{
+	float3 ld = 0.002;
+	float linReference = 0.18;
+	float logReference = 444;
+	float logGamma = 0.45;
+	float3 LogColor;
+	LogColor.rgb = (log10(0.4*res/linReference)/ld*logGamma+logReference)/1023.f;
+	LogColor.rgb = saturate(LogColor.rgb);
+	float FilmLutWidth = 256;
+	float Padding = .5/FilmLutWidth;
+	float3 retColor;
+	retColor.r = tex2D(SamplerTonemap,float2(lerp(Padding,1-Padding,LogColor.r),.5)).x;
+	retColor.g = tex2D(SamplerTonemap,float2(lerp(Padding,1-Padding,LogColor.g),.5)).x;
+	retColor.b = tex2D(SamplerTonemap,float2(lerp(Padding,1-Padding,LogColor.b),.5)).x;
+	return retColor;
+}
+/* Practically nothing */
+float3 TonemapLinear( float3 res )
+{
+	return pow(max(res,0.0),1.0/2.2);
+}
+/* People somehow call this one realistic */
+float3 TonemapHejlDawson( float3 res )
+{
+	float3 x = max(0.0,res-0.004);
+	return (x*(6.2*x+.5))/(x*(6.2*x+1.7)+0.06);
+}
+/* The standard tonemap from sweetfx */
+float3 TonemapSFX( float3 res )
+{
+	float Gamma = tod_ind(sfxgamma);
+	float Exposure = tod_ind(sfxexposure);
+	float Saturation = tod_ind(sfxsaturation);
+	float Bleach = tod_ind(sfxbleach);
+	float Defog = tod_ind(sfxdefog);
+	float3 FogColor = float3(tod_ind(sfxfogcolor_r),tod_ind(sfxfogcolor_g),
+		tod_ind(sfxfogcolor_b));
+	float3 tcol = res;
+	tcol = saturate(tcol-Defog*FogColor*2.55);
+	tcol *= pow(2.0,Exposure);
+	tcol = pow(tcol,Gamma);
+	float lum = luminance(tcol);
+	float L = saturate(1.0*(lum-0.45));
+	float3 A2 = Bleach*tcol;
+	float3 res1 = 2.0*tcol*lum;
+	float3 res2 = 1.0-2.0*(1.0-lum)*(1.0-tcol);
+	float3 newc = lerp(res1,res2,L);
+	float3 mixrgb = A2*newc;
+	tcol += (1.0-A2)*mixrgb;
+	float3 gray = dot(tcol,1.0/3.0);
+	float3 diff = tcol-gray;
+	return (tcol+diff*Saturation)/(1+(diff*Saturation));
+}
+float3 Tonemap( float3 res )
+{
+	float3 tcol = pow(max(res,0.0),1.0/2.2);
+	if ( tmapenable == -1 ) return tcol;
+	res *= tod_ind(tmapexposure);
+	float tblend = tod_ind(tmapblend);
+	float3 mapped;
+	if ( tmapenable == 5 ) mapped = TonemapSFX(res);
+	else if ( tmapenable == 4 ) mapped = TonemapHaarmPeterDuiker(res);
+	else if ( tmapenable == 3 ) mapped = TonemapHejlDawson(res);
+	else if ( tmapenable == 2 ) mapped = TonemapUC2(res);
+	else if ( tmapenable == 1 ) mapped = TonemapReinhard(res);
+	else if ( tmapenable == 0 ) mapped = TonemapLinear(res);
+	return lerp(tcol,mapped,tblend);
 }
 /* colour grading passes */
 float3 GradingRGB( float3 res )
@@ -325,12 +401,22 @@ float3 GradingLUT( float3 res )
 #ifdef LUTMODE_LEGACY
 	float3 tcol = clamp(res,0.08,0.92);
 	tcol.rg = tcol.rg*0.5+0.25;
-	float2 lc1 = float2(tcol.r/16.0+floor(tcol.b*16.0)/16.0,tcol.g/64.0
-		+clut/64.0);
-	float2 lc2 = float2(tcol.r/16.0+ceil(tcol.b*16.0)/16.0,tcol.g/64.0
-		+clut/64.0);
+	float2 lc1 = float2(tcol.r/16.0+floor(tcol.b*16.0)/16.0,tcol.g/64.0);
+	float2 lc2 = float2(tcol.r/16.0+ceil(tcol.b*16.0)/16.0,tcol.g/64.0);
 	float dec = (ceil(tcol.b*16.0)==16.0)?(0.0):frac(tcol.b*16.0);
-#endif
+	/* night samples */
+	float3 tcl1_n = tex2D(SamplerLUT,lc1+float2(0,clut_n/64.0));
+	float3 tcl2_n = tex2D(SamplerLUT,lc2+float2(0,clut_n/64.0));
+	/* day samples */
+	float3 tcl1_d = tex2D(SamplerLUT,lc1+float2(0,clut_d/64.0));
+	float3 tcl2_d = tex2D(SamplerLUT,lc2+float2(0,clut_d/64.0));
+	/* interior night samples */
+	float3 tcl1_in = tex2D(SamplerLUT,lc1+float2(0,clut_in/64.0));
+	float3 tcl2_in = tex2D(SamplerLUT,lc2+float2(0,clut_in/64.0));
+	/* interior day samples */
+	float3 tcl1_id = tex2D(SamplerLUT,lc1+float2(0,clut_id/64.0));
+	float3 tcl2_id = tex2D(SamplerLUT,lc2+float2(0,clut_id/64.0));
+#else
 #ifdef LUTMODE_16
 	float3 tcol = clamp(res,0.08,0.92);
 	tcol.rg = tcol.rg*0.5+0.25;
@@ -345,8 +431,21 @@ float3 GradingLUT( float3 res )
 	float2 lc2 = float2(tcol.r,tcol.g/64.0+ceil(tcol.b*64.0)/64.0);
 	float dec = (ceil(tcol.b*64.0)==64.0)?(0.0):frac(tcol.b*64.0);
 #endif
-	float3 tcl1 = tex2D(SamplerLUT,lc1);
-	float3 tcl2 = tex2D(SamplerLUT,lc2);
+	/* night samples */
+	float3 tcl1_n = tex2D(SamplerLUTN,lc1);
+	float3 tcl2_n = tex2D(SamplerLUTN,lc2);
+	/* day samples */
+	float3 tcl1_d = tex2D(SamplerLUTD,lc1);
+	float3 tcl2_d = tex2D(SamplerLUTD,lc2);
+	/* interior night samples */
+	float3 tcl1_in = tex2D(SamplerLUTIN,lc1);
+	float3 tcl2_in = tex2D(SamplerLUTIN,lc2);
+	/* interior day samples */
+	float3 tcl1_id = tex2D(SamplerLUTID,lc1);
+	float3 tcl2_id = tex2D(SamplerLUTID,lc2);
+#endif
+	float3 tcl1 = tod_ind(tcl1);
+	float3 tcl2 = tod_ind(tcl2);
 	tcol = lerp(tcl1,tcl2,dec);
 	float lutblend = tod_ind(lutblend);
 	return lerp(res,tcol,lutblend);
@@ -431,27 +530,30 @@ float3 FilmGrain( float3 res, float2 coord )
 	float3 ng = float3(n4,n4,n4);
 	float3 nc = float3(n1,n2,n3);
 	float3 nt = pow(clamp(lerp(ng,nc,ns),0.0,1.0),nj);
-	if ( nb == 1 ) return res+nt*ni;
-	if ( nb == 2 ) return overlay(res,(nt*ni));
+	if ( nb == 1 ) return res+nt*ni*0.01;
+	if ( nb == 2 ) return overlay(res,(nt*ni*0.01));
 	if ( nb == 3 )
 	{
 		float bn = 1.0-saturate((res.r+res.g+res.b)/3.0);
 		bn = pow(bn,bnp);
 		float3 nn = saturate(nt*bn);
-		return darkmask(res,(nn*ni));
+		return darkmask(res,(nn*ni*0.01));
 	}
-	return lerp(res,nt,ni);
+	return lerp(res,nt,ni*0.01);
 }
 /* MariENB shader */
 float4 PS_Mari( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 {
 	float2 coord = IN.txcoord0.xy;
 	float4 res = tex2D(_s0,coord);
+	res.rgb = pow(max(res.rgb,0.0),2.2);
+	float3 bcol = tex2D(_s3,coord).rgb*EBloomAmount;
+	if ( bloomdebug	) res.rgb *= 0;
+	res.rgb += bcol;
 	if ( aenable ) res.rgb = Adaptation(res.rgb);
 	if ( nbt && ne ) res.rgb = FilmGrain(res.rgb,coord);
+	res.rgb = Tonemap(res.rgb);
 	if ( vgradeenable ) res.rgb = GradingGame(res.rgb);
-	if ( tmapenable ) res.rgb = Tonemap(res.rgb);
-	if ( bloomdebug	) res.rgb *= 0;
 	if ( gradeenable1 ) res.rgb = GradingRGB(res.rgb);
 	if ( colorizeafterhsv )
 	{
@@ -463,8 +565,6 @@ float4 PS_Mari( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 		if ( gradeenable2 ) res.rgb = GradingColorize(res.rgb);
 		if ( gradeenable3 ) res.rgb = GradingHSV(res.rgb);
 	}
-	float3 bcol = tex2D(_s3,coord).rgb*EBloomAmount;
-	res.rgb += bcol;
 	if ( lutenable ) res.rgb = GradingLUT(res.rgb);
 	if ( palenable ) res.rgb = GradingPal(res.rgb);
 	if ( techenable ) res.rgb = Technicolor(res.rgb);
