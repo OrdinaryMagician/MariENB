@@ -180,7 +180,7 @@ float3 GradingHSV( float3 res )
 	float gradevalpow = lerp(lerp(gradevalpow_n,gradevalpow_d,tod),
 		lerp(gradevalpow_in,gradevalpow_id,tod),ind);
 	float3 hsv = rgb2hsv(res);
-	hsv.y = pow(hsv.y,gradesatpow)*gradesatmul;
+	hsv.y = clamp(pow(hsv.y,gradesatpow)*gradesatmul,0.0,1.0);
 	hsv.z = pow(hsv.z,gradevalpow)*gradevalmul;
 	return hsv2rgb(hsv);
 }
@@ -318,8 +318,8 @@ float4 PS_Mari( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	if ( tmapenable && !tmapbeforecomp ) res.rgb = Tonemap(res.rgb);
 	if ( bloomdebug	) res.rgb *= 0;
 	res.rgb += tex2D(_s3,coord).rgb*EBloomAmount;
-	if ( tintbeforegrade && tintenable ) res.rgb = Tint(res.rgb);
 	if ( vgradeenable ) res.rgb = GradingGame(res.rgb);
+	if ( tintbeforegrade && tintenable ) res.rgb = Tint(res.rgb);
 	if ( gradeenable1 ) res.rgb = GradingRGB(res.rgb);
 	if ( colorizeafterhsv )
 	{

@@ -54,7 +54,7 @@ float4 PS_BloomPrePass(VS_OUTPUT_POST In) : COLOR
 	res.rgb = hsv2rgb(hsv);
 	res = max(res+bloombump,0);
 	hsv = rgb2hsv(res.rgb);
-	hsv.y *= bloomsaturation;
+	hsv.y = clamp(hsv.y*bloomsaturation,0.0,1.0);
 	hsv.z = pow(hsv.z,bloompower);
 	res.rgb = hsv2rgb(hsv)*bloomintensity;
 	res.a = 1.0;

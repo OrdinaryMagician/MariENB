@@ -35,7 +35,7 @@ float3 hsv2rgb( float3 c )
 float4 ReducePrepass( in float4 col, in float2 coord )
 {
 	float3 hsv = rgb2hsv(col);
-	hsv.y *= bsaturation;
+	hsv.y = clamp(hsv.y*bsaturation,0.0,1.0);
 	hsv.z = pow(hsv.z,bgamma);
 	col.rgb = hsv2rgb(saturate(hsv));
 	if ( dither == 0 )
