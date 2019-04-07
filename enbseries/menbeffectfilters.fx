@@ -331,68 +331,24 @@ float3 GradingGame( float3 res )
 /* LUT colour grading */
 float3 GradingLUT( float3 res )
 {
-#ifdef VOLUME_LUTS
 	/*
-	   volume maps are SO MUCH BETTER on the shader side, no ugly
+	   Volume maps are SO MUCH BETTER on the shader side, no ugly
 	   interpolation hacks are needed to work around sampling quirks,
-	   and the code is EXTREMELY simplified as a result
+	   and the code is EXTREMELY simplified as a result.
+	   
+	   Seriously, it's just as simple as using the screen rgb values
+	   as xyz coordinates, nothing more, it maps exactly 1:1. Additionally,
+	   the LUTs can have any arbitrary width, height and depth.
+	   
+	   It's also possible to use RGBA32F color on the LUT side, but that's
+	   a bit more complicated to set up for the user. GIMP doesn't support
+	   that format yet, dunno about Photoshop.
 	*/
 	float3 tcl_n = tex3D(SamplerLUTN,res).rgb;
 	float3 tcl_d = tex3D(SamplerLUTD,res).rgb;
 	float3 tcl_in = tex3D(SamplerLUTIN,res).rgb;
 	float3 tcl_id = tex3D(SamplerLUTID,res).rgb;
 	float3 tcol = tod_ind(tcl);
-#else
-#ifdef LUTMODE_LEGACY
-	float3 tcol = clamp(res,0.08,0.92);
-	tcol.rg = tcol.rg*0.5+0.25;
-	float2 lc1 = float2(tcol.r/16.0+floor(tcol.b*16.0)/16.0,tcol.g/64.0);
-	float2 lc2 = float2(tcol.r/16.0+ceil(tcol.b*16.0)/16.0,tcol.g/64.0);
-	float dec = (ceil(tcol.b*16.0)==16.0)?(0.0):frac(tcol.b*16.0);
-	/* night samples */
-	float3 tcl1_n = tex2D(SamplerLUT,lc1+float2(0,clut_n/64.0)).rgb;
-	float3 tcl2_n = tex2D(SamplerLUT,lc2+float2(0,clut_n/64.0)).rgb;
-	/* day samples */
-	float3 tcl1_d = tex2D(SamplerLUT,lc1+float2(0,clut_d/64.0)).rgb;
-	float3 tcl2_d = tex2D(SamplerLUT,lc2+float2(0,clut_d/64.0)).rgb;
-	/* interior night samples */
-	float3 tcl1_in = tex2D(SamplerLUT,lc1+float2(0,clut_in/64.0)).rgb;
-	float3 tcl2_in = tex2D(SamplerLUT,lc2+float2(0,clut_in/64.0)).rgb;
-	/* interior day samples */
-	float3 tcl1_id = tex2D(SamplerLUT,lc1+float2(0,clut_id/64.0)).rgb;
-	float3 tcl2_id = tex2D(SamplerLUT,lc2+float2(0,clut_id/64.0)).rgb;
-#else
-#ifdef LUTMODE_16
-	float3 tcol = clamp(res,0.08,0.92);
-	tcol.rg = tcol.rg*0.5+0.25;
-	float2 lc1 = float2(tcol.r,tcol.g/16.0+floor(tcol.b*16.0)/16.0);
-	float2 lc2 = float2(tcol.r,tcol.g/16.0+ceil(tcol.b*16.0)/16.0);
-	float dec = (ceil(tcol.b*16.0)==16.0)?(0.0):frac(tcol.b*16.0);
-#endif
-#ifdef LUTMODE_64
-	float3 tcol = clamp(res,0.02,0.98);
-	tcol.rg = tcol.rg*0.5+0.25;
-	float2 lc1 = float2(tcol.r,tcol.g/64.0+floor(tcol.b*64.0)/64.0);
-	float2 lc2 = float2(tcol.r,tcol.g/64.0+ceil(tcol.b*64.0)/64.0);
-	float dec = (ceil(tcol.b*64.0)==64.0)?(0.0):frac(tcol.b*64.0);
-#endif
-	/* night samples */
-	float3 tcl1_n = tex2D(SamplerLUTN,lc1).rgb;
-	float3 tcl2_n = tex2D(SamplerLUTN,lc2).rgb;
-	/* day samples */
-	float3 tcl1_d = tex2D(SamplerLUTD,lc1).rgb;
-	float3 tcl2_d = tex2D(SamplerLUTD,lc2).rgb;
-	/* interior night samples */
-	float3 tcl1_in = tex2D(SamplerLUTIN,lc1).rgb;
-	float3 tcl2_in = tex2D(SamplerLUTIN,lc2).rgb;
-	/* interior day samples */
-	float3 tcl1_id = tex2D(SamplerLUTID,lc1).rgb;
-	float3 tcl2_id = tex2D(SamplerLUTID,lc2).rgb;
-#endif
-	float3 tcl1 = tod_ind(tcl1);
-	float3 tcl2 = tod_ind(tcl2);
-	tcol = lerp(tcl1,tcl2,dec);
-#endif
 	float lutblend = tod_ind(lutblend);
 	return lerp(res,tcol,lutblend);
 }

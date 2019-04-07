@@ -904,36 +904,6 @@ float lutblend_id
 	string UIName = "LUT Blend Interior Day";
 	string UIWidget = "Spinner";
 > = {1.0};
-#ifdef LUTMODE_LEGACY
-int clut_n
-<
-	string UIName = "LUT Preset Night";
-	string UIWidget = "Spinner";
-	int UIMin = 0;
-	int UIMax = 63;
-> = {1};
-int clut_d
-<
-	string UIName = "LUT Preset Day";
-	string UIWidget = "Spinner";
-	int UIMin = 0;
-	int UIMax = 63;
-> = {1};
-int clut_in
-<
-	string UIName = "LUT Preset Interior Night";
-	string UIWidget = "Spinner";
-	int UIMin = 0;
-	int UIMax = 63;
-> = {1};
-int clut_id
-<
-	string UIName = "LUT Preset Interior Day";
-	string UIWidget = "Spinner";
-	int UIMin = 0;
-	int UIMax = 63;
-> = {1};
-#endif
 /* technicolor shader */
 string str_tech = "Technicolor";
 bool techenable

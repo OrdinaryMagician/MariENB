@@ -31,142 +31,6 @@ float3 hsv2rgb( float3 c )
 	float3 p = abs(frac(c.x+K.xyz)*6.0-K.w);
 	return c.z*lerp(K.x,saturate(p-K.x),c.y);
 }
-/* prepass */
-float4 ReducePrepass( in float4 col, in float2 coord )
-{
-	float3 hsv = rgb2hsv(col.rgb);
-	hsv.y = clamp(hsv.y*bsaturation,0.0,1.0);
-	hsv.z = pow(max(0,hsv.z),bgamma);
-	col.rgb = hsv2rgb(saturate(hsv));
-	if ( dither == 0 )
-		col += bdbump+checkers[int(coord.x%2)+2*int(coord.y%2)]*bdmult;
-	else if ( dither == 1 )
-		col += bdbump+ordered2[int(coord.x%2)+2*int(coord.y%2)]*bdmult;
-	else if ( dither == 2 )
-		col += bdbump+ordered8[int(coord.x%8)+8*int(coord.y%8)]*bdmult;
-	col = saturate(col);
-	return col;
-}
-/*
-   CGA had seven graphic modes (320x200 modes have low/high contrast versions):
-    - 640x200 monochrome, which doesn't really need a palette here, as it can
-	  be done procedurally with minimum effort.
-	- 320x200 black/cyan/magenta/white
-	- 320x200 black/green/red/brown
-	- 320x200 black/cyan/red/white
-*/
-float4 ReduceCGA( in float4 color, in float2 coord )
-{
-	float4 dac = clamp(ReducePrepass(color,coord),0.02,0.98);
-	float2 lc = float2((dac.r+cgapal)/7.0,
-		dac.g/64.0+floor(dac.b*64.0)/64.0);
-	return tex2D(SamplerCGA,lc);
-}
-/*
-   EGA technically only had a fixed 16-colour palette, but when VGA came out,
-   it was possible to tweak the DAC, allowing for custom palettes.
-   AOS EGA is a palette based on my terminal colour scheme on Linux, which I
-   also use for AliceOS.
-*/
-float4 ReduceEGA( in float4 color, in float2 coord )
-{
-	float4 dac = clamp(ReducePrepass(color,coord),0.02,0.98);
-	float2 lc = float2((dac.r+egapal)/2.0,
-		dac.g/64.0+floor(dac.b*64.0)/64.0);
-	return tex2D(SamplerEGA,lc);
-}
-/* A two bits per channel mode that can usually fit VGA mode 13h and mode x */
-float4 ReduceRGB2( in float4 color, in float2 coord )
-{
-	float4 dac = ReducePrepass(color,coord);
-	color.rgb = trunc(dac.rgb*4.0)/4.0;
-	return color;
-}
-/*
-   The classic 16-bit colour mode everyone from my generation would remember,
-   especially that subtle green tint and the banding due to lack of dithering
-   in most games and GPUs at that time.
-*/
-float4 ReduceRGB565( in float4 color, in float2 coord )
-{
-	float4 dac = ReducePrepass(color,coord);
-	color.rgb = trunc(dac.rgb*float3(32.0,64.0,32.0))
-		/float3(32.0,64.0,32.0);
-	return color;
-}
-/* Various VGA 256-colour palettes: Doom, Quake I, and the standard. */
-float4 ReduceVGA( in float4 color, in float2 coord )
-{
-	float4 dac = clamp(ReducePrepass(color,coord),0.02,0.98);
-	float2 lc = float2((dac.r+vgapal)/15.0,
-		dac.g/64.0+floor(dac.b*64.0)/64.0);
-	return tex2D(SamplerVGA,lc);
-}
-/* Retro rockets */
-float4 PS_Retro( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
-{
-	float2 coord = IN.txcoord.xy;
-	float4 res = tex2D(SamplerColorb,coord);
-	if ( !useblock ) return res;
-	float2 rresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
-	float4 tcol;
-	float2 bresl = rresl;
-	if ( bresx <= 0 || bresy <= 0 ) bresl = rresl;
-	else
-	{
-		if ( bresx <= 1.0 ) bresl.x = rresl.x*bresx;
-		else bresl.x = bresx;
-		if ( bresy <= 1.0 ) bresl.y = rresl.y*bresy;
-		else bresl.y = bresy;
-	}
-	float2 ncoord = (coord-0.5)+0.5;
-	ncoord = floor(ncoord*bresl)/bresl;
-	ncoord += 0.5/bresl;
-	if ( bresx <= 0 || bresy <= 0 ) ncoord = coord;
-	tcol = tex2D(SamplerColorb,ncoord);
-	if ( paltype == 0 ) res = ReduceCGA(tcol,coord*bresl);
-	else if ( paltype == 1 ) res = ReduceEGA(tcol,coord*bresl);
-	else if ( paltype == 2 ) res = ReduceRGB2(tcol,coord*bresl);
-	else if ( paltype == 3 ) res = ReduceVGA(tcol,coord*bresl);
-	else if ( paltype == 4 ) res = ReduceRGB565(tcol,coord*bresl);
-	else res = tcol;
-	res.a = 1.0;
-	return res;
-}
-/* ASCII art (more like CP437 art) */
-float4 PS_ASCII( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
-{
-	float2 coord = IN.txcoord.xy;
-	float4 res = tex2D(SamplerColor,coord);
-	if ( !asciienable ) return res;
-	float2 bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
-	float2 fresl = float2(FONT_WIDTH,FONT_HEIGHT);
-	float2 cresl = float2(GLYPH_WIDTH,GLYPH_HEIGHT);
-	float2 bscl = floor(bresl/cresl);
-	/*
-	   Here I use the "cheap" method, based on the overall luminance of
-	   each glyph, rather than attempt to search for the best fitting glyph
-	   for each cell. If you want to know why, take a look at the ASCII
-	   filter bundled with the Dolphin emulator, and be prepared for the
-	   resulting seconds per frame it runs at. The calculations needed for
-	   such a filter are completely insane even for the highest-end GPUs.
-	*/
-	float3 col = tex2D(SamplerColor,floor(bscl*coord)/bscl).rgb;
-	int lum = clamp(luminance(col)*FONT_LEVELS,0,FONT_LEVELS);
-	float2 itx = floor(coord*bresl);
-	float2 blk = floor(itx/cresl)*cresl;
-	float2 ofs = itx-blk;
-	ofs.y += lum*cresl.y;
-	ofs /= fresl;
-	float gch = tex2D(SamplerFont,ofs).x;
-	if ( gch < 0.5 ) res.rgb = res.rgb*asciiblend;
-	else
-	{
-		if ( asciimono ) res.rgb = 1.0;
-		else res.rgb = col;
-	}
-	return res;
-}
 float4 PS_ChromaKey( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 {
 	float2 coord = IN.txcoord.xy;
@@ -178,45 +42,6 @@ float4 PS_ChromaKey( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 		+0.01*masktilty*(masktiltycenter-coord.y);
 	if ( dep > msd )
 		return float4(maskr,maskg,maskb,1.0);
-	return res;
-}
-/* 2x2 RGBI dot matrix, not even close to anything that exists IRL but meh */
-float4 PS_DotMatrix( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
-{
-	float2 coord = IN.txcoord.xy;
-	float4 res = tex2D(SamplerColor,coord);
-	if ( !dotenable ) return res;
-	float2 bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
-	bresl.xy *= 1.0/(dotsize*2.0);
-	float4 dac = float4(res.r*0.5,res.g*0.5,res.b*0.5,
-		(res.r+res.g+res.b)/6.0);
-	/*
-	   There are two types of CRTs: aperture grille and shadow mask.
-	   The former is blurry and has scanlines (rather big ones, even), but
-	   is cheap to emulate; while the latter is the one most known for its
-	   crisp, square pixels with minimal distortion. Most individuals into
-	   this whole "retro graphics" stuff prefer aperture grille, which
-	   looks like shit, then again, that's the sort of visual quality they
-	   want. The main issue with shadow mask CRTs is that it's impossible
-	   to accurately emulate them unless done on a screen with a HUGE
-	   resolution. After all, the subpixels need to be clearly visible, and
-	   if on top of it you add curvature distortion, you need to reduce
-	   moire patterns that will inevitably show up at low resolutions.
-	   
-	   It would be more desirable to eventually have flat panels that can
-	   display arbitrary resolutions using a form of scaling that preserves
-	   square pixels with unnoticeable distortion (typically, with nearest
-	   neighbour you'd get some pixels that are bigger/smaller than others
-	   if the upscale resolution isn't an integer multiple of the real
-	   resolution.
-	   
-	   This 2x2 RGBI thing is a rather naïve filter I made many years ago,
-	   it looks unlike any real CRT, but scales well. Its only problem is
-	   moire patterns when using the default size of 2x2.
-	*/
-	float4 dots = tex2D(SamplerDots,coord*bresl)*dac;
-	float3 tcol = pow(max(0,dots.rgb+dots.a),dotpow)*dotmult;
-	res.rgb = res.rgb*(1-dotblend)+tcol*dotblend;
 	return res;
 }
 /* that's right, CRT curvature */
@@ -508,12 +333,111 @@ float4 PS_FXAA( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	res.a = 1.0;
 	return res;
 }
+/* Colour matrix */
+float3 ColorMatrix( float3 res )
+{
+	float3x3 cmat = float3x3(cmat_rr,cmat_rg,cmat_rb,
+		cmat_gr,cmat_gg,cmat_gb,
+		cmat_br,cmat_bg,cmat_bb);
+	res = mul(res,cmat);
+	if ( cmatnormalize )
+	{
+		float cmscale = (cmat._11+cmat._12+cmat._13+cmat._21
+			+cmat._22+cmat._23+cmat._31+cmat._32+cmat._33)/3.0;
+		res /= cmscale;
+	}
+	return res;
+}
+/* Hue-Saturation filter from GIMP */
+float hs_hue_overlap( float hue_p, float hue_s, float res )
+{
+	float v = hue_p+hue_s;
+	res += (hshue_a+v)/2.0;
+	return res%1.0;
+}
+float hs_hue( float hue, float res )
+{
+	res += (hshue_a+hue)/2.0;
+	return res%1.0;
+}
+float hs_sat( float sat, float res )
+{
+	float v = hssat_a+sat;
+	res *= v+1.0;
+	return clamp(res,0.0,1.0);
+}
+float hs_val( float val, float res )
+{
+	float v = (hsval_a+val)/2.0;
+	if ( v < 0.0 ) return res*(v+1.0);
+	return res+(v*(1.0-res));
+}
+float3 HueSaturation( float3 res )
+{
+	float3 hsv = rgb2hsv(res);
+	float ch = hsv.x*6.0;
+	int ph = 0, sh = 0;
+	float pv = 0.0, sv = 0.0;
+	bool usesh = false;
+	float hues[6] = {hshue_r,hshue_y,hshue_g,hshue_c,hshue_b,hshue_m};
+	float sats[6] = {hssat_r,hssat_y,hssat_g,hssat_c,hssat_b,hssat_m};
+	float vals[6] = {hsval_r,hsval_y,hsval_g,hsval_c,hsval_b,hsval_m};
+	float v;
+	[loop] for ( float h=0.0; h<7.0; h+=1.0 )
+	{
+		float ht = h+0.5;
+		if ( ch < ht+hsover )
+		{
+			ph = floor(h);
+			if ( (hsover > 0.0) && (ch > ht-hsover) )
+			{
+				usesh = true;
+				sh = ph+1;
+				sv = (ch-ht+hsover)/(2.0*hsover);
+				pv = 1.0-sv;
+			}
+			else usesh = false;
+			break;
+		}
+	}
+	if ( ph >= 6 )
+	{
+		ph = 0;
+		usesh = false;
+	}
+	if ( sh >= 6 ) sh = 0;
+	if ( usesh )
+	{
+		hsv.x = hs_hue_overlap(hues[ph]*pv,hues[sh]*sv,hsv.x);
+		hsv.y = hs_sat(sats[ph],hsv.y)*pv+hs_sat(sats[sh],hsv.y)*sv;
+		hsv.z = hs_val(vals[ph],hsv.z)*pv+hs_val(vals[sh],hsv.z)*sv;
+	}
+	else
+	{
+		hsv.x = hs_hue(hues[ph],hsv.x);
+		hsv.y = hs_sat(sats[ph],hsv.y);
+		hsv.z = hs_val(vals[ph],hsv.z);
+	}
+	return hsv2rgb(hsv);
+}
+/* Colour Balance filter from GIMP */
+/* Additional filters that don't fit in enbeffect */
+float4 PS_Append( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
+{
+	float2 coord = IN.txcoord.xy;
+	float4 res = tex2D(SamplerColor,coord);
+	if ( cmatenable ) res.rgb = ColorMatrix(res.rgb);
+	if ( hsenable ) res.rgb = HueSaturation(res.rgb);
+	res.rgb = max(res.rgb,0.0);
+	res.a = 1.0;
+	return res;
+}
 technique PostProcess
 {
 	pass p0
 	{
 		VertexShader = compile vs_3_0 VS_Pass();
-		PixelShader = compile ps_3_0 PS_Kuwahara();
+		PixelShader = compile ps_3_0 PS_Append();
 		DitherEnable = FALSE;
 		ZEnable = FALSE;
 		CullMode = NONE;
@@ -530,7 +454,7 @@ technique PostProcess2
 	pass p0
 	{
 		VertexShader = compile vs_3_0 VS_Pass();
-		PixelShader = compile ps_3_0 PS_MedianSmooth();
+		PixelShader = compile ps_3_0 PS_Kuwahara();
 		DitherEnable = FALSE;
 		ZEnable = FALSE;
 		CullMode = NONE;
@@ -547,7 +471,7 @@ technique PostProcess3
 	pass p0
 	{
 		VertexShader = compile vs_3_0 VS_Pass();
-		PixelShader = compile ps_3_0 PS_FXAA();
+		PixelShader = compile ps_3_0 PS_MedianSmooth();
 		DitherEnable = FALSE;
 		ZEnable = FALSE;
 		CullMode = NONE;
@@ -564,7 +488,7 @@ technique PostProcess4
 	pass p0
 	{
 		VertexShader = compile vs_3_0 VS_Pass();
-		PixelShader = compile ps_3_0 PS_Blur();
+		PixelShader = compile ps_3_0 PS_FXAA();
 		DitherEnable = FALSE;
 		ZEnable = FALSE;
 		CullMode = NONE;
@@ -581,7 +505,7 @@ technique PostProcess5
 	pass p0
 	{
 		VertexShader = compile vs_3_0 VS_Pass();
-		PixelShader = compile ps_3_0 PS_Sharp();
+		PixelShader = compile ps_3_0 PS_Blur();
 		DitherEnable = FALSE;
 		ZEnable = FALSE;
 		CullMode = NONE;
@@ -598,7 +522,7 @@ technique PostProcess6
 	pass p0
 	{
 		VertexShader = compile vs_3_0 VS_Pass();
-		PixelShader = compile ps_3_0 PS_Shift();
+		PixelShader = compile ps_3_0 PS_Sharp();
 		DitherEnable = FALSE;
 		ZEnable = FALSE;
 		CullMode = NONE;
@@ -615,7 +539,7 @@ technique PostProcess7
 	pass p0
 	{
 		VertexShader = compile vs_3_0 VS_Pass();
-		PixelShader = compile ps_3_0 PS_ChromaKey();
+		PixelShader = compile ps_3_0 PS_Shift();
 		DitherEnable = FALSE;
 		ZEnable = FALSE;
 		CullMode = NONE;
@@ -632,7 +556,7 @@ technique PostProcess8
 	pass p0
 	{
 		VertexShader = compile vs_3_0 VS_Pass();
-		PixelShader = compile ps_3_0 PS_Vignette();
+		PixelShader = compile ps_3_0 PS_ChromaKey();
 		DitherEnable = FALSE;
 		ZEnable = FALSE;
 		CullMode = NONE;
@@ -649,7 +573,7 @@ technique PostProcess9
 	pass p0
 	{
 		VertexShader = compile vs_3_0 VS_Pass();
-		PixelShader = compile ps_3_0 PS_Retro();
+		PixelShader = compile ps_3_0 PS_Vignette();
 		DitherEnable = FALSE;
 		ZEnable = FALSE;
 		CullMode = NONE;
@@ -666,40 +590,6 @@ technique PostProcess10
 	pass p0
 	{
 		VertexShader = compile vs_3_0 VS_Pass();
-		PixelShader = compile ps_3_0 PS_ASCII();
-		DitherEnable = FALSE;
-		ZEnable = FALSE;
-		CullMode = NONE;
-		ALPHATESTENABLE = FALSE;
-		SEPARATEALPHABLENDENABLE = FALSE;
-		AlphaBlendEnable = FALSE;
-		StencilEnable = FALSE;
-		FogEnable = FALSE;
-		SRGBWRITEENABLE = FALSE;
-	}
-}
-technique PostProcess11
-{
-	pass p0
-	{
-		VertexShader = compile vs_3_0 VS_Pass();
-		PixelShader = compile ps_3_0 PS_DotMatrix();
-		DitherEnable = FALSE;
-		ZEnable = FALSE;
-		CullMode = NONE;
-		ALPHATESTENABLE = FALSE;
-		SEPARATEALPHABLENDENABLE = FALSE;
-		AlphaBlendEnable = FALSE;
-		StencilEnable = FALSE;
-		FogEnable = FALSE;
-		SRGBWRITEENABLE = FALSE;
-	}
-}
-technique PostProcess12
-{
-	pass p0
-	{
-		VertexShader = compile vs_3_0 VS_Pass();
 		PixelShader = compile ps_3_0 PS_Curvature();
 		DitherEnable = FALSE;
 		ZEnable = FALSE;
@@ -712,7 +602,7 @@ technique PostProcess12
 		SRGBWRITEENABLE = FALSE;
 	}
 }
-technique PostProcess13
+technique PostProcess11
 {
 	pass p0
 	{

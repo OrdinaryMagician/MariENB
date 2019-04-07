@@ -4,142 +4,6 @@
 	Part of MariENB, the personal ENB of Marisa.
 	Released under the GNU GPLv3 (or later).
 */
-/* BlockGFX filter, I'm proud of it */
-string str_block = "BlockGFX Suite";
-bool useblock
-<
-	string UIName = "Enable Block GFX";
-	string UIWidget = "Checkbox";
-> = {false};
-/*
-   emulated resolution:
-       0 or 1 : real resolution
-    <1 and >0 : multiple of real resolution (e.g.: 0.5 is half resolution)
-           >1 : this resolution (e.g.: 320x200 is good ol' Mode 13h)
-*/
-float bresx
-<
-	string UIName = "Emulated Resolution Width";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.5};
-float bresy
-<
-	string UIName = "Emulated Resolution Height";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.5};
-/*
-   palette type:
-    -1 : disable
-     0 : CGA (320x200 4-color, or 640x200 monochrome)
-     1 : EGA (320x200, 16 colors)
-     2 : RGB2 (64-color quarter VGA palette, used in AOS)
-     3 : VGA (256 colors)
-     4 : RGB565 (ol' 16-bit "true color")
-*/
-int paltype
-<
-	string UIName = "Palette Type";
-	string UIWidget = "Spinner";
-	int UIMin = -1;
-	int UIMax = 4;
-> = {1};
-/*
-   CGA palette to use:
-    0 : black, white.
-    1 : black, cyan, magenta, white. low contrast
-    2 : black, cyan, magenta, white. high contrast
-    3 : black, green, red, brown. low contrast
-    4 : black, green, red, brown. high contrast
-    5 : black, cyan, red, white. low contrast
-    6 : black, cyan, red, white. high contrast
-*/
-int cgapal
-<
-	string UIName = "CGA Palette";
-	string UIWidget = "Spinner";
-	int UIMin = 0;
-	int UIMax = 6;
-> = {1};
-/*
-    EGA palette to use:
-     0 : Standard EGA
-     1 : AOS EGA (it's designed for text, but looks well on images too)
-*/
-int egapal
-<
-	string UIName = "EGA Palette";
-	string UIWidget = "Spinner";
-	int UIMin = 0;
-	int UIMax = 1;
-> = {0};
-/*
-    VGA palette to use:
-     0 : Standard VGA
-     1 : Amulets & Armor
-     2 : Blood
-     3 : Doom
-     4 : Duke Nukem 3D
-     5 : Hacx 2.0
-     6 : Heretic
-     7 : Hexen
-     8 : Hexen 2
-     9 : Quake
-     10 : Quake 2
-     11 : Rise of the Triad
-     12 : Shadow Warrior
-     13 : Strife
-     14 : Wolfenstein 3D
-     TODO Project .Blank palette (when the design is finished)
-*/
-int vgapal
-<
-	string UIName = "VGA Palette";
-	string UIWidget = "Spinner";
-	int UIMin = 0;
-	int UIMax = 14;
-> = {0};
-/*
-   Dithering mode:
-    -1 : No dithering, just raw banding
-     0 : 2x2 checkerboard dithering, looks like ass
-     1 : 2x2 ordered dithering
-     2 : 8x8 ordered dithering
-*/
-int dither
-<
-	string UIName = "Dithering Pattern";
-	string UIWidget = "Spinner";
-	int UIMin = -1;
-	int UIMax = 2;
-> = {2};
-/* gamma modifier for base color, lower values raise midtones and viceversa */
-float bgamma
-<
-	string UIName = "Contrast Modifier";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.35};
-/* saturation modifier for base color, helps with limited palettes */
-float bsaturation
-<
-	string UIName = "Saturation Modifier";
-	string UIWidget = "Spinner";
-> = {1.1};
-/* base brightness bump for the dither grid */
-float bdbump
-<
-	string UIName = "Dither Offset";
-	string UIWidget = "Spinner";
-> = {-0.1};
-/* range multiplier for the dither grid */
-float bdmult
-<
-	string UIName = "Dither Range";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.25};
 /*
    Paint filters:
    -1 : Disabled
@@ -178,25 +42,6 @@ float fxaareducemin
 	string UIName = "FXAA Reduce Min";
 	string UIWidget = "Checkbox";
 > = {128.0};
-/* ASCII art filter */
-string str_ascii = "Luma ASCII Art Filter";
-bool asciienable
-<
-	string UIName = "Enable ASCII";
-	string UIWidget = "Checkbox";
-> = {false};
-bool asciimono
-<
-	string UIName = "ASCII Monochrome";
-	string UIWidget = "Checkbox";
-> = {true};
-float asciiblend
-<
-	string UIName = "ASCII Blend";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-	float UIMax = 1.0;
-> = {0.0};
 /* Depth-cutting chroma key */
 string str_mask = "Depth Chroma Key";
 bool maskenable
@@ -257,38 +102,6 @@ float masktilty
 	string UIName = "Chroma Key Depth Vertical Tilt";
 	string UIWidget = "Spinner";
 > = {0.0};
-/* cheap dot matrix */
-string str_dot = "RGBI Dot Matrix";
-bool dotenable
-<
-	string UIName = "Enable Dot Matrix";
-	string UIWidget = "Checkbox";
-> = {false};
-int dotsize
-<
-	string UIName = "Dot Size";
-	string UIWidget = "Spinner";
-	int UIMin = 1;
-> = {1};
-float dotblend
-<
-	string UIName = "Dot Blend";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-	float UIMax = 1.0;
-> = {0.4};
-float dotmult
-<
-	string UIName = "Dot Intensity";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float dotpow
-<
-	string UIName = "Dot Contrast";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
 /* lens curve with chromatic aberration */
 string str_curve = "Lens Curvature";
 bool curveenable
@@ -454,3 +267,222 @@ float bblurradius
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
+/* colour matrix */
+string str_cmat = "Color Matrix";
+bool cmatenable
+<
+	string UIName = "Enable Color Matrix";
+	string UIWidget = "Checkbox";
+> = {false};
+float cmat_rr
+<
+	string UIName = "Color Matrix Red Red";
+	string UIWidget = "Spinner";
+> = {1.0};
+float cmat_rg
+<
+	string UIName = "Color Matrix Red Green";
+	string UIWidget = "Spinner";
+> = {0.0};
+float cmat_rb
+<
+	string UIName = "Color Matrix Red Blue";
+	string UIWidget = "Spinner";
+> = {0.0};
+float cmat_gr
+<
+	string UIName = "Color Matrix Green Red";
+	string UIWidget = "Spinner";
+> = {0.0};
+float cmat_gg
+<
+	string UIName = "Color Matrix Green Green";
+	string UIWidget = "Spinner";
+> = {1.0};
+float cmat_gb
+<
+	string UIName = "Color Matrix Green Blue";
+	string UIWidget = "Spinner";
+> = {0.0};
+float cmat_br
+<
+	string UIName = "Color Matrix Blue Red";
+	string UIWidget = "Spinner";
+> = {0.0};
+float cmat_bg
+<
+	string UIName = "Color Matrix Blue Green";
+	string UIWidget = "Spinner";
+> = {0.0};
+float cmat_bb
+<
+	string UIName = "Color Matrix Blue Blue";
+	string UIWidget = "Spinner";
+> = {1.0};
+bool cmatnormalize
+<
+	string UIName = "Normalize Matrix";
+	string UIWidget = "Checkbox";
+> = {false};
+/* hue-saturation */
+string str_hs = "Hue-Saturation";
+bool hsenable
+<
+	string UIName = "Enable Hue-Saturation";
+	string UIWidget = "Checkbox";
+> = {false};
+float hsover
+<
+	string UIName = "Overlap";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 0.5;
+> = {0.0};
+float hshue_a
+<
+	string UIName = "Global Hue";
+	string UIWidget = "Spinner";
+	float UIMin = -1.0;
+	float UIMax = 1.0;
+> = {0.0};
+float hssat_a
+<
+	string UIName = "Global Saturation";
+	string UIWidget = "Spinner";
+	float UIMin = -1.0;
+	float UIMax = 1.0;
+> = {0.0};
+float hsval_a
+<
+	string UIName = "Global Value";
+	string UIWidget = "Spinner";
+	float UIMin = -1.0;
+	float UIMax = 1.0;
+> = {0.0};
+float hshue_r
+<
+	string UIName = "Red Hue";
+	string UIWidget = "Spinner";
+	float UIMin = -1.0;
+	float UIMax = 1.0;
+> = {0.0};
+float hssat_r
+<
+	string UIName = "Red Saturation";
+	string UIWidget = "Spinner";
+	float UIMin = -1.0;
+	float UIMax = 1.0;
+> = {0.0};
+float hsval_r
+<
+	string UIName = "Red Value";
+	string UIWidget = "Spinner";
+	float UIMin = -1.0;
+	float UIMax = 1.0;
+> = {0.0};
+float hshue_y
+<
+	string UIName = "Yellow Hue";
+	string UIWidget = "Spinner";
+	float UIMin = -1.0;
+	float UIMax = 1.0;
+> = {0.0};
+float hssat_y
+<
+	string UIName = "Yellow Saturation";
+	string UIWidget = "Spinner";
+	float UIMin = -1.0;
+	float UIMax = 1.0;
+> = {0.0};
+float hsval_y
+<
+	string UIName = "Yellow Value";
+	string UIWidget = "Spinner";
+	float UIMin = -1.0;
+	float UIMax = 1.0;
+> = {0.0};
+float hshue_g
+<
+	string UIName = "Green Hue";
+	string UIWidget = "Spinner";
+	float UIMin = -1.0;
+	float UIMax = 1.0;
+> = {0.0};
+float hssat_g
+<
+	string UIName = "Green Saturation";
+	string UIWidget = "Spinner";
+	float UIMin = -1.0;
+	float UIMax = 1.0;
+> = {0.0};
+float hsval_g
+<
+	string UIName = "Green Value";
+	string UIWidget = "Spinner";
+	float UIMin = -1.0;
+	float UIMax = 1.0;
+> = {0.0};
+float hshue_c
+<
+	string UIName = "Cyan Hue";
+	string UIWidget = "Spinner";
+	float UIMin = -1.0;
+	float UIMax = 1.0;
+> = {0.0};
+float hssat_c
+<
+	string UIName = "Cyan Saturation";
+	string UIWidget = "Spinner";
+	float UIMin = -1.0;
+	float UIMax = 1.0;
+> = {0.0};
+float hsval_c
+<
+	string UIName = "Cyan Value";
+	string UIWidget = "Spinner";
+	float UIMin = -1.0;
+	float UIMax = 1.0;
+> = {0.0};
+float hshue_b
+<
+	string UIName = "Blue Hue";
+	string UIWidget = "Spinner";
+	float UIMin = -1.0;
+	float UIMax = 1.0;
+> = {0.0};
+float hssat_b
+<
+	string UIName = "Blue Saturation";
+	string UIWidget = "Spinner";
+	float UIMin = -1.0;
+	float UIMax = 1.0;
+> = {0.0};
+float hsval_b
+<
+	string UIName = "Blue Value";
+	string UIWidget = "Spinner";
+	float UIMin = -1.0;
+	float UIMax = 1.0;
+> = {0.0};
+float hshue_m
+<
+	string UIName = "Magenta Hue";
+	string UIWidget = "Spinner";
+	float UIMin = -1.0;
+	float UIMax = 1.0;
+> = {0.0};
+float hssat_m
+<
+	string UIName = "Magenta Saturation";
+	string UIWidget = "Spinner";
+	float UIMin = -1.0;
+	float UIMax = 1.0;
+> = {0.0};
+float hsval_m
+<
+	string UIName = "Magenta Value";
+	string UIWidget = "Spinner";
+	float UIMin = -1.0;
+	float UIMax = 1.0;
+> = {0.0};
+/* colour balance */
