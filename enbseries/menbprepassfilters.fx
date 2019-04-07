@@ -24,7 +24,7 @@ float depthlinear( float2 coord )
 	/*
 	   These values seem to be used by pretty much all Skyrim ENB presets.
 	   Since it's practically impossible for me to know the real znear and
-	   zfar values for each game, I'll just use these and hope it all goes well
+	   zfar values for each game, I'll just use these and hope it goes well
 	*/
 	float zNear = 0.0509804;
 	float zFar = 3098.0392;
@@ -209,9 +209,9 @@ float4 PS_SSAOPrepass( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	float3 sample;
 	float sdepth, so, delta;
 	float sclamp = ssaoclamp/1000.0;
-	[unroll] for ( i=0; i<64; i++ )
+	if ( ssaoquarter ) [unroll] for ( i=0; i<16; i++ )
 	{
-		sample = reflect(ssao_samples[i],rnormal);
+		sample = reflect(ssao_samples_lq[i],rnormal);
 		sample *= sign(dot(normal,sample));
 		so = ldepth-sample.z*bof;
 		sdepth = depthlinear(coord+bof*sample.xy/ldepth);
@@ -219,7 +219,17 @@ float4 PS_SSAOPrepass( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 		delta *= 1.0-smoothstep(0.0,sclamp,delta);
 		if ( (delta > 0.0) && (delta < sclamp) ) occ += 1.0-delta;
 	}
-	float uocc = saturate(occ/64.0);
+	else [unroll] for ( i=0; i<64; i++ )
+	{
+		sample = reflect(ssao_samples_hq[i],rnormal);
+		sample *= sign(dot(normal,sample));
+		so = ldepth-sample.z*bof;
+		sdepth = depthlinear(coord+bof*sample.xy/ldepth);
+		delta = saturate(so-sdepth);
+		delta *= 1.0-smoothstep(0.0,sclamp,delta);
+		if ( (delta > 0.0) && (delta < sclamp) ) occ += 1.0-delta;
+	}
+	float uocc = saturate(occ/(ssaoquarter?16.0:64.0));
 	float fade = 1.0-depth;
 	uocc *= saturate(pow(fade,ssaofadepow)*ssaofademult);
 	uocc = saturate(pow(uocc,ssaopow)*ssaomult);
@@ -233,18 +243,18 @@ float4 PS_SSAOBlurH( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	float4 res = tex2D(SamplerColor,coord);
 	if ( !ssaoenable ) return res;
 	if ( !ssaobenable ) return res;
-	float bresl = (fixedx>0)?fixedx:ScreenSize.x;
+	float bresl = ScreenSize.x;
 	float bof = (1.0/bresl)*ssaobradius;
 	float isd, sd, ds, sw, tw = 0;
 	res.a = 0.0;
 	int i;
 	isd = tex2D(SamplerDepth,coord).x;
-	[unroll] for ( i=-15; i<=15; i++ )
+	[unroll] for ( i=-31; i<=31; i++ )
 	{
 		sd = tex2D(SamplerDepth,coord+float2(i,0)*bof).x;
 		ds = abs(isd-sd)*ssaobfact+0.5;
 		sw = 1.0/(ds+1.0);
-		sw *= gauss16[abs(i)];
+		sw *= gauss32[abs(i)];
 		tw += sw;
 		res.a += sw*tex2D(SamplerColor,coord+float2(i,0)*bof).a;
 	}
@@ -261,18 +271,18 @@ float4 PS_SSAOBlurV( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 		if ( ssaodebug ) return saturate(res.a);
 		return res*res.a;
 	}
-	float bresl = (fixedy>0)?fixedy:(ScreenSize.x*ScreenSize.w);
+	float bresl = ScreenSize.x*ScreenSize.w;
 	float bof = (1.0/bresl)*ssaobradius;
 	float isd, sd, ds, sw, tw = 0;
 	res.a = 0.0;
 	int i;
 	isd = tex2D(SamplerDepth,coord).x;
-	[unroll] for ( i=-15; i<=15; i++ )
+	[unroll] for ( i=-31; i<=31; i++ )
 	{
 		sd = tex2D(SamplerDepth,coord+float2(0,i)*bof).x;
 		ds = abs(isd-sd)*ssaobfact+0.5;
 		sw = 1.0/(ds+1.0);
-		sw *= gauss16[abs(i)];
+		sw *= gauss32[abs(i)];
 		tw += sw;
 		res.a += sw*tex2D(SamplerColor,coord+float2(0,i)*bof).a;
 	}
@@ -363,14 +373,15 @@ float4 PS_DoFPrepass( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	float dfc = abs(dep-foc);
 	float dff = abs(dep);
 	float dfu = dff;
+	if ( doffixedcut && (dep >= cutoff*0.000001) ) dfu *= 0;
 	/*
 	   Change power of dof based on field of view. Works only in Skyrim,
 	   Boris is just such a fucking assbutt that he doesn't update the
 	   FO3/FNV version to be feature-equal to this, inventing pathetic
-	   excuses. The FieldOfView variable seems to hold bogus values in Fallout
-	   completely unrelated to actual FOV (yes, I checked if it's in radians,
-	   and no, it isn't). The value appears to be 1.134452. I'll try to
-	   investigate its origins someday.
+	   excuses. The FieldOfView variable seems to hold bogus values in
+	   Fallout completely unrelated to actual FOV (yes, I checked if it's
+	   in radians, and no, it isn't). The value appears to be 1.134452.
+	   I'll try to investigate its origins someday.
 	*/
 	if ( dofrelfov )
 	{
@@ -502,6 +513,13 @@ float2 UnderwaterDistort( float2 coord )
 float2 DistantHeat( float2 coord )
 {
 	float2 bresl;
+	float dep, odep;
+	dep = tex2D(SamplerDepth,coord).x;
+	float distfade = clamp(pow(dep,heatfadepow)*heatfademul+heatfadebump,
+		0.0,1.0);
+	if ( distfade <= 0.0 ) return coord;
+	float todpow = pow(tod*(1.0-ind),heattodpow);
+	if ( !heatalways && (todpow <= 0.0) ) return coord;
 	if ( (fixedx > 0) && (fixedy > 0) ) bresl = float2(fixedx,fixedy);
 	else bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
 	float2 nc = coord*(bresl/256.0)*heatsize;
@@ -509,10 +527,11 @@ float2 DistantHeat( float2 coord )
 	float2 ofs = tex2D(SamplerHeat,nc+ts).xy;
 	ofs = (ofs-0.5)*2.0;
 	ofs *= pow(length(ofs),heatpow);
-	float distfade = tex2D(SamplerDepth,coord).x;
-	distfade = clamp(pow(distfade,heatfadepow)*heatfademul+heatfadebump,
+	if ( !heatalways ) ofs *= todpow;
+	odep = tex2D(SamplerDepth,coord+ofs*heatstrength*distfade*0.01).x;
+	float odistfade = clamp(pow(odep,heatfadepow)*heatfademul+heatfadebump,
 		0.0,1.0);
-	if ( !heatalways ) ofs *= pow(tod*(1.0-ind),heattodpow);
+	if ( odistfade <= 0.0 ) return coord;
 	return coord+ofs*heatstrength*distfade*0.01;
 }
 /* The pass that happens after everything else */

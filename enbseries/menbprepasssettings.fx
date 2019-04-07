@@ -521,6 +521,12 @@ float doffixedunfocusblend_id
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.0};
+/* prevents fixed dof from blurring the skybox */
+bool doffixedcut
+<
+	string UIName = "DOF Fixed Use Cutoff";
+	string UIWidget = "Checkbox";
+> = {true};
 /* disable depth of field */
 bool dofdisable
 <
@@ -884,6 +890,11 @@ float ssaobradius
 bool ssaodebug
 <
 	string UIName = "Debug SSAO";
+	string UIWidget = "Checkbox";
+> = {false};
+bool ssaoquarter
+<
+	string UIName = "SSAO Use Less Samples";
 	string UIWidget = "Checkbox";
 > = {false};
 /* luma sharpen because of reasons */
