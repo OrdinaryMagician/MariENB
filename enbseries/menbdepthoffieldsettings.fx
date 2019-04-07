@@ -542,11 +542,6 @@ float dofpradius
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {6.0};
-bool dofpostblur
-<
-	string UIName = "Enable DOF Post-Blur";
-	string UIWidget = "Checkbox";
-> = {true};
 float dofpbradius
 <
 	string UIName = "DOF Post-Blur Radius";
@@ -558,11 +553,6 @@ float dofpcha
 	string UIName = "DOF Blur Chromatic Aberration";
 	string UIWidget = "Spinner";
 > = {0.0};
-bool dofhilite
-<
-	string UIName = "Enable DOF Highlights";
-	string UIWidget = "Checkbox";
-> = {false};
 float dofbthreshold
 <
 	string UIName = "DOF Highlight Threshold";
@@ -593,11 +583,6 @@ float dofbnoise
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.01};
-bool dofrelfov
-<
-	string UIName = "DOF Relative to FOV";
-	string UIWidget = "Checkbox";
-> = {true};
 float fovdefault
 <
 	string UIName = "Default FOV";
@@ -607,22 +592,22 @@ float fovdefault
 > = {75.0};
 float relfovfactor_n
 <
-	string UIName = "DOF Relative Factor Night";
+	string UIName = "FOV Relative Factor Night";
 	string UIWidget = "Spinner";
 > = {2.0};
 float relfovfactor_d
 <
-	string UIName = "DOF Relative Factor Day";
+	string UIName = "FOV Relative Factor Day";
 	string UIWidget = "Spinner";
 > = {2.0};
 float relfovfactor_in
 <
-	string UIName = "DOF Relative Factor Interior Night";
+	string UIName = "FOV Relative Factor Interior Night";
 	string UIWidget = "Spinner";
 > = {2.0};
 float relfovfactor_id
 <
-	string UIName = "DOF Relative Factor Interior Day";
+	string UIName = "FOV Relative Factor Interior Day";
 	string UIWidget = "Spinner";
 > = {2.0};
 /* tilting */

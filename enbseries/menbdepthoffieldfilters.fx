@@ -96,12 +96,9 @@ float4 PS_DoFPrepass( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	dfog = clamp(pow(dfog,doffogpow)*doffogmult+doffogbump,0.0,1.0);
 	if ( doffixedcut && (dep >= cutoff*0.000001) ) dfu *= 0;
 	/* Change power of dof based on field of view */
-	if ( dofrelfov )
-	{
-		float relfovfactor = tod_ind(relfovfactor);
-		float relfov = (FieldOfView-fovdefault)/fovdefault;
-		dofpow = max(0,dofpow+relfov*relfovfactor);
-	}
+	float relfovfactor = tod_ind(relfovfactor);
+	float relfov = (FieldOfView-fovdefault)/fovdefault;
+	dofpow = max(0,dofpow+relfov*relfovfactor);
 	float dfc = abs(dep-foc);
 	dfc = clamp(pow(dfc,dofpow)*dofmult+dofbump,0.0,1.0);
 	if ( doffixedonly ) dfc *= 0;
@@ -115,8 +112,8 @@ float4 PS_DoFPrepass( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 }
 /* helper code for simplifying these */
 #define gcircle(x) float2(cos(x),sin(x))
-float4 dofsample( float2 coord, float2 bsz, float blur, bool bDoHighlight,
-	out float4 deps, out float4 dfcs )
+float4 dofsample( float2 coord, float2 bsz, float blur, out float4 deps,
+	out float4 dfcs )
 {
 	float4 res;
 	float cstep = 2.0*pi*(1.0/3.0);
@@ -132,12 +129,9 @@ float4 dofsample( float2 coord, float2 bsz, float blur, bool bDoHighlight,
 	res.b = tex2D(SamplerColor,coord+gcircle(ang)*bsz*dofpcha*0.1).b;
 	deps.b = tex2D(SamplerDepth,coord+gcircle(ang)*bsz*dofpcha*0.1).x;
 	dfcs.b = tex2D(SamplerColor,coord+gcircle(ang)*bsz*dofpcha*0.1).a;
-	if ( bDoHighlight )
-	{
-		float l = luminance(res.rgb);
-		float threshold = max((l-dofbthreshold)*dofbgain,0.0);
-		res += lerp(0,res,threshold*blur);
-	}
+	float l = luminance(res.rgb);
+	float threshold = max((l-dofbthreshold)*dofbgain,0.0);
+	res += lerp(0,res,threshold*blur);
 	res.a = tex2D(SamplerColor,coord).a;
 	deps.a = tex2D(SamplerDepth,coord).x;
 	dfcs.a = res.a;
@@ -163,7 +157,7 @@ float4 PS_DoFGather( VS_OUTPUT_POST IN, float2 vPos : VPOS) : COLOR
 	float4 sc, ds, sd, sw, tw = float4(0,0,0,0);
 	[unroll] for ( int i=0; i<32; i++ )
 	{
-		sc = dofsample(coord+poisson32[i]*bsz,bsz,dfc,dofhilite,ds,sd);
+		sc = dofsample(coord+poisson32[i]*bsz,bsz,dfc,ds,sd);
 		sw.r = (ds.r>dep)?1.0:sd.r;
 		sw.g = (ds.g>dep)?1.0:sd.g;
 		sw.b = (ds.b>dep)?1.0:sd.b;
@@ -209,7 +203,7 @@ float4 PS_DoFBorkeh( VS_OUTPUT_POST IN, float2 vPos : VPOS) : COLOR
 			bstep = pi*2.0/(float)rsamples;
 			rcoord = gcircle(j*bstep)*i;
 			bw = lerp(1.0,(float)i/(float)dofbrings,dofbbias);
-			sc = dofsample(coord+rcoord*sr,sr*i,dfc,dofhilite,ds,sd);
+			sc = dofsample(coord+rcoord*sr,sr*i,dfc,ds,sd);
 			sw.r = (ds.r>dep)?1.0:sd.r;
 			sw.g = (ds.g>dep)?1.0:sd.g;
 			sw.b = (ds.b>dep)?1.0:sd.b;
@@ -247,7 +241,6 @@ float4 PS_DoFPostBlur( VS_OUTPUT_POST IN, float2 vPos : VPOS) : COLOR
 		float2(-1.41,1.41), float2(1.41,-1.41)
 	};
 	float4 res = tex2D(SamplerColor,coord);
-	if ( !dofpostblur ) return float4(res.rgb,1.0);
 	int i;
 	[unroll] for ( i=0; i<16; i++ )
 		res += tex2D(SamplerColor,coord+ofs[i]*bof*dfc);

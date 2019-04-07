@@ -500,9 +500,9 @@ float4 PS_Mari( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 		res = tex2D(_s0,coord);
 		bcol = tex2D(_s3,coord).rgb*EBloomAmount;
 	}
-	res.rgb = pow(max(res.rgb,0.0),2.2);
 	if ( bloomdebug	) res.rgb *= 0;
 	res.rgb += bcol;
+	res.rgb = pow(max(res.rgb,0.0),2.2);
 	if ( aenable ) res.rgb = Adaptation(res.rgb);
 	if ( nbt && ne ) res.rgb = FilmGrain(res.rgb,coord);
 	if ( dirtenable ) res.rgb = ScreenDirt(res.rgb,coord);
