@@ -347,20 +347,29 @@ float4 PS_DoFPrepass( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	float doffixedunfocusmult = tod_ind(doffixedunfocusmult);
 	float doffixedunfocusbump = tod_ind(doffixedunfocusbump);
 	float doffixedunfocusblend = tod_ind(doffixedunfocusblend);
+#ifndef FALLOUT
 	float doffogpow = tod_ind(doffogpow);
 	float doffogmult = tod_ind(doffogmult);
 	float doffogbump = tod_ind(doffogbump);
 	float doffogblend = tod_ind(doffogblend);
+#endif
 	float dep = tex2D(SamplerDepth,coord).x;
 	float foc = tex2D(SamplerFocus,coord).x;
 	/* cheap tilt */
 	foc = foc+0.01*doftiltx*(doftiltxcenter-coord.x)
 		+0.01*doftilty*(doftiltycenter-coord.y);
-	float dfc = abs(dep-foc);
-	float dff = abs(dep);
-	float dfu = dff;
+	float dff = abs(dep-doffixedfocusdepth);
+	dff = clamp(pow(dff,doffixedfocuspow)*doffixedfocusmult
+		+doffixedfocusbump,0.0,1.0);
+	if ( dep > doffixedfocuscap ) dff = 1.0;
+	float dfu = abs(dep-doffixedunfocusdepth);
+	dfu = clamp(pow(dfu,doffixedunfocuspow)*doffixedunfocusmult
+		+doffixedunfocusbump,0.0,1.0);
+#ifndef FALLOUT
+	float dfog = abs(dep-doffogdepth);
+	dfog = clamp(pow(dfog,doffogpow)*doffogmult+doffogbump,0.0,1.0);
+#endif
 	if ( doffixedcut && (dep >= cutoff*0.000001) ) dfu *= 0;
-	float dfog = dff;
 	/*
 	   Change power of dof based on field of view. Works only in Skyrim.
 	   The FieldOfView variable seems to hold bogus values in Fallout
@@ -376,22 +385,41 @@ float4 PS_DoFPrepass( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 		dofpow = max(0,dofpow+relfov*relfovfactor);
 	}
 #endif
+	float dfc = abs(dep-foc);
 	dfc = clamp(pow(dfc,dofpow)*dofmult+dofbump,0.0,1.0);
-	dff = clamp(pow(dff,doffixedfocuspow)*doffixedfocusmult
-		+doffixedfocusbump,0.0,1.0);
-	dfu = clamp(pow(dfu,doffixedunfocuspow)*doffixedunfocusmult
-		+doffixedunfocusbump,0.0,1.0);
-	dfog = clamp(pow(dfog,doffogpow)*doffogmult+doffogbump,0.0,1.0);
 	if ( doffixedonly ) dfc *= 0;
-	dfc *= lerp(1.0,dff,doffixedfocusblend);
 	dfc += lerp(0.0,dfu,doffixedunfocusblend);
+#ifndef FALLOUT
 	if ( doffogenable )
 		dfc += (weatherfactor(WT_TEMPERATE_FOG)
 			+weatherfactor(WT_COLD_FOG)+weatherfactor(WT_HOT_FOG))
 			*lerp(0.0,dfog,doffogblend);
+#endif
+	dfc *= lerp(1.0,dff,doffixedfocusblend);
 	dfc = saturate(dfc);
 	float4 res = tex2D(SamplerColor,coord);
 	res.a = dfc;
+	return res;
+}
+/* helper code for simplifying these */
+#define gcircle(x) float2(cos(x),sin(x))
+float4 dofsample( float2 coord, float2 bsz, float blur, bool bDoHighlight )
+{
+	float4 res;
+	float cstep = 2.0*pi*(1.0/3.0);
+	float ang = 0.5*pi;
+	res.r = tex2D(SamplerColor,coord+gcircle(ang)*bsz*dofpcha*0.1).r;
+	ang += cstep;
+	res.g = tex2D(SamplerColor,coord+gcircle(ang)*bsz*dofpcha*0.1).g;
+	ang += cstep;
+	res.b = tex2D(SamplerColor,coord+gcircle(ang)*bsz*dofpcha*0.1).b;
+	if ( bDoHighlight )
+	{
+		float l = luminance(res.rgb);
+		float threshold = max((l-dofbthreshold)*dofbgain,0.0);
+		res += lerp(0,res,threshold*blur);
+	}
+	res.a = tex2D(SamplerColor,coord).a;
 	return res;
 }
 /* gather blur pass  */
@@ -418,11 +446,7 @@ float4 PS_DoFGather( VS_OUTPUT_POST IN, float2 vPos : VPOS) : COLOR
 	float4 sc;
 	[unroll] for ( int i=0; i<32; i++ )
 	{
-		sc = float4(tex2D(SamplerColor,coord+poisson32[i]*bsz*(1
-			+dofpcha*0.1)).r,tex2D(SamplerColor,coord+poisson32[i]
-			*bsz).g,tex2D(SamplerColor,coord+poisson32[i]*bsz*(1
-			-dofpcha*0.1)).b,tex2D(SamplerColor,coord+poisson32[i]
-			*bsz).a);
+		sc = dofsample(coord+poisson32[i]*bsz,bsz,dfc,dofhilite);
 		ds = tex2D(SamplerDepth,coord+poisson32[i]*bsz).x;
 		sw = (ds>dep)?1.0:sc.a;
 		tw += sw;
@@ -452,29 +476,26 @@ float4 PS_DoFBorkeh( VS_OUTPUT_POST IN, float2 vPos : VPOS) : COLOR
 	*/
 	if ( dfc <= dofminblur ) return res;
 	float dep = tex2D(SamplerDepth,coord).x;
-	float sr = dofpradius*dfc;
-	float w = max(0,(1/(sr*sr+1))*luminance(res.rgb+0.01));
-	res *= w;
-	float tw = w;
-	float2 bsz = bof*sr;
-	float4 pc;
-	float sc, ds;
-	[unroll] for ( int i=0; i<32; i++ )
+	float2 sf = bof+(tex2D(SamplerNoise3,coord*(bresl/256.0)).xy*2.0-1.0)
+		*dofbnoise*0.001;
+	float2 sr = sf*dofbradius*dfc;
+	float tw = 1.0;
+	int rsamples;
+	float bstep, sw;
+	float2 rcoord;
+	#define dofbrings 7
+	#define dofbsamples 3
+	[unroll] for ( int i=1; i<=dofbrings; i++ )
 	{
-		pc = float4(tex2D(SamplerColor,coord+poisson32[i]*bsz*(1
-			+dofpcha*0.1)).r,tex2D(SamplerColor,coord+poisson32[i]
-			*bsz).g,tex2D(SamplerColor,coord+poisson32[i]*bsz*(1
-			-dofpcha*0.1)).b,tex2D(SamplerColor,coord+poisson32[i]
-			*bsz).a);
-		ds = tex2D(SamplerDepth,coord+poisson32[i]*bsz).x;
-		sc = abs(pc.a*dofpradius);
-		if ( sr < 0.0 ) sc = max(abs(sr),sc);
-		w = (1.0/(pow(sc,2)+1))*luminance(pc.rgb+0.01);
-		w *= saturate(1-smoothstep(sc,sc*1.1,length(poisson32[i]*bsz)
-			*abs(sr)));
-		w *= (ds>dep)?1.0:sc;
-		res += pc*w;
-		tw += w;
+		rsamples = i*dofbsamples;
+		[unroll] for ( int j=0; j<rsamples; j++ )
+		{
+			bstep = pi*2.0/(float)rsamples;
+			rcoord = gcircle(j*bstep)*i;
+			sw = lerp(1.0,(float)i/(float)dofbrings,dofbbias);
+			res += dofsample(coord+rcoord*sr,sr,dfc,dofhilite)*sw;
+			tw += sw;
+		}
 	}
 	res /= tw;
 	res.a = dfc;
@@ -490,7 +511,7 @@ float4 PS_DoFPostBlur( VS_OUTPUT_POST IN, float2 vPos : VPOS) : COLOR
 	float2 bresl;
 	if ( (fixedx > 0) && (fixedy > 0) ) bresl = float2(fixedx,fixedy);
 	else bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
-	float2 bof = 1.0/bresl;
+	float2 bof = (1.0/bresl)*dofpbradius;
 	float2 ofs[16] =
 	{
 		float2(1.0,1.0), float2(-1.0,-1.0),
@@ -506,13 +527,13 @@ float4 PS_DoFPostBlur( VS_OUTPUT_POST IN, float2 vPos : VPOS) : COLOR
 		float2(-1.41,1.41), float2(1.41,-1.41)
 	};
 	float4 res = tex2D(SamplerColor,coord);
+	if ( !dofpostblur ) return float4(res.rgb,1.0);
 	int i;
 	[unroll] for ( i=0; i<16; i++ )
 		res += tex2D(SamplerColor,coord+ofs[i]*bof*dfc);
 	res /= 17.0;
 	res.a = 1.0;
 	return res;
-	
 }
 /* Screen frost shader. Not very realistic either, but looks fine too. */
 float2 ScreenFrost( float2 coord )

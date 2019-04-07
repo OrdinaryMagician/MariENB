@@ -520,6 +520,20 @@ float doffixedfocusblend_id
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.0};
+float doffixedfocusdepth
+<
+	string UIName = "DOF Fixed Focus Depth";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {0.0};
+float doffixedfocuscap
+<
+	string UIName = "DOF Fixed Focus Cap";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {0.0};
 /* fixed unfocused depth factors */
 float doffixedunfocusmult_n
 <
@@ -613,12 +627,20 @@ float doffixedunfocusblend_id
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.0};
+float doffixedunfocusdepth
+<
+	string UIName = "DOF Fixed Unfocus Depth";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {0.0};
 /* prevents fixed dof from blurring the skybox */
 bool doffixedcut
 <
 	string UIName = "DOF Fixed Use Cutoff";
 	string UIWidget = "Checkbox";
 > = {true};
+#ifndef FALLOUT
 /* fixed dof for foggy weathers */
 bool doffogenable
 <
@@ -717,6 +739,14 @@ float doffogblend_id
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.0};
+float doffogdepth
+<
+	string UIName = "DOF Fog Depth";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {0.0};
+#endif
 /* disable depth of field */
 bool dofdisable
 <
@@ -730,15 +760,61 @@ bool doffixedonly
 > = {false};
 float dofpradius
 <
-	string UIName = "DOF Blur Radius";
+	string UIName = "DOF Gather Blur Radius";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {6.0};
+bool dofpostblur
+<
+	string UIName = "Enable DOF Post-Blur";
+	string UIWidget = "Checkbox";
+> = {true};
+float dofpbradius
+<
+	string UIName = "DOF Post-Blur Radius";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
 float dofpcha
 <
 	string UIName = "DOF Blur Chromatic Aberration";
 	string UIWidget = "Spinner";
 > = {0.0};
+bool dofhilite
+<
+	string UIName = "Enable DOF Highlights";
+	string UIWidget = "Checkbox";
+> = {false};
+float dofbthreshold
+<
+	string UIName = "DOF Highlight Threshold";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {0.5};
+float dofbgain
+<
+	string UIName = "DOF Highlight Gain";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {2.0};
+float dofbradius
+<
+	string UIName = "DOF Bokeh Blur Radius";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float dofbbias
+<
+	string UIName = "DOF Bokeh Edge Bias";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {0.5};
+float dofbnoise
+<
+	string UIName = "DOF Bokeh Fuzz";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {0.01};
 #ifndef FALLOUT
 bool dofrelfov
 <
