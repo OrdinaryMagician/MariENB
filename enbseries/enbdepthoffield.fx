@@ -482,18 +482,35 @@ float doffixedfocusblend_n
 	string UIName = "DOF Fixed Focus Blend Night";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
+	float UIMax = 1.0;
 > = {0.0};
 float doffixedfocusblend_d
 <
 	string UIName = "DOF Fixed Focus Blend Day";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
+	float UIMax = 1.0;
 > = {0.0};
 float doffixedfocusblend_i
 <
 	string UIName = "DOF Fixed Focus Blend Interior";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {0.0};
+float doffixedfocusdepth
+<
+	string UIName = "DOF Fixed Focus Depth";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {0.0};
+float doffixedfocuscap
+<
+	string UIName = "DOF Fixed Focus Cap";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
 > = {0.0};
 /* fixed unfocused depth factors */
 float doffixedunfocusmult_n
@@ -552,18 +569,28 @@ float doffixedunfocusblend_n
 	string UIName = "DOF Fixed Unfocus Blend Night";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
+	float UIMax = 1.0;
 > = {0.0};
 float doffixedunfocusblend_d
 <
 	string UIName = "DOF Fixed Unfocus Blend Day";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
+	float UIMax = 1.0;
 > = {0.0};
 float doffixedunfocusblend_i
 <
 	string UIName = "DOF Fixed Unfocus Blend Interior";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {0.0};
+float doffixedunfocusdepth
+<
+	string UIName = "DOF Fixed Unfocus Depth";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
 > = {0.0};
 /* prevents fixed dof from blurring the skybox */
 bool doffixedcut
@@ -1095,18 +1122,19 @@ float4 PS_DoFPrepass( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	/* cheap tilt */
 	foc = foc+0.01*doftiltx*(doftiltxcenter-coord.x)
 		+0.01*doftilty*(doftiltycenter-coord.y);
-	float dfc = abs(dep-foc);
-	float dff = abs(dep);
-	float dfu = dff;
-	if ( doffixedcut && (dep >= cutoff*0.000001) ) dfu *= 0;
-	dfc = clamp(pow(dfc,dofpow)*dofmult+dofbump,0.0,1.0);
+	float dff = abs(dep-doffixedfocusdepth);
 	dff = clamp(pow(dff,doffixedfocuspow)*doffixedfocusmult
 		+doffixedfocusbump,0.0,1.0);
+	if ( dep > doffixedfocuscap ) dff = 1.0;
+	float dfu = abs(dep-doffixedunfocusdepth);
 	dfu = clamp(pow(dfu,doffixedunfocuspow)*doffixedunfocusmult
 		+doffixedunfocusbump,0.0,1.0);
-	dfc *= lerp(1.0,dff,doffixedfocusblend);
+	if ( doffixedcut && (dep >= cutoff*0.000001) ) dfu *= 0;
+	float dfc = abs(dep-foc);
+	dfc = clamp(pow(dfc,dofpow)*dofmult+dofbump,0.0,1.0);
 	dfc += lerp(0.0,dfu,doffixedunfocusblend);
-	return max(0.0,dfc);
+	dfc *= lerp(1.0,dff,doffixedfocusblend);
+	return clamp(dfc,0.0,1.0);
 }
 
 /* apply SSAO to screen */

@@ -418,6 +418,51 @@ bool vgradeenable
 	string UIName = "Enable Vanilla Imagespace";
 	string UIWidget = "Checkbox";
 > = {true};
+float vtintpow
+<
+	string UIName = "Vanilla Tint Contrast";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float vtintmul
+<
+	string UIName = "Vanilla Tint Strength";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float vtintblend
+<
+	string UIName = "Vanilla Tint Blend";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {1.0};
+float vsatpow
+<
+	string UIName = "Vanilla Vibrance Contrast";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float vsatmul
+<
+	string UIName = "Vanilla Vibrance Strength";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float vsatblend
+<
+	string UIName = "Vanilla Vibrance Blend";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {1.0};
+float vconblend
+<
+	string UIName = "Vanilla Contrast Blend";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {1.0};
 string str_debug = "Debugging";
 bool bloomdebug
 <
@@ -692,23 +737,35 @@ float3 FilmGrain( float3 res, float2 coord )
 /* identical between games, the only difference is parameter indices */
 float3 GradingGame( float3 res, float adapt )
 {
-	float val = luminance(res);
-	float3 tint;
-	res -= val;
+	float satv, tintv, conv, brtv;
+	float3 tintc;
 #ifdef SKYRIMSE
-	res = Params01[3].x*res+val;
-	tint = Params01[4].xyz*val-res;
-	res = Params01[4].w*tint+res;
-	res = Params01[3].w*res-adapt;
-	res = Params01[3].z*res+adapt;
+	satv = Params01[3].x;
+	tintc = Params01[4].xyz;
+	tintv = Params01[4].w;
+	conv = Params01[3].w;
+	brtv = Params01[3].z;
 #else
-	res = Params01[2].x*res+val;
-	tint = Params01[3].xyz*val-res;
-	res = Params01[3].w*tint+res;
-	res = Params01[2].w*res-adapt;
-	res = Params01[2].z*res+adapt;
+	satv = Params01[2].x;
+	tintc = Params01[3].xyz;
+	tintv = Params01[3].w;
+	conv = Params01[2].w;
+	brtv = Params01[2].z;
 #endif
-	return res;
+	float val = luminance(res);
+	float3 tcol = res-val;
+	satv = (satv<0.0)?(-pow(abs(satv),vsatpow)*vsatmul)
+		:(pow(max(satv,0.0),vsatpow)*vsatmul);
+	tcol = satv*tcol+val;
+	tcol = lerp(res,tcol,vsatblend);
+	float3 tint = tintc*val-tcol;
+	tintv = (tintv<0.0)?(-pow(abs(tintv),vtintpow)*vtintmul)
+		:(pow(max(tintv,0.0),vtintpow)*vtintmul);
+	tcol = tintv*tint+tcol;
+	tcol = lerp(res,tcol,vtintblend);
+	tcol = conv*tcol-adapt;
+	tcol = brtv*tcol+adapt;
+	return lerp(res,tcol,vconblend);
 }
 
 /* Vanilla tonemap is weird */
