@@ -185,7 +185,9 @@ float4 PS_LensDirtPass(VS_OUTPUT_POST In) : COLOR
 	mud += dirtmix7*tex2D(SamplerBloomC7,coord); // P5
 	mud += dirtmix8*tex2D(SamplerBloomC8,coord); // P6
 	mud.rgb /= 6.0;
-	mud.rgb = clamp(mud.rgb,0,32768);
+	float3 hsv = rgb2hsv(mud.rgb);
+	hsv.y = clamp(hsv.y*dirtsaturation,0.0,1.0);
+	mud.rgb = clamp(hsv2rgb(hsv),0,32768);
 	float mudmax = luminance(mud.rgb);
 	float mudn = max(mudmax/(1.0+mudmax),0.0);
 	mudn = pow(mudn,max(ldirtpow-crap.a,0.0));

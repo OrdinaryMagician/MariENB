@@ -462,6 +462,11 @@ float dirtmix6
 	string UIName = "Dirt Base Blend";
 	string UIWidget = "Spinner";
 > = {0.0};
+float dirtsaturation
+<
+	string UIName = "Dirt Saturation";
+	string UIWidget = "Spinner";
+> = {1.0};
 float ldirtpow
 <
 	string UIName = "Dirt Contrast";

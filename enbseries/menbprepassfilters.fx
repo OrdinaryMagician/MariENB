@@ -831,7 +831,7 @@ technique PostProcessG6
 		SRGBWRITEENABLE = FALSE;
 	}
 }
-technique PostProcessG8
+technique PostProcessG7
 {
 	pass p0
 	{

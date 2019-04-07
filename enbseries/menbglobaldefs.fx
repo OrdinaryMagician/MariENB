@@ -47,7 +47,7 @@
     uncommented : the textures are 1:1 and must be corrected
     commented : the textures are 16:9 or whatever ratio you use
 */
-#define ASPECT_LENSDIRT
+//#define ASPECT_LENSDIRT
 /* texture sizes */
 #define NOISESIZE 256.0
 #define HEATSIZE 1024.0
