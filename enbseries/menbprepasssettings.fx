@@ -619,7 +619,6 @@ bool dofdisable
 	string UIName = "Disable DOF";
 	string UIWidget = "Checkbox";
 > = {false};
-#ifndef USE_BOKEH
 float dofbfact
 <
 	string UIName = "DOF Bilateral Factor";
@@ -631,14 +630,12 @@ float dofbradius
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
-#else
 float dofpradius
 <
 	string UIName = "DOF Gather Blur Radius";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {6.0};
-#endif
 #ifndef FALLOUT
 bool dofrelfov
 <
@@ -673,6 +670,14 @@ float relfovfactor_id
 	string UIWidget = "Spinner";
 > = {2.0};
 #endif
+/* cheap performance option */
+float dofminblur
+<
+	string UIName = "DOF Minimum Blur";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {0.0};
 bool dofdebug
 <
 	string UIName = "Debug Depth";

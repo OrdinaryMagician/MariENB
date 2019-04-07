@@ -127,7 +127,7 @@ float3 GradingRGB( float3 res )
 	float gradepow_b = tod_ind(gradepow_b);
 	float3 grademul = float3(grademul_r,grademul_g,grademul_b);
 	float3 gradepow = float3(gradepow_r,gradepow_g,gradepow_b);
-	return pow(res,gradepow)*grademul;
+	return pow(max(0,res),gradepow)*grademul;
 }
 float3 GradingColorize( float3 res )
 {
@@ -147,8 +147,8 @@ float3 GradingHSV( float3 res )
 	float gradevalmul = tod_ind(gradevalmul);
 	float gradevalpow = tod_ind(gradevalpow);
 	float3 hsv = rgb2hsv(res);
-	hsv.y = clamp(pow(hsv.y,gradesatpow)*gradesatmul,0.0,1.0);
-	hsv.z = pow(hsv.z,gradevalpow)*gradevalmul;
+	hsv.y = clamp(pow(max(0,hsv.y),gradesatpow)*gradesatmul,0.0,1.0);
+	hsv.z = pow(max(0,hsv.z),gradevalpow)*gradevalmul;
 	return hsv2rgb(hsv);
 }
 /* game grading filters */

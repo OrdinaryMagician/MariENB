@@ -63,7 +63,7 @@ float4 PS_BloomTexture1(VS_OUTPUT_POST In) : COLOR
 	float2 pp;
 	[unroll] for ( i=-7; i<=7; i++ )
 	{
-		pp = coord+float2(i,0)*TempParameters.z*bloomradius;
+		pp = coord+float2(i,0)*TempParameters.z*bloomradiusx;
 		res += gauss8[abs(i)]*tex2D(SamplerBloom1,pp);
 		sum += ((pp.x>=0)&&(pp.x<1))?gauss8[abs(i)]:0;
 	}
@@ -81,7 +81,7 @@ float4 PS_BloomTexture2(VS_OUTPUT_POST In) : COLOR
 	float2 pp;
 	[unroll] for ( i=-7; i<=7; i++ )
 	{
-		pp = coord+float2(0,i)*TempParameters.z*bloomradius;
+		pp = coord+float2(0,i)*TempParameters.z*bloomradiusy;
 		res += gauss8[abs(i)]*tex2D(SamplerBloom1,pp);
 		sum += ((pp.y>=0)&&(pp.y<1))?gauss8[abs(i)]:0;
 	}
@@ -124,11 +124,11 @@ float4 PS_AnamPass(VS_OUTPUT_POST In) : COLOR
 	int i;
 	float sum = 0;
 	float2 pp;
-	[unroll] for ( i=-79; i<=79; i++ )
+	[unroll] for ( i=-39; i<=39; i++ )
 	{
-		pp = coord+float2(i,0)*TempParameters.z*bloomradius*flen;
-		res += gauss80[abs(i)]*tex2D(SamplerBloom1,pp);
-		sum += ((pp.x>=0)&&(pp.x<1))?gauss80[abs(i)]:0;
+		pp = coord+float2(i,0)*TempParameters.z*bloomradiusx*flen;
+		res += gauss40[abs(i)]*tex2D(SamplerBloom1,pp);
+		sum += ((pp.x>=0)&&(pp.x<1))?gauss40[abs(i)]:0;
 	}
 	res *= 1.0/sum;
 	/* blue shift */
@@ -143,7 +143,7 @@ float4 PS_AnamPass(VS_OUTPUT_POST In) : COLOR
 	float fbl = tod_ind(fbl);
 	float fpw = tod_ind(fpw);
 	res.rgb *= lerp(1.0,flu,lm);
-	res.rgb = pow(res.rgb,fpw)*fbl;
+	res.rgb = pow(max(0,res.rgb),fpw)*fbl;
 	res.a = 1.0;
 	return res;
 }
@@ -161,7 +161,6 @@ float4 PS_BloomPostPass(VS_OUTPUT_POST In) : COLOR
 	res += bloommix7*tex2D(SamplerBloomC7,coord); // P5
 	res += bloommix8*tex2D(SamplerBloomC8,coord); // P6
 	res.rgb /= 6.0;
-	if ( alfenable ) res.rgb *= 0.5;
 	res.rgb = clamp(res.rgb,0,32768);
 	res.a = 1.0;
 	return res;
@@ -186,7 +185,6 @@ float4 PS_LensDirtPass(VS_OUTPUT_POST In) : COLOR
 	mud += dirtmix7*tex2D(SamplerBloomC7,coord); // P5
 	mud += dirtmix8*tex2D(SamplerBloomC8,coord); // P6
 	mud.rgb /= 6.0;
-	if ( alfenable ) mud.rgb *= 0.5;
 	mud.rgb = clamp(mud.rgb,0,32768);
 	float mudmax = luminance(mud.rgb);
 	float mudn = max(mudmax/(1.0+mudmax),0.0);

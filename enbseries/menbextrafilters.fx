@@ -36,7 +36,7 @@ float4 ReducePrepass( in float4 col, in float2 coord )
 {
 	float3 hsv = rgb2hsv(col);
 	hsv.y = clamp(hsv.y*bsaturation,0.0,1.0);
-	hsv.z = pow(hsv.z,bgamma);
+	hsv.z = pow(max(0,hsv.z),bgamma);
 	col.rgb = hsv2rgb(saturate(hsv));
 	if ( dither == 0 )
 		col += bdbump+checkers[int(coord.x%2)+2*int(coord.y%2)]*bdmult;
@@ -350,7 +350,7 @@ float4 PS_DotMatrix( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	   moire patterns when using the default size of 2x2.
 	*/
 	float4 dots = tex2D(SamplerDots,coord*bresl)*dac;
-	float3 tcol = pow((dots.rgb+dots.a),dotpow)*dotmult;
+	float3 tcol = pow(max(0,dots.rgb+dots.a),dotpow)*dotmult;
 	res.rgb = res.rgb*(1-dotblend)+tcol*dotblend;
 	return res;
 }

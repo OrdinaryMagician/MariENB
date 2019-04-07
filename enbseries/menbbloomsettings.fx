@@ -120,9 +120,15 @@ float bloomcap_id
 > = {20.0};
 string str_bloomper = "Bloom Per-pass";
 /* bloom blur radius */
-float bloomradius
+float bloomradiusx
 <
-	string UIName = "Bloom Blur Radius";
+	string UIName = "Bloom Blur Radius X";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float bloomradiusy
+<
+	string UIName = "Bloom Blur Radius Y";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};

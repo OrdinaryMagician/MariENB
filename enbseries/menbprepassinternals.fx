@@ -81,7 +81,6 @@ static const float3 ssao_samples_hq[64] =
 	float3(-0.8919,-0.0384, 0.3360),float3(-0.0144, 0.9775,-0.2105)
 };
 /* For high quality DOF */
-#ifdef USE_BOKEH
 static const float2 poisson32[32] =
 {
 	float2( 0.7284430,-0.1927130),float2( 0.4051600,-0.2312710),
@@ -101,7 +100,6 @@ static const float2 poisson32[32] =
 	float2( 0.0761715,-0.9631760),float2(-0.9218270, 0.2121210),
 	float2(-0.6378530, 0.3053550),float2(-0.8425180, 0.4753000)
 };
-#endif
 /* standard stuff */
 float4 ScreenSize;
 float ENightDayFactor;
