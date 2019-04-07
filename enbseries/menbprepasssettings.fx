@@ -444,11 +444,6 @@ float dofpradius
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {6.0};
-bool dofpostblur
-<
-	string UIName = "Enable DOF Post-Blur";
-	string UIWidget = "Checkbox";
-> = {true};
 float dofpbradius
 <
 	string UIName = "DOF Post-Blur Radius";
@@ -460,11 +455,6 @@ float dofpcha
 	string UIName = "DOF Blur Chromatic Aberration";
 	string UIWidget = "Spinner";
 > = {0.0};
-bool dofhilite
-<
-	string UIName = "Enable DOF Highlights";
-	string UIWidget = "Checkbox";
-> = {false};
 float dofbthreshold
 <
 	string UIName = "DOF Highlight Threshold";
@@ -755,117 +745,6 @@ float3 fogcolor
 bool foglimbo
 <
 	string UIName = "Limbo Mode";
-	string UIWidget = "Checkbox";
-> = {false};
-/* ssao filter */
-string str_ssao = "Ray Marching SSAO";
-bool ssaoenable
-<
-	string UIName = "Enable SSAO";
-	string UIWidget = "Checkbox";
-> = {false};
-float ssaoradius
-<
-	string UIName = "SSAO Radius";
-	string UIWidget = "Spinner";
-> = {1.0};
-int ssaonoise
-<
-	string UIName = "SSAO Noise";
-	string UIWidget = "Spinner";
-	int UIMin = 0;
-	int UIMax = 1;
-> = {1};
-float ssaofadepow_n
-<
-	string UIName = "SSAO Fade Contrast Night";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.05};
-float ssaofadepow_d
-<
-	string UIName = "SSAO Fade Contrast Day";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.05};
-float ssaofadepow_i
-<
-	string UIName = "SSAO Fade Contrast Interior";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.05};
-float ssaofademult_n
-<
-	string UIName = "SSAO Fade Intensity Night";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float ssaofademult_d
-<
-	string UIName = "SSAO Fade Intensity Day";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float ssaofademult_i
-<
-	string UIName = "SSAO Fade Intensity Interior";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float ssaomult
-<
-	string UIName = "SSAO Intensity";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.5};
-float ssaopow
-<
-	string UIName = "SSAO Contrast";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.5};
-float ssaobump
-<
-	string UIName = "SSAO Shift";
-	string UIWidget = "Spinner";
-> = {0.0};
-float ssaoblend
-<
-	string UIName = "SSAO Blending";
-	string UIWidget = "Spinner";
-> = {1.0};
-bool ssaobenable
-<
-	string UIName = "SSAO Blur";
-	string UIWidget = "Checkbox";
-> = {true};
-float ssaobfact
-<
-	string UIName = "SSAO Bilateral Factor";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1000.0};
-float ssaoclamp
-<
-	string UIName = "SSAO Range";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float ssaoclampmin
-<
-	string UIName = "SSAO Range Min";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.0};
-float ssaobradius
-<
-	string UIName = "SSAO Blur Radius";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-bool ssaodebug
-<
-	string UIName = "Debug SSAO";
 	string UIWidget = "Checkbox";
 > = {false};
 /* luma sharpen because of reasons */

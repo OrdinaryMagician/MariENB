@@ -243,25 +243,6 @@ float3 Limbo( float3 res, float2 coord )
 	if ( foglimbo ) return fogcolor*mud;
 	return lerp(res,fogcolor,mud);
 }
-/*
-   Thank you Boris for not providing access to a normal buffer. Guesswork using
-   the depth buffer results in imprecise normals that aren't smoothed. Plus
-   there is no way to get the normal data from textures either. Also, three
-   texture fetches are needed instead of one (great!)
-*/
-float3 pseudonormal( float dep, float2 coord )
-{
-	float2 bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
-	float2 ofs1 = float2(0,1.0/bresl.y);
-	float2 ofs2 = float2(1.0/bresl.x,0);
-	float dep1 = tex2D(SamplerDepth,coord+ofs1).x;
-	float dep2 = tex2D(SamplerDepth,coord+ofs2).x;
-	float3 p1 = float3(ofs1,dep1-dep);
-	float3 p2 = float3(ofs2,dep2-dep);
-	float3 normal = cross(p1,p2);
-	normal.z = -normal.z;
-	return normalize(normal);
-}
 float4 PS_MiscPrepass( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 {
 	float2 coord = IN.txcoord.xy;
@@ -272,54 +253,6 @@ float4 PS_MiscPrepass( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	if ( comenable ) res.rgb = EdgeDetect(res.rgb,coord);
 	if ( contenable ) res.rgb = LineView(res.rgb,coord);
 	if ( fogenable ) res.rgb = Limbo(res.rgb,coord);
-	return res;
-}
-/* this SSAO algorithm is honestly a big mess */
-float4 PS_SSAOPrepass( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
-{
-	float2 coord = IN.txcoord.xy;
-	float4 res = tex2D(SamplerColor,coord);
-	float ssaofadepow = tod_ind(ssaofadepow);
-	float ssaofademult = tod_ind(ssaofademult);
-	if ( !ssaoenable ) return res;
-	float depth = tex2D(SamplerDepth,coord).x;
-	float ldepth = depthlinear(coord);
-	if ( depth >= cutoff*0.000001 )
-	{
-		res.a = 1.0;
-		return res;
-	}
-	float2 bresl;
-	if ( (fixedx > 0) && (fixedy > 0) ) bresl = float2(fixedx,fixedy);
-	else bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
-	float3 normal = pseudonormal(depth,coord);
-	float2 nc = coord*(bresl/256.0);
-	float2 bof = float2(1.0/bresl.x,1.0/bresl.y)*ssaoradius;
-	float2 nc2 = tex2D(SamplerNoise3,nc+48000.0*Timer.x*ssaonoise).xy;
-	float3 rnormal = tex2D(SamplerNoise3,nc2).xyz*2.0-1.0;
-	rnormal = normalize(rnormal);
-	float occ = 0.0;
-	int i;
-	float3 sample;
-	float sdepth, so, delta;
-	float sclamp = ssaoclamp/100000.0;
-	float sclampmin = ssaoclampmin/100000.0;
-	[loop] for ( i=0; i<64; i++ )
-	{
-		sample = reflect(ssao_samples[i],rnormal);
-		sample *= sign(dot(normal,sample));
-		so = ldepth-sample.z*bof.x;
-		sdepth = depthlinear(coord+bof*sample.xy/ldepth);
-		delta = saturate(so-sdepth);
-		delta *= 1.0-smoothstep(0.0,sclamp,delta);
-		if ( (delta > sclampmin) && (delta < sclamp) )
-			occ += 1.0-delta;
-	}
-	float uocc = saturate(occ/64.0);
-	float fade = 1.0-depth;
-	uocc *= saturate(pow(max(0,fade),ssaofadepow)*ssaofademult);
-	uocc = saturate(pow(max(0,uocc),ssaopow)*ssaomult+ssaobump);
-	res.a = saturate(1.0-(uocc*ssaoblend));
 	return res;
 }
 /* Distant hot air refraction. Not very realistic, but does the job. */
@@ -366,44 +299,6 @@ float4 PS_Distortion( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 		tex2D(SamplerColor,coord+ofg).g,
 		tex2D(SamplerColor,coord+ofb).b,
 		tex2D(SamplerColor,coord+ofs).a);
-	return res;
-}
-/*
-   The blur pass uses bilateral filtering to mostly preserve borders.
-   An additional factor using difference of normals was tested, but the
-   performance decrease was too much, so it's gone forever.
-
-   This has been reverted into a single pass since separable blur seems to
-   cause some ugly artifacting.
-*/
-float4 PS_SSAOBlur( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
-{
-	float2 coord = IN.txcoord.xy;
-	float4 res = tex2D(SamplerColor,coord);
-	if ( !ssaoenable ) return res;
-	if ( !ssaobenable )
-	{
-		if ( ssaodebug ) return saturate(res.a);
-		return res*res.a;
-	}
-	float2 bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
-	float2 bof = (1.0/bresl)*ssaobradius;
-	float isd, sd, ds, sw, tw = 0;
-	res.a = 0.0;
-	int i, j;
-	isd = tex2D(SamplerDepth,coord).x;
-	[loop] for ( j=-7; j<=7; j++ ) [loop] for ( i=-7; i<=7; i++ )
-	{
-		sd = tex2D(SamplerDepth,coord+float2(i,j)*bof).x;
-		ds = 1.0/pow(1.0+abs(isd-sd),ssaobfact);
-		sw = ds;
-		sw *= gauss8[abs(i)]*gauss8[abs(j)];
-		tw += sw;
-		res.a += sw*tex2D(SamplerColor,coord+float2(i,j)*bof).a;
-	}
-	res.a /= tw;
-	if ( ssaodebug ) return saturate(res.a);
-	res *= res.a;
 	return res;
 }
 /* Focus */
@@ -494,8 +389,8 @@ float4 PS_DoFPrepass( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 }
 /* helper code for simplifying these */
 #define gcircle(x) float2(cos(x),sin(x))
-float4 dofsample( float2 coord, float2 bsz, float blur, bool bDoHighlight,
-	out float4 deps, out float4 dfcs )
+float4 dofsample( float2 coord, float2 bsz, float blur, out float4 deps,
+	out float4 dfcs )
 {
 	float4 res;
 	float cstep = 2.0*pi*(1.0/3.0);
@@ -511,12 +406,9 @@ float4 dofsample( float2 coord, float2 bsz, float blur, bool bDoHighlight,
 	res.b = tex2D(SamplerColor,coord+gcircle(ang)*bsz*dofpcha*0.1).b;
 	deps.b = tex2D(SamplerDepth,coord+gcircle(ang)*bsz*dofpcha*0.1).x;
 	dfcs.b = tex2D(SamplerColor,coord+gcircle(ang)*bsz*dofpcha*0.1).a;
-	if ( bDoHighlight )
-	{
-		float l = luminance(res.rgb);
-		float threshold = max((l-dofbthreshold)*dofbgain,0.0);
-		res += lerp(0,res,threshold*blur);
-	}
+	float l = luminance(res.rgb);
+	float threshold = max((l-dofbthreshold)*dofbgain,0.0);
+	res += lerp(0,res,threshold*blur);
 	res.a = tex2D(SamplerColor,coord).a;
 	deps.a = tex2D(SamplerDepth,coord).x;
 	dfcs.a = res.a;
@@ -545,7 +437,7 @@ float4 PS_DoFGather( VS_OUTPUT_POST IN, float2 vPos : VPOS) : COLOR
 	float4 sc, ds, sd, sw, tw = float4(0,0,0,0);
 	[unroll] for ( int i=0; i<32; i++ )
 	{
-		sc = dofsample(coord+poisson32[i]*bsz,bsz,dfc,dofhilite,ds,sd);
+		sc = dofsample(coord+poisson32[i]*bsz,bsz,dfc,ds,sd);
 		sw.r = (ds.r>dep)?1.0:sd.r;
 		sw.g = (ds.g>dep)?1.0:sd.g;
 		sw.b = (ds.b>dep)?1.0:sd.b;
@@ -594,7 +486,7 @@ float4 PS_DoFBorkeh( VS_OUTPUT_POST IN, float2 vPos : VPOS) : COLOR
 			bstep = pi*2.0/(float)rsamples;
 			rcoord = gcircle(j*bstep)*i;
 			bw = lerp(1.0,(float)i/(float)dofbrings,dofbbias);
-			sc = dofsample(coord+rcoord*sr,sr*i,dfc,dofhilite,ds,sd);
+			sc = dofsample(coord+rcoord*sr,sr*i,dfc,ds,sd);
 			sw.r = (ds.r>dep)?1.0:sd.r;
 			sw.g = (ds.g>dep)?1.0:sd.g;
 			sw.b = (ds.b>dep)?1.0:sd.b;
@@ -633,7 +525,6 @@ float4 PS_DoFPostBlur( VS_OUTPUT_POST IN, float2 vPos : VPOS) : COLOR
 		float2(-1.41,1.41), float2(1.41,-1.41)
 	};
 	float4 res = tex2D(SamplerColor,coord);
-	if ( !dofpostblur ) return float4(res.rgb,1.0);
 	int i;
 	[unroll] for ( i=0; i<16; i++ )
 		res += tex2D(SamplerColor,coord+ofs[i]*bof*dfc);
@@ -730,7 +621,7 @@ technique PostProcess2
 	pass p0
 	{
 		VertexShader = compile vs_3_0 VS_Pass();
-		PixelShader = compile ps_3_0 PS_SSAOPrepass();
+		PixelShader = compile ps_3_0 PS_Distortion();
 		DitherEnable = FALSE;
 		ZEnable = FALSE;
 		CullMode = NONE;
@@ -747,7 +638,7 @@ technique PostProcess3
 	pass p0
 	{
 		VertexShader = compile vs_3_0 VS_Pass();
-		PixelShader = compile ps_3_0 PS_Distortion();
+		PixelShader = compile ps_3_0 PS_DoFPrepass();
 		DitherEnable = FALSE;
 		ZEnable = FALSE;
 		CullMode = NONE;
@@ -764,7 +655,7 @@ technique PostProcess4
 	pass p0
 	{
 		VertexShader = compile vs_3_0 VS_Pass();
-		PixelShader = compile ps_3_0 PS_SSAOBlur();
+		PixelShader = compile ps_3_0 PS_DoFGather();
 		DitherEnable = FALSE;
 		ZEnable = FALSE;
 		CullMode = NONE;
@@ -781,40 +672,6 @@ technique PostProcess5
 	pass p0
 	{
 		VertexShader = compile vs_3_0 VS_Pass();
-		PixelShader = compile ps_3_0 PS_DoFPrepass();
-		DitherEnable = FALSE;
-		ZEnable = FALSE;
-		CullMode = NONE;
-		ALPHATESTENABLE = FALSE;
-		SEPARATEALPHABLENDENABLE = FALSE;
-		AlphaBlendEnable = FALSE;
-		StencilEnable = FALSE;
-		FogEnable = FALSE;
-		SRGBWRITEENABLE = FALSE;
-	}
-}
-technique PostProcess6
-{
-	pass p0
-	{
-		VertexShader = compile vs_3_0 VS_Pass();
-		PixelShader = compile ps_3_0 PS_DoFGather();
-		DitherEnable = FALSE;
-		ZEnable = FALSE;
-		CullMode = NONE;
-		ALPHATESTENABLE = FALSE;
-		SEPARATEALPHABLENDENABLE = FALSE;
-		AlphaBlendEnable = FALSE;
-		StencilEnable = FALSE;
-		FogEnable = FALSE;
-		SRGBWRITEENABLE = FALSE;
-	}
-}
-technique PostProcess7
-{
-	pass p0
-	{
-		VertexShader = compile vs_3_0 VS_Pass();
 		PixelShader = compile ps_3_0 PS_DoFPostBlur();
 		DitherEnable = FALSE;
 		ZEnable = FALSE;
@@ -827,7 +684,7 @@ technique PostProcess7
 		SRGBWRITEENABLE = FALSE;
 	}
 }
-technique PostProcess8
+technique PostProcess6
 {
 	pass p0
 	{
@@ -867,7 +724,7 @@ technique PostProcessB2
 	pass p0
 	{
 		VertexShader = compile vs_3_0 VS_Pass();
-		PixelShader = compile ps_3_0 PS_SSAOPrepass();
+		PixelShader = compile ps_3_0 PS_Distortion();
 		DitherEnable = FALSE;
 		ZEnable = FALSE;
 		CullMode = NONE;
@@ -884,7 +741,7 @@ technique PostProcessB3
 	pass p0
 	{
 		VertexShader = compile vs_3_0 VS_Pass();
-		PixelShader = compile ps_3_0 PS_Distortion();
+		PixelShader = compile ps_3_0 PS_DoFPrepass();
 		DitherEnable = FALSE;
 		ZEnable = FALSE;
 		CullMode = NONE;
@@ -901,7 +758,7 @@ technique PostProcessB4
 	pass p0
 	{
 		VertexShader = compile vs_3_0 VS_Pass();
-		PixelShader = compile ps_3_0 PS_SSAOBlur();
+		PixelShader = compile ps_3_0 PS_DoFBorkeh();
 		DitherEnable = FALSE;
 		ZEnable = FALSE;
 		CullMode = NONE;
@@ -918,40 +775,6 @@ technique PostProcessB5
 	pass p0
 	{
 		VertexShader = compile vs_3_0 VS_Pass();
-		PixelShader = compile ps_3_0 PS_DoFPrepass();
-		DitherEnable = FALSE;
-		ZEnable = FALSE;
-		CullMode = NONE;
-		ALPHATESTENABLE = FALSE;
-		SEPARATEALPHABLENDENABLE = FALSE;
-		AlphaBlendEnable = FALSE;
-		StencilEnable = FALSE;
-		FogEnable = FALSE;
-		SRGBWRITEENABLE = FALSE;
-	}
-}
-technique PostProcessB6
-{
-	pass p0
-	{
-		VertexShader = compile vs_3_0 VS_Pass();
-		PixelShader = compile ps_3_0 PS_DoFBorkeh();
-		DitherEnable = FALSE;
-		ZEnable = FALSE;
-		CullMode = NONE;
-		ALPHATESTENABLE = FALSE;
-		SEPARATEALPHABLENDENABLE = FALSE;
-		AlphaBlendEnable = FALSE;
-		StencilEnable = FALSE;
-		FogEnable = FALSE;
-		SRGBWRITEENABLE = FALSE;
-	}
-}
-technique PostProcessB7
-{
-	pass p0
-	{
-		VertexShader = compile vs_3_0 VS_Pass();
 		PixelShader = compile ps_3_0 PS_DoFPostBlur();
 		DitherEnable = FALSE;
 		ZEnable = FALSE;
@@ -964,7 +787,7 @@ technique PostProcessB7
 		SRGBWRITEENABLE = FALSE;
 	}
 }
-technique PostProcessB8
+technique PostProcessB6
 {
 	pass p0
 	{
