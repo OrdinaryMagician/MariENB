@@ -41,7 +41,7 @@ float4 PS_BloomPrePass(VS_OUTPUT_POST In) : COLOR
 	float bloompower = tod_ind(bloompower);
 	float bloomsaturation = tod_ind(bloomsaturation);
 	float bloomintensity = tod_ind(bloomintensity);
-	float4 res = tex2D(SamplerBloom1,coord);
+	float4 res = tex2D(SamplerBloomC1,coord);
 	float3 hsv = rgb2hsv(res.rgb);
 	if ( hsv.z > bloomcap ) hsv.z = bloomcap;
 	res.rgb = hsv2rgb(hsv);
@@ -152,14 +152,14 @@ float4 PS_BloomPostPass(VS_OUTPUT_POST In) : COLOR
 {
 	float2 coord = In.txcoord0.xy;
 	float4 res = float4(0,0,0,0);
-	res += bloommix1*tex2D(SamplerBloom1,coord); // P1
-	res += bloommix2*tex2D(SamplerBloom2,coord); // P2
-	res += bloommix3*tex2D(SamplerBloom3,coord); // P3
-	res += bloommix4*tex2D(SamplerBloom4,coord); // P4
-	res += bloommix5*tex2D(SamplerBloom5,coord); // Prepass
-	res += bloommix6*tex2D(SamplerBloom6,coord); // Base
-	res += bloommix7*tex2D(SamplerBloom7,coord); // P5
-	res += bloommix8*tex2D(SamplerBloom8,coord); // P6
+	res += bloommix1*tex2D(SamplerBloomC1,coord); // P1
+	res += bloommix2*tex2D(SamplerBloomC2,coord); // P2
+	res += bloommix3*tex2D(SamplerBloomC3,coord); // P3
+	res += bloommix4*tex2D(SamplerBloomC4,coord); // P4
+	res += bloommix5*tex2D(SamplerBloomC5,coord); // Prepass
+	res += bloommix6*tex2D(SamplerBloomC6,coord); // Base
+	res += bloommix7*tex2D(SamplerBloomC7,coord); // P5
+	res += bloommix8*tex2D(SamplerBloomC8,coord); // P6
 	res.rgb /= 6.0;
 	if ( alfenable ) res.rgb *= 0.5;
 	res.rgb = clamp(res.rgb,0,32768);
@@ -177,14 +177,14 @@ float4 PS_LensDirtPass(VS_OUTPUT_POST In) : COLOR
 	ccoord.y = (coord.y-0.5)*ScreenSize.w+0.5;
 #endif
 	float4 crap = tex2D(SamplerLens,ccoord);
-	mud += dirtmix1*tex2D(SamplerBloom1,coord); // P1
-	mud += dirtmix2*tex2D(SamplerBloom2,coord); // P2
-	mud += dirtmix3*tex2D(SamplerBloom3,coord); // P3
-	mud += dirtmix4*tex2D(SamplerBloom4,coord); // P4
-	mud += dirtmix5*tex2D(SamplerBloom5,coord); // Prepass
-	mud += dirtmix6*tex2D(SamplerBloom6,coord); // Base
-	mud += dirtmix7*tex2D(SamplerBloom7,coord); // P5
-	mud += dirtmix8*tex2D(SamplerBloom8,coord); // P6
+	mud += dirtmix1*tex2D(SamplerBloomC1,coord); // P1
+	mud += dirtmix2*tex2D(SamplerBloomC2,coord); // P2
+	mud += dirtmix3*tex2D(SamplerBloomC3,coord); // P3
+	mud += dirtmix4*tex2D(SamplerBloomC4,coord); // P4
+	mud += dirtmix5*tex2D(SamplerBloomC5,coord); // Prepass
+	mud += dirtmix6*tex2D(SamplerBloomC6,coord); // Base
+	mud += dirtmix7*tex2D(SamplerBloomC7,coord); // P5
+	mud += dirtmix8*tex2D(SamplerBloomC8,coord); // P6
 	mud.rgb /= 6.0;
 	if ( alfenable ) mud.rgb *= 0.5;
 	mud.rgb = clamp(mud.rgb,0,32768);
