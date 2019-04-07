@@ -316,11 +316,23 @@ float4 PS_SSAOBlurV( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 float4 PS_ReadFocus( VS_OUTPUT_POST IN ) : COLOR
 {
 	if ( dofdisable ) return 0.0;
-	if ( focusmanual ) return focusmanualvalue;
+	if ( focuscircle < 0 ) return focusmanualvalue;
 	float focusmax = tod_ind(focusmax);
 	float2 fcenter = float2(focuscenter_x,focuscenter_y);
 	float cfocus = min(tex2D(SamplerDepth,fcenter).x,focusmax*0.001);
-	if ( !focuscircle ) return cfocus;
+	if ( focuscircle == 0 ) return cfocus;
+	if ( focuscircle == 2 )
+	{
+		int i, j;
+		float mfocus = 0.0;
+		float2 px;
+		[unroll] for( j=0; j<8; j++ ) [unroll] for( i=0; i<8; i++ )
+		{
+			px = float2((i+0.5)/8.0,(j+0.5)/8.0);
+			mfocus += min(tex2D(SamplerDepth,px).x,focusmax*0.001);
+		}
+		return mfocus/64.0;
+	}
 	/* using polygons inscribed into a circle, in this case a triangle */
 	float focusradius = tod_ind(focusradius);
 	float focusmix = tod_ind(focusmix);
@@ -365,6 +377,9 @@ float4 PS_DoFPrepass( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	float doffixedunfocusblend = tod_ind(doffixedunfocusblend);
 	float dep = tex2D(SamplerDepth,coord).x;
 	float foc = tex2D(SamplerFocus,coord).x;
+	/* cheap tilt */
+	foc = foc+0.01*doftiltx*(doftiltxcenter-coord.x)
+		+0.01*doftilty*(doftiltycenter-coord.y);
 	float dfc = abs(dep-foc);
 	float dff = abs(dep);
 	float dfu = dff;
@@ -389,6 +404,7 @@ float4 PS_DoFPrepass( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 		+doffixedfocusbump,0.0,1.0);
 	dfu = clamp(pow(dfu,doffixedunfocuspow)*doffixedunfocusmult
 		+doffixedunfocusbump,0.0,1.0);
+	if ( doffixedonly ) dfc *= 0;
 	dfc *= lerp(1.0,dff,doffixedfocusblend);
 	dfc += lerp(0.0,dfu,doffixedunfocusblend);
 	dfc = saturate(dfc);
@@ -428,60 +444,6 @@ float4 PS_DoFGather( VS_OUTPUT_POST IN, float2 vPos : VPOS) : COLOR
 		sw = (ds>dep)?1.0:sd;
 		tw += sw;
 		res += sc*sw;
-	}
-	res /= tw;
-	res.a = 1.0;
-	return res;
-}
-float4 PS_DoFBlurH( VS_OUTPUT_POST IN, float2 vPos : VPOS) : COLOR
-{
-	float2 coord = IN.txcoord.xy;
-	if ( dofdisable ) return tex2D(SamplerColor,coord);
-	float dfc = tex2D(SamplerColor,coord).a;
-	if ( dofdebug ) return tex2D(SamplerDepth,coord).x;
-	if ( dfcdebug ) return dfc;
-	float bresl = (fixedx>0)?fixedx:ScreenSize.x;
-	float bof = (1.0/bresl)*dofbradius;
-	float4 res = float4(0,0,0,0);
-	if ( dfc <= dofminblur ) return tex2D(SamplerColor,coord);
-	int i;
-	float isd, sd, ds, sw, tw = 0;
-	isd = dfc;
-	[unroll] for ( i=-7; i<=7; i++ )
-	{
-		sd = tex2D(SamplerColor,coord+float2(i,0)*bof*dfc).a;
-		ds = abs(isd-sd)*dofbfact+0.5;
-		sw = 1.0/(ds+1.0);
-		sw *= gauss8[abs(i)];
-		tw += sw;
-		res += sw*tex2D(SamplerColor,coord+float2(i,0)*bof*dfc);
-	}
-	res /= tw;
-	res.a = dfc;
-	return res;
-}
-float4 PS_DoFBlurV( VS_OUTPUT_POST IN, float2 vPos : VPOS) : COLOR
-{
-	float2 coord = IN.txcoord.xy;
-	if ( dofdisable ) return tex2D(SamplerColor,coord);
-	float dfc = tex2D(SamplerColor,coord).a;
-	if ( dofdebug ) return tex2D(SamplerDepth,coord).x;
-	if ( dfcdebug ) return dfc;
-	float bresl = (fixedy>0)?fixedy:(ScreenSize.x*ScreenSize.w);
-	float bof = (1.0/bresl)*dofbradius;
-	float4 res = float4(0,0,0,0);
-	if ( dfc <= dofminblur ) return tex2D(SamplerColor,coord);
-	int i;
-	float isd, sd, ds, sw, tw = 0;
-	isd = dfc;
-	[unroll] for ( i=-7; i<=7; i++ )
-	{
-		sd = tex2D(SamplerColor,coord+float2(0,i)*bof*dfc).a;
-		ds = abs(isd-sd)*dofbfact+0.5;
-		sw = 1.0/(ds+1.0);
-		sw *= gauss8[abs(i)];
-		tw += sw;
-		res += sw*tex2D(SamplerColor,coord+float2(0,i)*bof*dfc);
 	}
 	res /= tw;
 	res.a = 1.0;
@@ -544,9 +506,22 @@ float4 PS_FrostPass( VS_OUTPUT_POST IN, float2 vPos : VPOS) : COLOR
 		res.rgb *= 1.0+bmp*dist;
 	}
 	else res = tex2D(SamplerColor,coord);
-	if ( !focusdisplay ) return res;
+	if ( !focusdisplay || (focuscircle < 0) ) return res;
+	if ( focuscircle == 2 )
+	{
+		int i, j;
+		float2 px;
+		[unroll] for( j=0; j<8; j++ ) [unroll] for( i=0; i<8; i++ )
+		{
+			px = float2((i+0.5)/8.0,(j+0.5)/8.0);
+			if ( distance(coord,px) < 0.005 )
+				res.rgb = float3(1,0,0);
+		}
+		return res;
+	}
 	float2 fcenter = float2(focuscenter_x,focuscenter_y);
-	if ( distance(coord,fcenter) < 0.01 ) res.rgb = float3(1,0,0);
+	if ( distance(coord,fcenter) < 0.005 ) res.rgb = float3(1,0,0);
+	if ( focuscircle == 0 ) return res;
 	float cstep = (1.0/3.0);
 	float2 tcoord;
 	float focusradius = tod_ind(focusradius);
@@ -554,13 +529,13 @@ float4 PS_FrostPass( VS_OUTPUT_POST IN, float2 vPos : VPOS) : COLOR
 	float fan = focuscircleangle*2.0*pi;
 	tcoord.x = fcenter.x+sin(fan)*bof.x;
 	tcoord.y = fcenter.y+cos(fan)*bof.y;
-	if ( distance(coord,tcoord) < 0.01 ) res.rgb = float3(1,0,0);
+	if ( distance(coord,tcoord) < 0.005 ) res.rgb = float3(1,0,0);
 	tcoord.x = fcenter.x+sin(fan+2.0*pi*cstep)*bof.x;
 	tcoord.y = fcenter.y+cos(fan+2.0*pi*cstep)*bof.y;
-	if ( distance(coord,tcoord) < 0.01 ) res.rgb = float3(1,0,0);
+	if ( distance(coord,tcoord) < 0.005 ) res.rgb = float3(1,0,0);
 	tcoord.x = fcenter.x+sin(fan+4.0*pi*cstep)*bof.x;
 	tcoord.y = fcenter.y+cos(fan+4.0*pi*cstep)*bof.y;
-	if ( distance(coord,tcoord) < 0.01 ) res.rgb = float3(1,0,0);
+	if ( distance(coord,tcoord) < 0.005 ) res.rgb = float3(1,0,0);
 	return res;
 }
 technique ReadFocus
@@ -593,7 +568,7 @@ technique WriteFocus
 		SRGBWRITEENABLE = FALSE;
 	}
 }
-technique PostProcess <string UIName="MariENB Bilateral Blur DoF";>
+technique PostProcess
 {
 	pass p0
 	{
@@ -683,142 +658,6 @@ technique PostProcess6
 	pass p0
 	{
 		VertexShader = compile vs_3_0 VS_Pass();
-		PixelShader = compile ps_3_0 PS_DoFBlurH();
-		DitherEnable = FALSE;
-		ZEnable = FALSE;
-		CullMode = NONE;
-		ALPHATESTENABLE = FALSE;
-		SEPARATEALPHABLENDENABLE = FALSE;
-		AlphaBlendEnable = FALSE;
-		StencilEnable = FALSE;
-		FogEnable = FALSE;
-		SRGBWRITEENABLE = FALSE;
-	}
-}
-technique PostProcess7
-{
-	pass p0
-	{
-		VertexShader = compile vs_3_0 VS_Pass();
-		PixelShader = compile ps_3_0 PS_DoFBlurV();
-		DitherEnable = FALSE;
-		ZEnable = FALSE;
-		CullMode = NONE;
-		ALPHATESTENABLE = FALSE;
-		SEPARATEALPHABLENDENABLE = FALSE;
-		AlphaBlendEnable = FALSE;
-		StencilEnable = FALSE;
-		FogEnable = FALSE;
-		SRGBWRITEENABLE = FALSE;
-	}
-}
-technique PostProcess8
-{
-	pass p0
-	{
-		VertexShader = compile vs_3_0 VS_Pass();
-		PixelShader = compile ps_3_0 PS_FrostPass();
-		DitherEnable = FALSE;
-		ZEnable = FALSE;
-		CullMode = NONE;
-		ALPHATESTENABLE = FALSE;
-		SEPARATEALPHABLENDENABLE = FALSE;
-		AlphaBlendEnable = FALSE;
-		StencilEnable = FALSE;
-		FogEnable = FALSE;
-		SRGBWRITEENABLE = FALSE;
-	}
-}
-technique PostProcessG <string UIName="MariENB Gather Blur DoF";>
-{
-	pass p0
-	{
-		VertexShader = compile vs_3_0 VS_Pass();
-		PixelShader = compile ps_3_0 PS_EdgePlusSSAOPrepass();
-		DitherEnable = FALSE;
-		ZEnable = FALSE;
-		CullMode = NONE;
-		ALPHATESTENABLE = FALSE;
-		SEPARATEALPHABLENDENABLE = FALSE;
-		AlphaBlendEnable = FALSE;
-		StencilEnable = FALSE;
-		FogEnable = FALSE;
-		SRGBWRITEENABLE = FALSE;
-	}
-}
-technique PostProcessG2
-{
-	pass p0
-	{
-		VertexShader = compile vs_3_0 VS_Pass();
-		PixelShader = compile ps_3_0 PS_Distortion();
-		DitherEnable = FALSE;
-		ZEnable = FALSE;
-		CullMode = NONE;
-		ALPHATESTENABLE = FALSE;
-		SEPARATEALPHABLENDENABLE = FALSE;
-		AlphaBlendEnable = FALSE;
-		StencilEnable = FALSE;
-		FogEnable = FALSE;
-		SRGBWRITEENABLE = FALSE;
-	}
-}
-technique PostProcessG3
-{
-	pass p0
-	{
-		VertexShader = compile vs_3_0 VS_Pass();
-		PixelShader = compile ps_3_0 PS_SSAOBlurH();
-		DitherEnable = FALSE;
-		ZEnable = FALSE;
-		CullMode = NONE;
-		ALPHATESTENABLE = FALSE;
-		SEPARATEALPHABLENDENABLE = FALSE;
-		AlphaBlendEnable = FALSE;
-		StencilEnable = FALSE;
-		FogEnable = FALSE;
-		SRGBWRITEENABLE = FALSE;
-	}
-}
-technique PostProcessG4
-{
-	pass p0
-	{
-		VertexShader = compile vs_3_0 VS_Pass();
-		PixelShader = compile ps_3_0 PS_SSAOBlurV();
-		DitherEnable = FALSE;
-		ZEnable = FALSE;
-		CullMode = NONE;
-		ALPHATESTENABLE = FALSE;
-		SEPARATEALPHABLENDENABLE = FALSE;
-		AlphaBlendEnable = FALSE;
-		StencilEnable = FALSE;
-		FogEnable = FALSE;
-		SRGBWRITEENABLE = FALSE;
-	}
-}
-technique PostProcessG5
-{
-	pass p0
-	{
-		VertexShader = compile vs_3_0 VS_Pass();
-		PixelShader = compile ps_3_0 PS_DoFPrepass();
-		DitherEnable = FALSE;
-		ZEnable = FALSE;
-		CullMode = NONE;
-		ALPHATESTENABLE = FALSE;
-		SEPARATEALPHABLENDENABLE = FALSE;
-		AlphaBlendEnable = FALSE;
-		StencilEnable = FALSE;
-		FogEnable = FALSE;
-		SRGBWRITEENABLE = FALSE;
-	}
-}
-technique PostProcessG6
-{
-	pass p0
-	{
-		VertexShader = compile vs_3_0 VS_Pass();
 		PixelShader = compile ps_3_0 PS_DoFGather();
 		DitherEnable = FALSE;
 		ZEnable = FALSE;
@@ -831,7 +670,7 @@ technique PostProcessG6
 		SRGBWRITEENABLE = FALSE;
 	}
 }
-technique PostProcessG7
+technique PostProcess7
 {
 	pass p0
 	{

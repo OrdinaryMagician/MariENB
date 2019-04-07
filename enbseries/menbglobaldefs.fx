@@ -61,6 +61,3 @@
 //#define LENSDIRT_DDS
 //#define FROST_DDS
 //#define FROSTBUMP_DDS
-/* experimental features (TODO) */
-#define USE_BOKEH
-//#define MULTIPASS_RMAO

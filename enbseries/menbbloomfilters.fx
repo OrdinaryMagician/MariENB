@@ -93,7 +93,7 @@ float4 PS_BloomTexture2(VS_OUTPUT_POST In) : COLOR
 	float3 blu_id = float3(blu_id_r,blu_id_g,blu_id_b);
 	float3 blu = tod_ind(blu);
 	float bsi = tod_ind(bsi);
-	float lm = max(0,luminance(res.rgb)-luminance(base.rgb))*bsi;
+	float lm = clamp(0,1,luminance(res.rgb)-luminance(base.rgb))*bsi;
 	lm = lm/(1.0+lm);
 	lm *= 1.0-saturate((TempParameters.w-1.0)*bslp);
 	blu = saturate(blu+(TempParameters.w-1.0)*bsbp);
@@ -124,11 +124,11 @@ float4 PS_AnamPass(VS_OUTPUT_POST In) : COLOR
 	int i;
 	float sum = 0;
 	float2 pp;
-	[unroll] for ( i=-39; i<=39; i++ )
+	[unroll] for ( i=-79; i<=79; i++ )
 	{
 		pp = coord+float2(i,0)*TempParameters.z*bloomradiusx*flen;
-		res += gauss40[abs(i)]*tex2D(SamplerBloom1,pp);
-		sum += ((pp.x>=0)&&(pp.x<1))?gauss40[abs(i)]:0;
+		res += gauss80[abs(i)]*tex2D(SamplerBloom1,pp);
+		sum += ((pp.x>=0)&&(pp.x<1))?gauss80[abs(i)]:0;
 	}
 	res *= 1.0/sum;
 	/* blue shift */
@@ -138,7 +138,7 @@ float4 PS_AnamPass(VS_OUTPUT_POST In) : COLOR
 	float3 flu_id = float3(flu_id_r,flu_id_g,flu_id_b);
 	float3 flu = tod_ind(flu);
 	float fsi = tod_ind(fsi);
-	float lm = max(0,luminance(res.rgb)-luminance(base.rgb))*fsi;
+	float lm = clamp(0,1,luminance(res.rgb)-luminance(base.rgb))*fsi;
 	lm = lm/(1.0+lm);
 	float fbl = tod_ind(fbl);
 	float fpw = tod_ind(fpw);

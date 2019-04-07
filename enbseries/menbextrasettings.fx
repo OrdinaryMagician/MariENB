@@ -188,6 +188,31 @@ float maskd
 	float UIMin = 0.0;
 	float UIMax = 1.0;
 > = {0.5};
+/* tilting */
+float masktiltxcenter
+<
+	string UIName = "Chroma Key Depth Horizontal Tilt Center";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {0.5};
+float masktiltycenter
+<
+	string UIName = "Chroma Key Depth Vertical Tilt Center";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {0.5};
+float masktiltx
+<
+	string UIName = "Chroma Key Depth Horizontal Tilt";
+	string UIWidget = "Spinner";
+> = {0.0};
+float masktilty
+<
+	string UIName = "Chroma Key Depth Vertical Tilt";
+	string UIWidget = "Spinner";
+> = {0.0};
 string str_dot = "RGBI Dot Matrix";
 bool dotenable
 <

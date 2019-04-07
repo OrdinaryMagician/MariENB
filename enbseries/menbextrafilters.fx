@@ -283,12 +283,12 @@ float4 PS_ASCII( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	float2 cresl = float2(GLYPH_WIDTH,GLYPH_HEIGHT);
 	float2 bscl = floor(bresl/cresl);
 	/*
-	   Here I use the "cheap" method, based on the overall luminance of each
-	   glyph, rather than attempt to search for the best fitting glyph for
-	   each cell. If you want to know why, take a look at the ASCII filter
-	   bundled with the Dolphin emulator, and be prepared for the resulting
-	   seconds per frame it runs at. The calculations needed for such a filter
-	   are completely insane even for the highest-end GPUs.
+	   Here I use the "cheap" method, based on the overall luminance of
+	   each glyph, rather than attempt to search for the best fitting glyph
+	   for each cell. If you want to know why, take a look at the ASCII
+	   filter bundled with the Dolphin emulator, and be prepared for the
+	   resulting seconds per frame it runs at. The calculations needed for
+	   such a filter are completely insane even for the highest-end GPUs.
 	*/
 	float3 col = tex2D(SamplerColor,floor(bscl*coord)/bscl).rgb;
 	int lum = clamp(luminance(col)*FONT_LEVELS,0,FONT_LEVELS);
@@ -311,7 +311,11 @@ float4 PS_ChromaKey( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	float2 coord = IN.txcoord.xy;
 	float4 res = tex2D(SamplerColor,coord);
 	if ( !maskenable ) return res;
-	if ( tex2D(SamplerDepth,coord).x > maskd )
+	float dep = tex2D(SamplerDepth,coord).x;
+	float msd = maskd;
+	msd = maskd+0.01*masktiltx*(masktiltxcenter-coord.x)
+		+0.01*masktilty*(masktiltycenter-coord.y);
+	if ( dep > msd )
 		return float4(maskr,maskg,maskb,1.0);
 	return res;
 }
@@ -463,6 +467,16 @@ float4 PS_Shift( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	res.a = 1.0;
 	return res;
 }
+/*
+   Extra ideas:
+    - Bring back depth-relative colour grading
+    - Try to resurrect oil filter
+    - Provide an alternate, smaller font for ASCII filter (miniwi seems like
+      a good candidate, since it's 4x8)
+    - [Enhancement] Separate extra filters into different "batches" to get over
+      the "8 technique limit" (if it's still a thing in current ENB).
+    - More palettes?
+*/
 technique PostProcess
 {
 	pass p0

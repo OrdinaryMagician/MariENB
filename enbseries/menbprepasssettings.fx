@@ -240,20 +240,26 @@ bool frostalways
 	string UIWidget = "Checkbox";
 > = {false};
 string str_focus = "Focusing Parameters";
-/* circle (triangle, actually) average focus */
-bool focuscircle
+/*
+   focus modes:
+   -1 : manual
+    0 : center spot
+    1 : center + triangle
+    2 : 8x8 grid average
+    TODO
+    3 : 8x8 grid average of 8 closest points
+    4 : 8x8 grid average of 8 farthest points
+*/
+int focuscircle
 <
-	string UIName = "Enable Focus Triangle";
+	string UIName = "Focus Mode";
 	string UIWidget = "Checkbox";
-> = {true};
+	int UIMin = -1;
+	int UIMax = 2;
+> = {1};
 bool focusdisplay
 <
 	string UIName = "Display Focus Points";
-	string UIWidget = "Checkbox";
-> = {false};
-bool focusmanual
-<
-	string UIName = "Enable Manual Focus";
 	string UIWidget = "Checkbox";
 > = {false};
 float focusmanualvalue
@@ -375,7 +381,7 @@ float dofmult_id
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {500.0};
-/* dof power (falloff, kinda) */
+/* dof power (the higher it is, the wider the focused area gets) */
 float dofpow_n
 <
 	string UIName = "DOF Contrast Night";
@@ -400,7 +406,7 @@ float dofpow_id
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {4.0};
-/* dof bump (to emulate tilt shift I guess, I brought it back) */
+/* dof bump (negative shift increases the area in complete focus) */
 float dofbump_n
 <
 	string UIName = "DOF Shift Night";
@@ -619,17 +625,11 @@ bool dofdisable
 	string UIName = "Disable DOF";
 	string UIWidget = "Checkbox";
 > = {false};
-float dofbfact
+bool doffixedonly
 <
-	string UIName = "DOF Bilateral Factor";
-	string UIWidget = "Spinner";
-> = {20.0};
-float dofbradius
-<
-	string UIName = "DOF Blur Radius";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
+	string UIName = "Use Only Fixed DOF";
+	string UIWidget = "Checkbox";
+> = {false};
 float dofpradius
 <
 	string UIName = "DOF Gather Blur Radius";
@@ -670,6 +670,31 @@ float relfovfactor_id
 	string UIWidget = "Spinner";
 > = {2.0};
 #endif
+/* tilting */
+float doftiltxcenter
+<
+	string UIName = "Focus Plane Horizontal Tilt Center";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {0.5};
+float doftiltycenter
+<
+	string UIName = "Focus Plane Vertical Tilt Center";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {0.5};
+float doftiltx
+<
+	string UIName = "Focus Plane Horizontal Tilt";
+	string UIWidget = "Spinner";
+> = {0.0};
+float doftilty
+<
+	string UIName = "Focus Plane Vertical Tilt";
+	string UIWidget = "Spinner";
+> = {0.0};
 /* cheap performance option */
 float dofminblur
 <
