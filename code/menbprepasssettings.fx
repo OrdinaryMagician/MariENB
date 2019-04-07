@@ -673,26 +673,6 @@ float relfovfactor_id
 	string UIWidget = "Spinner";
 > = {2.0};
 #endif
-#ifdef USE_BOKEH
-float bokthr
-<
-	string UIName = "Bokeh Threshold";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float bokbthr
-<
-	string UIName = "Bokeh Blur Threshold";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.5};
-float boksiz
-<
-	string UIName = "Bokeh Size";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {8.0};
-#endif
 bool dofdebug
 <
 	string UIName = "Debug Depth";
