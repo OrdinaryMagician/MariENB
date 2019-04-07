@@ -103,6 +103,14 @@ texture2D texTonemap
 <
 	string ResourceName = "menbfilmlut.png";
 >;
+texture2D texFrost
+<
+#ifdef FROST_DDS
+	string ResourceName = "menbfrost.dds";
+#else
+	string ResourceName = "menbfrost.png";
+#endif
+>;
 sampler2D _s0 = sampler_state
 {
 	Texture = <texs0>;
@@ -270,6 +278,18 @@ sampler2D SamplerTonemap = sampler_state
 	MipFilter = NONE;
 	AddressU = Clamp;
 	AddressV = Clamp;
+	SRGBTexture = FALSE;
+	MaxMipLevel = 0;
+	MipMapLodBias = 0;
+};
+sampler2D SamplerFrost = sampler_state
+{
+	Texture = <texFrost>;
+	MinFilter = LINEAR;
+	MagFilter = LINEAR;
+	MipFilter = NONE;
+	AddressU = Wrap;
+	AddressV = Wrap;
 	SRGBTexture = FALSE;
 	MaxMipLevel = 0;
 	MipMapLodBias = 0;

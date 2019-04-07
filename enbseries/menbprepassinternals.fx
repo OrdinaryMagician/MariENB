@@ -45,33 +45,11 @@ static const float3 ssao_samples[16] =
 	float3( 0.0072,-0.3534, 0.4035),float3(-0.0024,-0.2385, 0.6260),
 	float3(-0.1940, 0.5722,-0.5602),float3(-0.0910,-0.7548,-0.6497)
 };
-/* For high quality DOF */
-static const float2 poisson32[32] =
-{
-	float2( 0.7284430,-0.1927130),float2( 0.4051600,-0.2312710),
-	float2( 0.9535280, 0.0669683),float2( 0.6544140,-0.4439470),
-	float2( 0.6029910, 0.1058970),float2( 0.2637500,-0.7163810),
-	float2( 0.9105380,-0.3889810),float2( 0.5942730,-0.7400740),
-	float2( 0.8215680, 0.3162520),float2( 0.3577550, 0.4884250),
-	float2( 0.6935990, 0.7070140),float2( 0.0470570, 0.1961800),
-	float2(-0.0977021, 0.6241300),float2( 0.2110300, 0.8778350),
-	float2(-0.3743440, 0.2494580),float2( 0.0144776,-0.0766484),
-	float2(-0.3377660,-0.1255100),float2( 0.3136420, 0.1077710),
-	float2(-0.5204340, 0.8369860),float2(-0.1182680, 0.9801750),
-	float2(-0.6969480,-0.3869330),float2(-0.6156080, 0.0307209),
-	float2(-0.3806790,-0.6055360),float2(-0.1909570,-0.3861330),
-	float2(-0.2449080,-0.8655030),float2( 0.0822108,-0.4975580),
-	float2(-0.5649250, 0.5756740),float2(-0.8741830,-0.1685750),
-	float2( 0.0761715,-0.9631760),float2(-0.9218270, 0.2121210),
-	float2(-0.6378530, 0.3053550),float2(-0.8425180, 0.4753000)
-};
 /* standard stuff */
 float4 ScreenSize;
 float ENightDayFactor;
 float EInteriorFactor;
-float FadeFactor;
 float4 Timer;
-float FieldOfView;
 float4 WeatherAndTime;
 /* this still doesn't do anything */
 extern float fWaterLevel;
@@ -90,25 +68,6 @@ texture2D texHeat
 	string ResourceName = "menbheat.png";
 #endif
 >;
-texture2D texFrost
-<
-#ifdef FROST_DDS
-	string ResourceName = "menbfrost.dds";
-#else
-	string ResourceName = "menbfrost.png";
-#endif
->;
-texture2D texFrostBump
-<
-#ifdef FROSTBUMP_DDS
-	string ResourceName = "menbfrostbump.dds";
-#else
-	string ResourceName = "menbfrostbump.png";
-#endif
->;
-texture2D texFocus;
-texture2D texCurr;
-texture2D texPrev;
 sampler2D SamplerColor = sampler_state
 {
 	Texture = <texColor>;
@@ -153,66 +112,6 @@ sampler2D SamplerHeat = sampler_state
 	MipFilter = NONE;
 	AddressU = Wrap;
 	AddressV = Wrap;
-	SRGBTexture = FALSE;
-	MaxMipLevel = 0;
-	MipMapLodBias = 0;
-};
-sampler2D SamplerFrost = sampler_state
-{
-	Texture = <texFrost>;
-	MinFilter = LINEAR;
-	MagFilter = LINEAR;
-	MipFilter = NONE;
-	AddressU = Wrap;
-	AddressV = Wrap;
-	SRGBTexture = FALSE;
-	MaxMipLevel = 0;
-	MipMapLodBias = 0;
-};
-sampler2D SamplerFrostBump = sampler_state
-{
-	Texture = <texFrostBump>;
-	MinFilter = LINEAR;
-	MagFilter = LINEAR;
-	MipFilter = NONE;
-	AddressU = Wrap;
-	AddressV = Wrap;
-	SRGBTexture = FALSE;
-	MaxMipLevel = 0;
-	MipMapLodBias = 0;
-};
-sampler2D SamplerFocus = sampler_state
-{
-	Texture = <texFocus>;
-	MinFilter = LINEAR;
-	MagFilter = LINEAR;
-	MipFilter = NONE;
-	AddressU = Clamp;
-	AddressV = Clamp;
-	SRGBTexture = FALSE;
-	MaxMipLevel = 0;
-	MipMapLodBias = 0;
-};
-sampler2D SamplerCurr = sampler_state
-{
-	Texture = <texCurr>;
-	MinFilter = LINEAR;
-	MagFilter = LINEAR;
-	MipFilter = NONE;
-	AddressU = Clamp;
-	AddressV = Clamp;
-	SRGBTexture = FALSE;
-	MaxMipLevel = 0;
-	MipMapLodBias = 0;
-};
-sampler2D SamplerPrev = sampler_state
-{
-	Texture = <texPrev>;
-	MinFilter = LINEAR;
-	MagFilter = LINEAR;
-	MipFilter = NONE;
-	AddressU = Clamp;
-	AddressV = Clamp;
 	SRGBTexture = FALSE;
 	MaxMipLevel = 0;
 	MipMapLodBias = 0;

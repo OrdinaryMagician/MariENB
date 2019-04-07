@@ -4,6 +4,103 @@
 	Part of MariENB, the personal ENB of Marisa.
 	Released under the GNU GPLv3 (or later).
 */
+string str_misc = "Miscellaneous";
+/* fixed resolution, keeps blur filters at a consistent internal resolution */
+int fixedx
+<
+	string UIName = "Fixed Resolution Width";
+	string UIWidget = "Spinner";
+	int UIMin = 0;
+> = {1920};
+int fixedy
+<
+	string UIName = "Fixed Resolution Height";
+	string UIWidget = "Spinner";
+	int UIMin = 0;
+> = {1080};
+string str_dist = "Frost Overlay";
+float distcha
+<
+	string UIName = "Distortion Chromatic Aberration";
+	string UIWidget = "Spinner";
+> = {10.0};
+bool frostenable
+<
+	string UIName = "Enable Screen Frost";
+	string UIWidget = "Checkbox";
+> = {false};
+float frostpow
+<
+	string UIName = "Frost Contrast";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float froststrength
+<
+	string UIName = "Frost Strength";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float frostrpow
+<
+	string UIName = "Frost Radial Contrast";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float frostrmult
+<
+	string UIName = "Frost Radial Intensity";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float frostrbump
+<
+	string UIName = "Frost Radial Offset";
+	string UIWidget = "Spinner";
+> = {0.0};
+float frostblend
+<
+	string UIName = "Frost Texture Blend";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float frostbpow
+<
+	string UIName = "Frost Texture Blend Contrast";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float frostsize
+<
+	string UIName = "Frost Texture Size";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float frostfactor_n
+<
+	string UIName = "Frost Factor Night";
+	string UIWidget = "Spinner";
+> = {1.0};
+float frostfactor_d
+<
+	string UIName = "Frost Factor Day";
+	string UIWidget = "Spinner";
+> = {1.0};
+float frostfactor_in
+<
+	string UIName = "Frost Factor Interior Night";
+	string UIWidget = "Spinner";
+> = {1.0};
+float frostfactor_id
+<
+	string UIName = "Frost Factor Interior Day";
+	string UIWidget = "Spinner";
+> = {1.0};
+bool frostalways
+<
+	string UIName = "Frost Always Enable";
+	string UIWidget = "Checkbox";
+> = {false};
 /* film grain */
 string str_noise = "Film Grain";
 bool ne
@@ -177,14 +274,13 @@ string str_tonemap = "Tone Mapping";
      2 : Uncharted 2
      3 : Hejl Dawson
      4 : Haarm-Peter Duiker
-     5 : SweetFX
 */
 int tmapenable
 <
 	string UIName = "Tonemapping Method";
 	string UIWidget = "Spinner";
 	int UIMin = -1;
-	int UIMax = 5;
+	int UIMax = 4;
 > = {2};
 float tmapexposure_n
 <
@@ -378,230 +474,6 @@ float unW_id
 	string UIName = "Uncharted2 Linear White Interior Day";
 	string UIWidget = "Spinner";
 > = {10.0};
-float sfxgamma_n
-<
-	string UIName = "SweetFX Gamma Night";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-	float UIMax = 2.0;
-> = {1.0};
-float sfxgamma_d
-<
-	string UIName = "SweetFX Gamma Day";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-	float UIMax = 2.0;
-> = {1.0};
-float sfxgamma_in
-<
-	string UIName = "SweetFX Gamma Interior Night";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-	float UIMax = 2.0;
-> = {1.0};
-float sfxgamma_id
-<
-	string UIName = "SweetFX Gamma Interior Day";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-	float UIMax = 2.0;
-> = {1.0};
-float sfxexposure_n
-<
-	string UIName = "SweetFX Exposure Night";
-	string UIWidget = "Spinner";
-	float UIMin = -1.0;
-	float UIMax = 1.0;
-> = {0.0};
-float sfxexposure_d
-<
-	string UIName = "SweetFX Exposure Day";
-	string UIWidget = "Spinner";
-	float UIMin = -1.0;
-	float UIMax = 1.0;
-> = {0.0};
-float sfxexposure_in
-<
-	string UIName = "SweetFX Exposure Interior Night";
-	string UIWidget = "Spinner";
-	float UIMin = -1.0;
-	float UIMax = 1.0;
-> = {0.0};
-float sfxexposure_id
-<
-	string UIName = "SweetFX Exposure Interior Day";
-	string UIWidget = "Spinner";
-	float UIMin = -1.0;
-	float UIMax = 1.0;
-> = {0.0};
-float sfxsaturation_n
-<
-	string UIName = "SweetFX Saturation Night";
-	string UIWidget = "Spinner";
-	float UIMin = -1.0;
-	float UIMax = 1.0;
-> = {0.0};
-float sfxsaturation_d
-<
-	string UIName = "SweetFX Saturation Day";
-	string UIWidget = "Spinner";
-	float UIMin = -1.0;
-	float UIMax = 1.0;
-> = {0.0};
-float sfxsaturation_in
-<
-	string UIName = "SweetFX Saturation Interior Night";
-	string UIWidget = "Spinner";
-	float UIMin = -1.0;
-	float UIMax = 1.0;
-> = {0.0};
-float sfxsaturation_id
-<
-	string UIName = "SweetFX Saturation Interior Day";
-	string UIWidget = "Spinner";
-	float UIMin = -1.0;
-	float UIMax = 1.0;
-> = {0.0};
-float sfxbleach_n
-<
-	string UIName = "SweetFX Bleach Night";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-	float UIMax = 1.0;
-> = {0.0};
-float sfxbleach_d
-<
-	string UIName = "SweetFX Bleach Day";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-	float UIMax = 1.0;
-> = {0.0};
-float sfxbleach_in
-<
-	string UIName = "SweetFX Bleach Interior Night";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-	float UIMax = 1.0;
-> = {0.0};
-float sfxbleach_id
-<
-	string UIName = "SweetFX Bleach Interior Day";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-	float UIMax = 1.0;
-> = {0.0};
-float sfxdefog_n
-<
-	string UIName = "SweetFX Defog Night";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-	float UIMax = 1.0;
-> = {0.0};
-float sfxdefog_d
-<
-	string UIName = "SweetFX Defog Day";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-	float UIMax = 1.0;
-> = {0.0};
-float sfxdefog_in
-<
-	string UIName = "SweetFX Defog Interior Night";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-	float UIMax = 1.0;
-> = {0.0};
-float sfxdefog_id
-<
-	string UIName = "SweetFX Defog Interior Day";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-	float UIMax = 1.0;
-> = {0.0};
-float sfxfogcolor_r_n
-<
-	string UIName = "SweetFX Defog Color Red Night";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-	float UIMax = 1.0;
-> = {0.0};
-float sfxfogcolor_g_n
-<
-	string UIName = "SweetFX Defog Color Green Night";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-	float UIMax = 1.0;
-> = {0.0};
-float sfxfogcolor_b_n
-<
-	string UIName = "SweetFX Defog Color Blue Night";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-	float UIMax = 1.0;
-> = {1.0};
-float sfxfogcolor_r_d
-<
-	string UIName = "SweetFX Defog Color Red Day";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-	float UIMax = 1.0;
-> = {0.0};
-float sfxfogcolor_g_d
-<
-	string UIName = "SweetFX Defog Color Green Day";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-	float UIMax = 1.0;
-> = {0.0};
-float sfxfogcolor_b_d
-<
-	string UIName = "SweetFX Defog Color Blue Day";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-	float UIMax = 1.0;
-> = {1.0};
-float sfxfogcolor_r_in
-<
-	string UIName = "SweetFX Defog Color Red Interior Night";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-	float UIMax = 1.0;
-> = {0.0};
-float sfxfogcolor_g_in
-<
-	string UIName = "SweetFX Defog Color Green Interior Night";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-	float UIMax = 1.0;
-> = {0.0};
-float sfxfogcolor_b_in
-<
-	string UIName = "SweetFX Defog Color Blue Interior Night";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-	float UIMax = 1.0;
-> = {1.0};
-float sfxfogcolor_r_id
-<
-	string UIName = "SweetFX Defog Color Red Interior Day";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-	float UIMax = 1.0;
-> = {0.0};
-float sfxfogcolor_g_id
-<
-	string UIName = "SweetFX Defog Color Green Interior Day";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-	float UIMax = 1.0;
-> = {0.0};
-float sfxfogcolor_b_id
-<
-	string UIName = "SweetFX Defog Color Blue Interior Day";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-	float UIMax = 1.0;
-> = {1.0};
 /* Color grading */
 string str_grade = "Color Grading Suite";
 bool gradeenable1
@@ -1035,20 +907,6 @@ int clut_id
 	int UIMax = 63;
 > = {1};
 #endif
-/* not using ENB's own variables, sorry */
-string str_enbpal = "ENB Palette";
-bool palenable
-<
-	string UIName = "Enable ENB Palette";
-	string UIWidget = "Checkbox";
-> = {false};
-float palblend
-<
-	string UIName = "Palette Blend";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-	float UIMax = 1.0;
-> = {1.0};
 /* technicolor shader */
 string str_tech = "Technicolor";
 bool techenable

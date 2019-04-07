@@ -6,8 +6,6 @@
 */
 /* do not touch this! */
 #define E_SHADER_3_0
-/* are we running on fallout 3 / new vegas or on skyrim? */
-//#define FALLOUT
 /* time of day and interior interpolation */
 #define tod_ind(x) lerp(lerp(x##_n,x##_d,ENightDayFactor),\
 	lerp(x##_in,x##_id,ENightDayFactor),EInteriorFactor)

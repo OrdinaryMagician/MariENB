@@ -334,13 +334,13 @@ float fsi_d
 > = {1.0};
 float fsi_in
 <
-	string UIName = "Anamorphic Bloom Blue Shift Interior Night";
+	string UIName = "Anamorphic Bloom Blue Shift Intensity Interior Night";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
 float fsi_id
 <
-	string UIName = "Anamorphic Bloom Blue Shift Interior Day";
+	string UIName = "Anamorphic Bloom Blue Shift Intensity Interior Day";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};

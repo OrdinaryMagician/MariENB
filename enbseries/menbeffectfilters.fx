@@ -11,33 +11,6 @@ VS_OUTPUT_POST VS_Pass( VS_INPUT_POST IN )
 	OUT.txcoord0.xy = IN.txcoord0.xy;
 	return OUT;
 }
-#ifdef FALLOUT
-float4 _c1 : register(c1);
-float4 _c2 : register(c2);
-float4 _c19 : register(c19);
-float4 _c20 : register(c20);
-float4 _c22 : register(c22);
-#define _r1 _c1
-#define _r2 _c2
-#define _r3 _c19
-#define _r4 _c20
-#define _r5 _c22
-/*
-   FALLOUT REGISTERS
-
-   r1 (c1):         r2 (c2):         r3 (c19):
-    x -> adapt max   x -> unused      x -> vibrance
-    y -> unused      y -> unused      y -> balancer
-    z -> unused      z -> bloom mix   z -> multiplier 1
-    w -> unused      w -> unused      w -> multiplier 2
-
-   r4 (c20):         r5 (c22):
-    x -> tint red     x -> fade red
-    y -> tint green   y -> fade green
-    z -> tint blue    z -> fade blue
-    w -> tint value   w -> fade value
-*/
-#else
 float4 _c1 : register(c1);
 float4 _c2 : register(c2);
 float4 _c3 : register(c3);
@@ -63,7 +36,6 @@ float4 _c5 : register(c5);
     z -> tint blue    z -> fade blue
     w -> tint value   w -> fade value
 */
-#endif
 /* helper functions */
 /* photometric */
 #define luminance(x) dot(x,float3(0.2126,0.7152,0.0722))
@@ -151,32 +123,6 @@ float3 TonemapHejlDawson( float3 res )
 	float3 x = max(0.0,res-0.004);
 	return (x*(6.2*x+.5))/(x*(6.2*x+1.7)+0.06);
 }
-/* The standard tonemap from sweetfx */
-float3 TonemapSFX( float3 res )
-{
-	float Gamma = tod_ind(sfxgamma);
-	float Exposure = tod_ind(sfxexposure);
-	float Saturation = tod_ind(sfxsaturation);
-	float Bleach = tod_ind(sfxbleach);
-	float Defog = tod_ind(sfxdefog);
-	float3 FogColor = float3(tod_ind(sfxfogcolor_r),tod_ind(sfxfogcolor_g),
-		tod_ind(sfxfogcolor_b));
-	float3 tcol = res;
-	tcol = saturate(tcol-Defog*FogColor*2.55);
-	tcol *= pow(2.0,Exposure);
-	tcol = pow(tcol,Gamma);
-	float lum = luminance(tcol);
-	float L = saturate(1.0*(lum-0.45));
-	float3 A2 = Bleach*tcol;
-	float3 res1 = 2.0*tcol*lum;
-	float3 res2 = 1.0-2.0*(1.0-lum)*(1.0-tcol);
-	float3 newc = lerp(res1,res2,L);
-	float3 mixrgb = A2*newc;
-	tcol += (1.0-A2)*mixrgb;
-	float3 gray = dot(tcol,1.0/3.0);
-	float3 diff = tcol-gray;
-	return (tcol+diff*Saturation)/(1+(diff*Saturation));
-}
 float3 Tonemap( float3 res )
 {
 	float3 tcol = pow(max(res,0.0),1.0/2.2);
@@ -184,8 +130,7 @@ float3 Tonemap( float3 res )
 	res *= tod_ind(tmapexposure);
 	float tblend = tod_ind(tmapblend);
 	float3 mapped;
-	if ( tmapenable == 5 ) mapped = TonemapSFX(res);
-	else if ( tmapenable == 4 ) mapped = TonemapHaarmPeterDuiker(res);
+	if ( tmapenable == 4 ) mapped = TonemapHaarmPeterDuiker(res);
 	else if ( tmapenable == 3 ) mapped = TonemapHejlDawson(res);
 	else if ( tmapenable == 2 ) mapped = TonemapUC2(res);
 	else if ( tmapenable == 1 ) mapped = TonemapReinhard(res);
@@ -247,12 +192,8 @@ float3 GradingGame( float3 res )
 	tcol = tintv*(tgray*_r4.rgb-tcol)+tcol;
 	tcol = lerp(res,tcol,vtintblend);
 	/* contrast(?) stuff */
-#ifdef FALLOUT
-	float oft = _r3.y;
-#else
 	/* TODO figure the offset thingy for Skyrim someday */
 	float oft = 0.0;
-#endif
 	tcol = max(0,(tcol*_r3.w-oft)*_r3.z+oft);
 	tcol = lerp(res,tcol,vconblend);
 	return tcol;
@@ -448,23 +389,6 @@ float3 GradingLUT( float3 res )
 	float lutblend = tod_ind(lutblend);
 	return lerp(res,tcol,lutblend);
 }
-/* classic ENB palette colour grading, seems to kill dark and light values */
-float3 GradingPal( float3 res )
-{
-	float4 adapt = tex2D(_s4,0.5);
-	adapt = adapt/(adapt+1.0);
-	float adapts = max(adapt.r,max(adapt.g,adapt.b));
-	float3 palt;
-	float2 coord;
-	coord.y = adapts;
-	coord.x = res.r;
-	palt.r = tex2D(_s7,coord).r;
-	coord.x = res.g;
-	palt.g = tex2D(_s7,coord).g;
-	coord.x = res.b;
-	palt.b = tex2D(_s7,coord).b;
-	return lerp(res,palt,palblend);
-}
 /* I think this Technicolor implementation is correct... maybe */
 float3 Technicolor( float3 res )
 {
@@ -539,13 +463,68 @@ float3 FilmGrain( float3 res, float2 coord )
 	}
 	return lerp(res,nt,ni*0.01);
 }
+/* Screen frost distortion */
+float2 ScreenFrost( float2 coord )
+{
+	float2 bresl;
+	if ( (fixedx > 0) && (fixedy > 0) ) bresl = float2(fixedx,fixedy);
+	else bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
+	float2 nc = coord*(bresl/FROSTSIZE)*frostsize;
+	float2 ofs = tex2D(SamplerFrost,nc).xy;
+	ofs = (ofs-0.5)*2.0;
+	ofs *= pow(length(ofs),frostpow)*froststrength;
+	if ( !frostalways ) ofs *= max(0.0,tod_ind(frostfactor))
+		*max(0.0,coldfactor-warmfactor);
+	float dist = distance(coord,float2(0.5,0.5))*2.0;
+	ofs *= clamp(pow(dist,frostrpow)*frostrmult+frostrbump,0.0,1.0);
+	return coord+ofs;
+}
 /* MariENB shader */
 float4 PS_Mari( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 {
 	float2 coord = IN.txcoord0.xy;
-	float4 res = tex2D(_s0,coord);
+	float2 bresl;
+	if ( (fixedx > 0) && (fixedy > 0) ) bresl = float2(fixedx,fixedy);
+	else bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
+	float4 res;
+	float3 bcol;
+	if ( frostenable )
+	{
+		float2 ofs = ScreenFrost(coord);
+		ofs -= coord;
+		if ( (distcha != 0.0) && (length(ofs) != 0.0) )
+		{
+			float2 ofr, ofg, ofb;
+			ofr = ofs*(1.0-distcha*0.01);
+			ofg = ofs;
+			ofb = ofs*(1.0+distcha*0.01);
+			res = float4(tex2D(_s0,coord+ofr).r,
+				tex2D(_s0,coord+ofg).g,
+				tex2D(_s0,coord+ofb).b,1.0);
+			bcol = float3(tex2D(_s3,coord+ofr).r,
+				tex2D(_s3,coord+ofg).g,
+				tex2D(_s3,coord+ofb).b)*EBloomAmount;
+		}
+		else
+		{
+			res = tex2D(_s0,coord+ofs);
+			bcol = tex2D(_s3,coord+ofs).rgb*EBloomAmount;
+		}
+		float2 nc = coord*(bresl/FROSTSIZE)*frostsize;
+		float bmp = pow(max(0,tex2D(SamplerFrost,nc).z),frostbpow);
+		float dist = distance(coord,float2(0.5,0.5))*2.0;
+		dist = clamp(pow(dist,frostrpow)*frostrmult+frostrbump,0.0,
+			1.0)*frostblend;
+		if ( !frostalways ) dist *= max(0.0,tod_ind(frostfactor))
+			*max(0.0,coldfactor-warmfactor);
+		res.rgb *= 1.0+bmp*dist;
+	}
+	else
+	{
+		res = tex2D(_s0,coord);
+		bcol = tex2D(_s3,coord).rgb*EBloomAmount;
+	}
 	res.rgb = pow(max(res.rgb,0.0),2.2);
-	float3 bcol = tex2D(_s3,coord).rgb*EBloomAmount;
 	if ( bloomdebug	) res.rgb *= 0;
 	res.rgb += bcol;
 	if ( aenable ) res.rgb = Adaptation(res.rgb);
@@ -564,14 +543,9 @@ float4 PS_Mari( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 		if ( gradeenable3 ) res.rgb = GradingHSV(res.rgb);
 	}
 	if ( lutenable ) res.rgb = GradingLUT(res.rgb);
-	if ( palenable ) res.rgb = GradingPal(res.rgb);
 	if ( techenable ) res.rgb = Technicolor(res.rgb);
 	if ( !nbt && ne ) res.rgb = FilmGrain(res.rgb,coord);
-#ifdef FALLOUT
-	res.rgb = _r5.rgb*_r5.a + res.rgb*(1.0-_r5.a);
-#else
 	res.rgb = _r5.w*(_r5.rgb-res.rgb)+res.rgb;
-#endif
 	if ( dodither ) res.rgb = Dither(res.rgb,coord);
 	res.rgb = max(0,res.rgb);
 	res.a = 1.0;
@@ -583,11 +557,7 @@ float4 PS_Mari( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
    toggling "UseEffect" switches between each variation? Wat?
 */
 #ifndef ENB_FLIPTECHNIQUE
-#ifdef FALLOUT
-technique Shader_C1DAE3F7
-#else
 technique Shader_D6EC7DD1
-#endif
 #else
 technique Shader_ORIGINALPOSTPROCESS
 #endif
@@ -608,61 +578,15 @@ technique Shader_ORIGINALPOSTPROCESS
 #ifndef ENB_FLIPTECHNIQUE
 technique Shader_ORIGINALPOSTPROCESS
 #else
-#ifdef FALLOUT
-technique Shader_C1DAE3F7
-#else
 technique Shader_D6EC7DD1
-#endif
 #endif
 {
 	pass p0
 	{
-#ifdef FALLOUT
-		VertexShader = asm
-		{
-			vs_1_1
-			def c3,2,-2,0,0
-			dcl_position v0
-			dcl_texcoord v1
-			mov r0.xy,c0
-			mad oPos.xy,r0,-c3,v0
-			add oT0.xy,v1,c1
-			add oT1.xy,v1,c2
-			mov oPos.zw,v0
-		};
-#else
 		VertexShader = compile vs_3_0 VS_Pass();
-#endif
 		/* >inline assembly */
 		PixelShader = asm
 		{
-#ifdef FALLOUT
-			ps_2_x
-			def c0,0.5,0,0,0
-			def c3,0.298999995,0.587000012,0.114,0
-			dcl t0.xy
-			dcl t1.xy
-			dcl_2d s0
-			dcl_2d s1
-			texld r0,t1,s1
-			texld r1,t0,s0
-			max r0.w,r1.w,c1.x
-			rcp r0.w,r0.w
-			mul r1.w,r0.w,c0.x
-			mul r0.w,r0.w,c1.x
-			mul r1.xyz,r1,r1.w
-			max r2.xyz,r1,c0.y
-			mad r0.xyz,r0.w,r0,r2
-			dp3 r0.w,r0,c3
-			lrp r1.xyz,c19.x,r0,r0.w
-			mad r0.xyz,r0.w,c20,-r1
-			mad r0.xyz,c20.w,r0,r1
-			mad r0.xyz,c19.w,r0,-c19.y
-			mad r0.xyz,c19.z,r0,c19.y
-			lrp r1.xyz,c22.w,c22,r0
-			mov r1.w,c2.z
-			mov oC0,r1
-#else
 			ps_3_0
 			def c6,0,0,0,0
 			def c7,0.212500006,0.715399981,0.0720999986,1
@@ -701,7 +625,6 @@ technique Shader_D6EC7DD1
 			mad r0,c3.z,r1,r0.y
 			add r1,-r0,c5
 			mad oC0,c5.w,r1,r0
-#endif
 		};
 		ColorWriteEnable = ALPHA|RED|GREEN|BLUE;
 		ZEnable = FALSE;
