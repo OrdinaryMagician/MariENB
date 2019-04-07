@@ -1,4 +1,117 @@
-ID	NAME				TEMPERATURE
+﻿Weather classification ideas for 2.5.x:
+
+Currently, weathers are separated by warm, temperate, cold and whether or not
+they're foggy, for a total of 6 classes. This is way too simplified and doesn't
+leave much room for proper customization.
+
+One idea I have is to expand this to up to 16 weather classes and then have a
+separate function for dividing them in hot, cold and foggy for the respective
+effects that need them.
+
+The number of 16 is significative because if I plan to separate the LUTs into
+weathers but also unify the textures, I'd be limited to 4*16 (64) different
+palettes within the limit of 8192x8192 for the 64px³ version.
+
+Default -> Clear/Cloudy Whiterun, The Reach, Haafingar
+Snowy -> Places where it's snowing (duh)
+Rainy -> When it rains, anywhere there isn't snow
+Cold Rainy -> Rain in snowy areas
+Wintery -> Clear/Cloudy Pale, Winterhold, Mountains, Coast
+Shady -> Hjaalmarch, mostly
+Swampy -> Hjaalmarch when there's fog
+Hot -> Eastmarch
+Misty -> Slight fog
+Lush -> Falkreath, The Rift
+Foggy -> Thicker fog
+Blackreach -> Self-descriptive
+Spooky -> Soul Cairn
+Smoky -> Places where it's warm but there's fog
+Cool -> Knox (Aether Suite)
+Neutral -> Reserved for a neutral LUT and no weather effects
+
+# Class		Temperature	Fog
+0 Default	Temperate	No
+1 Snowy		Cold		Yes
+2 Rainy		Temperate	Yes
+3 Cold Rainy	Cold		Yes
+4 Wintery	Cold		No
+5 Shady		Temperate	No
+6 Swampy	Temperate	Yes
+7 Hot		Warm		No
+8 Misty		Temperate	Yes
+9 Lush		Warm		No
+A Foggy		Temperate	Yes
+B Blackreach	Temperate	Yes
+C Spooky	Cold		No
+D Smoky		Warm		Yes
+E Cool		Temperate	No
+F Neutral	Temperate	No
+
+Alternatively, I could do 16 more weather classes by separating exterior and
+interior into two textures, as there is no real need to interpolate there,
+which would make 2 8192x8192 textures.
+
+"Regions" for easier classification:
+Default [Falkreath hold, forested area surrounding Eastmarch] -> Forest
+Fall Forest (FF) [The Rift] -> Rift
+Snow (SN) [The Pale, Winterhold, mountain areas] -> Wintery
+Reach (RE) [The Reach] -> Neutral
+Tundra (TU) [Whiterun hold, Haafingar] -> General
+Coast (CO) [General northern coast region] -> Sea
+Volcanic Tundra (VT) [Eastmarch] -> Warm
+Tundra Marsh (MA) [Hjaalmarch] -> Swamp
+Blackreach -> Underground
+Sovngarde -> Sovngarde
+Blue Palace -> Hazy
+Bloated Man's Grotto -> Hazy
+Knox -> Know
+Coldharbor -> Warm
+Soul Cairn -> Spooky
+Apocrypha -> Eldrich
+
+#  Class	Temperature	Fog
+00 Forest	Temperate	No
+01 Forest Fog	Temperate	Yes
+02 Forest Rain	Cold		Yes
+03 Forest Snow	Cold		Yes
+04 Rift		Temperate	No
+05 Rift Fog	Temperate	Yes
+06 Rift Rain	Temperate	Yes
+07 Wintery	Cold		No
+08 General	Temperate	No
+09 General Fog	Temperate	Yes
+0A General Rain	Temperate	Yes
+0B Sea		Cold		No
+0C Sea Fog	Cold		Yes
+0D Warm		Warm		No
+0E Warm Fog	Warm		Yes
+0F Warm Rain	Temperate	Yes
+10 Swamp	Temperate	No
+11 Swamp Fog	Temperate	Yes
+12 Swamp Rain	Temperate	Yes
+13 Underground	Temperate	No
+14 Sovngarde	Warm		No
+15 SovngardeFog	Temperate	Yes
+16 SovngardeDarkCold		No
+17 Hazy		Temperate	Yes
+18 HazyCold	Cold		Yes
+19 HazyWarm	Warm		Yes
+1A Knox		Temperate	No
+1B Knox Storm	Temperate	Yes
+1C Spooky	Cold		No
+1D Eldrich	Temperate	No
+1E Eldrich Fog	Temperate	Yes
+1F Neutral LUT	Temperate	No
+
+One last option would be to do a total of 64 weathers by separating time of day
+too, then having 4 8192x8192 textures. This would obviously be overkill and
+turn MariENB into one hell of a massive time sink in terms of maintenance. It'd
+still fit the hardcoded ENB limit of 100 weathers, though. I'm not even going
+to consider that one, even though it'd give me much more fine tuned control.
+
+Here is the list of all weathers this ENB will have special support for:
+
+ID	NAME				CLASS
 
 Skyrim
 
@@ -144,15 +257,19 @@ Natural Lighting and Atmospherics
 73EC8	SkyrimFogHeavy_CM		TEMPERATE FOG
 83665	SkyrimFogRain_CM		TEMPERATE FOG
 
+Unofficial Skyrim Patch
+
+12C4	USKP_SkyhavenTempleEntranceOvercastRainRE	TEMPERATE FOG
+
 -- In progress
 
 Darkend
 
-179AB	DLC1EclipseDUPLICATE001		-
-161063	XJKphalosFog			-
-161065	XJKphalosStormRainFOG		-
-2946E6	XJKphalosFogDUPLICATE001	-
-296EB5	XJKphalosFogSovngarde		-
+179AB	DLC1EclipseDUPLICATE001		TEMPERATE FOG
+161063	XJKphalosFog			TEMPERATE FOG
+161065	XJKphalosStormRainFOG		TEMPERATE FOG
+2946E6	XJKphalosFogDUPLICATE001	TEMPERATE FOG
+296EB5	XJKphalosFogSovngarde		TEMPERATE FOG
 
 Vigilant
 
@@ -163,6 +280,15 @@ Vigilant
 701D2	zzzCHMolagWeather		HOT
 2C603B	zzzCHOldForestStormRain		COLD FOG
 2DA92C	zzzCHWhaleGraveyardStormSnow	COLD FOG
+
+Aether Suite
+
+5BA5F	SkyrimAcademyClear	TEMPERATE
+5C976	00KnoxStormWeather	TEMPERATE
+601EE	00KnoxWeather		TEMPERATE
+88AFE	00KnoxWeatherNoRain	TEMPERATE
+
+-- Might just be shoved into a separate preset
 
 Enderal
 
@@ -176,7 +302,7 @@ Enderal
 20B13 	_00E_WeatherSullevanInterior     	-
 20B16 	_00E_WeatherSullevanIntereur     	-
 21310 	SkuldafnCloudyDUPLICATE001       	-
-21311 	_00E_EnderalRainLight            	COLD
+21311 	_00E_EnderalRainLight            	-
 2B999 	_0E_MaxWetter                    	-
 2B9A1 	_00E_MaxWetterRegen              	-
 30FE2 	_00E_MQ11a_SkyrimOvercastSnowSlow	-
@@ -202,7 +328,7 @@ Enderal
 74545 	_0E_OstBauernkueste              	-
 74546 	_0E_GraeberPfade                 	-
 76985 	_00E_Farmcoast                   	-
-7761F 	_00E_MQP02ShipWeather            	HOT
+7761F 	_00E_MQP02ShipWeather            	-
 7D3FD 	_JonasWaldVersuchDUPLICATE005    	-
 8B19C 	_00E_SilberhainWetter            	-
 962ED 	_00E_WesternBayWeather           	-
@@ -224,7 +350,7 @@ F8EF4 	_00E_MQ07aOldManManor            	-
 106723	_00E_MQ07aVisionWeatherRain      	-
 10674E	_00E_MQ07aVisionWeatherNoRain    	-
 10A758	_00E_MQ07aOldManManorNoRain      	-
-12EAB9	_00E_MQP01_Weather               	HOT
+12EAB9	_00E_MQP01_Weather               	-
 12ECEC	SkyrimOvercastSnowKristallwald   	-
 13706E	EnderalClearNoClouds             	-
 14BDDC	_00E_Test_Weather_02             	-

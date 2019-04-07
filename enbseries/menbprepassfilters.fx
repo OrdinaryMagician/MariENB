@@ -403,16 +403,23 @@ float4 PS_DoFPrepass( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 }
 /* helper code for simplifying these */
 #define gcircle(x) float2(cos(x),sin(x))
-float4 dofsample( float2 coord, float2 bsz, float blur, bool bDoHighlight )
+float4 dofsample( float2 coord, float2 bsz, float blur, bool bDoHighlight,
+	out float4 deps, out float4 dfcs )
 {
 	float4 res;
 	float cstep = 2.0*pi*(1.0/3.0);
 	float ang = 0.5*pi;
 	res.r = tex2D(SamplerColor,coord+gcircle(ang)*bsz*dofpcha*0.1).r;
+	deps.r = tex2D(SamplerDepth,coord+gcircle(ang)*bsz*dofpcha*0.1).x;
+	dfcs.r = tex2D(SamplerColor,coord+gcircle(ang)*bsz*dofpcha*0.1).a;
 	ang += cstep;
 	res.g = tex2D(SamplerColor,coord+gcircle(ang)*bsz*dofpcha*0.1).g;
+	deps.g = tex2D(SamplerDepth,coord+gcircle(ang)*bsz*dofpcha*0.1).x;
+	dfcs.g = tex2D(SamplerColor,coord+gcircle(ang)*bsz*dofpcha*0.1).a;
 	ang += cstep;
 	res.b = tex2D(SamplerColor,coord+gcircle(ang)*bsz*dofpcha*0.1).b;
+	deps.b = tex2D(SamplerDepth,coord+gcircle(ang)*bsz*dofpcha*0.1).x;
+	dfcs.b = tex2D(SamplerColor,coord+gcircle(ang)*bsz*dofpcha*0.1).a;
 	if ( bDoHighlight )
 	{
 		float l = luminance(res.rgb);
@@ -420,6 +427,8 @@ float4 dofsample( float2 coord, float2 bsz, float blur, bool bDoHighlight )
 		res += lerp(0,res,threshold*blur);
 	}
 	res.a = tex2D(SamplerColor,coord).a;
+	deps.a = tex2D(SamplerDepth,coord).x;
+	dfcs.a = res.a;
 	return res;
 }
 /* gather blur pass  */
@@ -441,14 +450,15 @@ float4 PS_DoFGather( VS_OUTPUT_POST IN, float2 vPos : VPOS) : COLOR
 	if ( dfc <= dofminblur ) return tex2D(SamplerColor,coord);
 	float4 res = float4(0,0,0,0);
 	float dep = tex2D(SamplerDepth,coord).x;
-	float ds, sw, tw = 0;
 	float2 bsz = bof*dofpradius*dfc;
-	float4 sc;
+	float4 sc, ds, sd, sw, tw = float4(0,0,0,0);
 	[unroll] for ( int i=0; i<32; i++ )
 	{
-		sc = dofsample(coord+poisson32[i]*bsz,bsz,dfc,dofhilite);
-		ds = tex2D(SamplerDepth,coord+poisson32[i]*bsz).x;
-		sw = (ds>dep)?1.0:sc.a;
+		sc = dofsample(coord+poisson32[i]*bsz,bsz,dfc,dofhilite,ds,sd);
+		sw.r = (ds.r>dep)?1.0:sd.r;
+		sw.g = (ds.g>dep)?1.0:sd.g;
+		sw.b = (ds.b>dep)?1.0:sd.b;
+		sw.a = (ds.a>dep)?1.0:sd.a;
 		tw += sw;
 		res += sc*sw;
 	}
@@ -479,9 +489,9 @@ float4 PS_DoFBorkeh( VS_OUTPUT_POST IN, float2 vPos : VPOS) : COLOR
 	float2 sf = bof+(tex2D(SamplerNoise3,coord*(bresl/256.0)).xy*2.0-1.0)
 		*dofbnoise*0.001;
 	float2 sr = sf*dofbradius*dfc;
-	float tw = 1.0;
 	int rsamples;
-	float bstep, sw;
+	float bstep, bw;
+	float4 sc, ds, sd, sw, tw = float4(1,1,1,1);
 	float2 rcoord;
 	#define dofbrings 7
 	#define dofbsamples 3
@@ -492,9 +502,14 @@ float4 PS_DoFBorkeh( VS_OUTPUT_POST IN, float2 vPos : VPOS) : COLOR
 		{
 			bstep = pi*2.0/(float)rsamples;
 			rcoord = gcircle(j*bstep)*i;
-			sw = lerp(1.0,(float)i/(float)dofbrings,dofbbias);
-			res += dofsample(coord+rcoord*sr,sr,dfc,dofhilite)*sw;
-			tw += sw;
+			bw = lerp(1.0,(float)i/(float)dofbrings,dofbbias);
+			sc = dofsample(coord+rcoord*sr,sr*i,dfc,dofhilite,ds,sd);
+			sw.r = (ds.r>dep)?1.0:sd.r;
+			sw.g = (ds.g>dep)?1.0:sd.g;
+			sw.b = (ds.b>dep)?1.0:sd.b;
+			sw.a = (ds.a>dep)?1.0:sd.a;
+			res += sc*sw*bw;
+			tw += sw*bw;
 		}
 	}
 	res /= tw;
