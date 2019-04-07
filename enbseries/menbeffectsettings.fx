@@ -4,97 +4,6 @@
 	Part of MariENB, the personal ENB of Marisa.
 	Released under the GNU GPLv3 (or later).
 */
-/* Border darkening */
-bool dkenable
-<
-	string UIName = "UseDark";
-	string UIWidget = "Checkbox";
-> = {false};
-/* radius of darkening (relative to screen width) */
-float dkradius_n
-<
-	string UIName = "DarkRadiusNight";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.25};
-float dkradius_d
-<
-	string UIName = "DarkRadiusDay";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.25};
-float dkradius_in
-<
-	string UIName = "DarkRadiusInteriorNight";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.25};
-float dkradius_id
-<
-	string UIName = "DarkRadiusInteriorDay";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.25};
-/* falloff of darkening */
-float dkcurve_n
-<
-	string UIName = "DarkCurveNight";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.2};
-float dkcurve_d
-<
-	string UIName = "DarkCurveDay";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.2};
-float dkcurve_in
-<
-	string UIName = "DarkCurveInteriorNight";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.2};
-float dkcurve_id
-<
-	string UIName = "DarkCurveInteriorDay";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.2};
-/* bump of darkening */
-float dkbump_n
-<
-	string UIName = "DarkBumpNight";
-	string UIWidget = "Spinner";
-> = {-0.75};
-float dkbump_d
-<
-	string UIName = "DarkBumpDay";
-	string UIWidget = "Spinner";
-> = {-0.75};
-float dkbump_in
-<
-	string UIName = "DarkBumpInteriorNight";
-	string UIWidget = "Spinner";
-> = {-0.75};
-float dkbump_id
-<
-	string UIName = "DarkBumpInteriorDay";
-	string UIWidget = "Spinner";
-> = {-0.75};
-/* Letterbox */
-bool boxenable
-<
-	string UIName = "UseBox";
-	string UIWidget = "Checkbox";
-> = {false};
-/* vertical factor */
-float boxv
-<
-	string UIName = "BoxVertical";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-	float UIMax = 1.0;
-> = {0.8};
 /* film grain */
 bool ne
 <
@@ -834,9 +743,24 @@ bool lutenable
 	string UIName = "EnableLUTGrading";
 	string UIWidget = "Checkbox";
 > = {false};
-float lutblend
+float lutblend_n
 <
-	string UIName = "LUTBlend";
+	string UIName = "LUTBlendNight";
+	string UIWidget = "Spinner";
+> = {1.0};
+float lutblend_d
+<
+	string UIName = "LUTBlendDay";
+	string UIWidget = "Spinner";
+> = {1.0};
+float lutblend_in
+<
+	string UIName = "LUTBlendInteriorNight";
+	string UIWidget = "Spinner";
+> = {1.0};
+float lutblend_id
+<
+	string UIName = "LUTBlendInteriorDay";
 	string UIWidget = "Spinner";
 > = {1.0};
 int clut

@@ -225,6 +225,8 @@ float3 GradingLUT( float3 res )
 	float3 tcl2 = tex2D(SamplerLUT,lc2);
 	tcol = lerp(tcl1,tcl2,dec);
 	tcol = (tcol-0.0625)/0.875;
+	float lutblend = lerp(lerp(lutblend_n,lutblend_d,tod),lerp(lutblend_in,
+		lutblend_id,tod),ind);
 	return lerp(res,tcol,lutblend);
 }
 /* classic ENB palette colour grading */
@@ -261,25 +263,6 @@ float3 Dither( float3 res, float2 coord )
 	else col += checkers[int(rcoord.x%2)+2*int(rcoord.y%2)]*dml-0.5*dml;
 	col = (trunc(col*256.0)/256.0);
 	return col;
-}
-/* darken borders */
-float3 Vignette( float3 res, float2 coord )
-{
-	float dkradius = lerp(lerp(dkradius_n,dkradius_d,tod),lerp(dkradius_in,
-		dkradius_id,tod),ind);
-	float dkbump = lerp(lerp(dkbump_n,dkbump_d,tod),lerp(dkbump_in,
-		dkbump_id,tod),ind);
-	float dkcurve = lerp(lerp(dkcurve_n,dkcurve_d,tod),lerp(dkcurve_in,
-		dkcurve_id,tod),ind);
-	float val = distance(coord,0.5)*2.0+dkradius;
-	val = saturate(val+dkbump);
-	return lerp(res,float3(0,0,0),pow(val,dkcurve));
-}
-/* letterbox filter */
-float3 Letterbox( float3 res, float2 coord )
-{
-	if ( abs(2.0*coord.y-1.0) > boxv ) return float3(0,0,0);
-	return res;
 }
 /* Fuzzy */
 float3 FilmGrain( float3 res, float2 coord )
@@ -353,8 +336,6 @@ float4 PS_Mari( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	if ( !tintbeforegrade && tintenable ) res.rgb = Tint(res.rgb);
 	if ( fadebeforefilm ) res.rgb = _r5.rgb*_r5.a + res.rgb*(1.0-_r5.a);
 	if ( ne ) res.rgb = FilmGrain(res.rgb,coord);
-	if ( dkenable ) res.rgb = Vignette(res.rgb,coord);
-	if ( boxenable ) res.rgb = Letterbox(res.rgb,coord);
 	if ( !fadebeforefilm ) res.rgb = _r5.rgb*_r5.a + res.rgb*(1.0-_r5.a);
 	if ( dodither ) res.rgb = Dither(res.rgb,coord);
 	res.rgb = max(0,res.rgb);
