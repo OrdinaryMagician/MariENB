@@ -191,8 +191,8 @@ float2 DistantHeat( float2 coord )
 	ofs *= pow(length(ofs),heatpow);
 	if ( !heatalways ) ofs *= todpow
 #ifndef FALLOUT
-		*(weatherfactor(WT_HOT)+weatherfactor(WT_HOT_FOG))
-		+(1.0-weatherfactor(WT_COLD)-weatherfactor(WT_COLD_FOG))
+		*max(0.0,(weatherfactor(WT_HOT)+weatherfactor(WT_HOT_FOG))
+		-(weatherfactor(WT_COLD)+weatherfactor(WT_COLD_FOG)))
 #endif
 		;
 	odep = tex2D(SamplerDepth,coord+ofs*heatstrength*distfade*0.01).x;
@@ -526,8 +526,8 @@ float2 ScreenFrost( float2 coord )
 	ofs *= pow(length(ofs),frostpow)*froststrength;
 	if ( !frostalways ) ofs *=
 #ifndef FALLOUT
-		weatherfactor(WT_COLD)+weatherfactor(WT_COLD_FOG)
-		+(1.0-weatherfactor(WT_HOT)-weatherfactor(WT_HOT_FOG))*
+		max(0.0,(weatherfactor(WT_COLD)+weatherfactor(WT_COLD_FOG))
+		-(weatherfactor(WT_HOT)+weatherfactor(WT_HOT_FOG)))*
 #endif
 		(1.0-ENightDayFactor)*frostnight;
 	if ( EInteriorFactor == 1.0 ) ofs *= frostind;
@@ -565,8 +565,9 @@ float4 PS_FrostPass( VS_OUTPUT_POST IN, float2 vPos : VPOS) : COLOR
 			1.0)*frostblend;
 		if ( !frostalways ) dist *=
 #ifndef FALLOUT
-			weatherfactor(WT_COLD)+weatherfactor(WT_COLD_FOG)
-			+(1.0-weatherfactor(WT_HOT)-weatherfactor(WT_HOT_FOG))*
+			max(0.0,(weatherfactor(WT_COLD)
+			+weatherfactor(WT_COLD_FOG))+(weatherfactor(WT_HOT)
+			+weatherfactor(WT_HOT_FOG)))*
 #endif
 			(1.0-ENightDayFactor)*frostnight;
 		if ( EInteriorFactor == 1.0 ) dist *= frostind;
