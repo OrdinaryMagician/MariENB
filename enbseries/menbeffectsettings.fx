@@ -708,6 +708,22 @@ float palblend
 <
 	string UIName = "Palette Blend";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {1.0};
+/* technicolor shader */
+string str_tech = "Technicolor";
+bool techenable
+<
+	string UIName = "Enable Technicolor";
+	string UIWidget = "Checkbox";
+> = {false};
+float techblend
+<
+	string UIName = "Technicolor Blend";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
 > = {1.0};
 string str_dither = "Dithering";
 bool dodither

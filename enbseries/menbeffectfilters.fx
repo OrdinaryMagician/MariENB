@@ -364,6 +364,16 @@ float3 GradingPal( float3 res )
 	palt.b = tex2D(_s7,coord).b;
 	return lerp(res,palt,palblend);
 }
+/* I think this Technicolor implementation is correct... maybe */
+float3 Technicolor( float3 res )
+{
+	res = clamp(res,0.0,1.0);
+	float red = 1.0-(res.r-(res.g+res.b)*0.5);
+	float green = 1.0-(res.g-(res.r+res.b)*0.5);
+	float blue = 1.0-(res.b-(res.r+res.g)*0.5);
+	float3 tint = float3(green*blue,red*blue,red*green)*res;
+	return lerp(res,res+0.5*(tint-res),techblend);
+}
 /* post-pass dithering, something apparently only my ENB does */
 float3 Dither( float3 res, float2 coord )
 {
@@ -455,6 +465,7 @@ float4 PS_Mari( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	else res.rgb += bcol;
 	if ( lutenable ) res.rgb = GradingLUT(res.rgb);
 	if ( palenable ) res.rgb = GradingPal(res.rgb);
+	if ( techenable ) res.rgb = Technicolor(res.rgb);
 	if ( ne ) res.rgb = FilmGrain(res.rgb,coord);
 #ifdef FALLOUT
 	res.rgb = _r5.rgb*_r5.a + res.rgb*(1.0-_r5.a);
