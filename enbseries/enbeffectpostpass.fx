@@ -6,6 +6,7 @@
 */
 #include "menbglobaldefs.fx"
 
+#ifdef WITH_SMAA
 /* new SMAA filter */
 string str_smaa = "SMAA";
 bool smaaenable
@@ -20,6 +21,7 @@ int smaadebug
 	int UIMin = 0;
 	int UIMax = 2;
 > = {0};
+#endif
 /* Depth-cutting chroma key */
 string str_mask = "Depth Chroma Key";
 bool maskenable
@@ -688,6 +690,7 @@ float4 PS_Cinematic( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	return res;
 }
 
+#ifdef WITH_SMAA
 /* begin SMAA integration code */
 
 Texture2D RenderTargetRGBA32;	// for edges
@@ -871,5 +874,45 @@ technique11 ExtraFilters8
 		SetPixelShader(CompileShader(ps_5_0,PS_Cinematic()));
 	}
 }
-
-
+#else
+technique11 ExtraFilters <string UIName="MariENB";>
+{
+	pass p0
+	{
+		SetVertexShader(CompileShader(vs_5_0,VS_PostProcess()));
+		SetPixelShader(CompileShader(ps_5_0,PS_Append()));
+	}
+}
+technique11 ExtraFilters1
+{
+	pass p0
+	{
+		SetVertexShader(CompileShader(vs_5_0,VS_PostProcess()));
+		SetPixelShader(CompileShader(ps_5_0,PS_LumaSharp()));
+	}
+}
+technique11 ExtraFilters2
+{
+	pass p0
+	{
+		SetVertexShader(CompileShader(vs_5_0,VS_PostProcess()));
+		SetPixelShader(CompileShader(ps_5_0,PS_ChromaKey()));
+	}
+}
+technique11 ExtraFilters3
+{
+	pass p0
+	{
+		SetVertexShader(CompileShader(vs_5_0,VS_PostProcess()));
+		SetPixelShader(CompileShader(ps_5_0,PS_Vignette()));
+	}
+}
+technique11 ExtraFilters4
+{
+	pass p0
+	{
+		SetVertexShader(CompileShader(vs_5_0,VS_PostProcess()));
+		SetPixelShader(CompileShader(ps_5_0,PS_Cinematic()));
+	}
+}
+#endif

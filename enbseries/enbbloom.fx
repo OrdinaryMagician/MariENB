@@ -273,18 +273,26 @@ float bloommixs
 	string UIWidget = "Spinner";
 > = {1.0};
 
+#ifndef HQBLOOM
 /* gaussian blur matrices */
 /* radius: 4, std dev: 1.5 */
 static const float gauss4[4] =
 {
 	0.270682, 0.216745, 0.111281, 0.036633
 };
+#define hvgauss gauss4
+#define hvgausssz 3
+#else
 /* radius: 8, std dev: 3 */
-/*static const float gauss8[8] =
+static const float gauss8[8] =
 {
 	0.134598, 0.127325, 0.107778, 0.081638,
 	0.055335, 0.033562, 0.018216, 0.008847
-};*/
+};
+#define hvgauss gauss8
+#define hvgausssz 7
+#endif
+#ifndef HQBLOOM
 /* radius: 20, std dev: 7.5 */
 static const float gauss20[20] =
 {
@@ -294,8 +302,11 @@ static const float gauss20[20] =
 	0.014928, 0.011953, 0.009403, 0.007266,
 	0.005516, 0.004114, 0.003014, 0.002169
 };
+#define angauss gauss20
+#define angausssz 19
+#else
 /* radius: 40, std dev: 15 */
-/*static const float gauss40[40] =
+static const float gauss40[40] =
 {
 	0.026823, 0.026763, 0.026585, 0.026291,
 	0.025886, 0.025373, 0.024760, 0.024055,
@@ -307,25 +318,10 @@ static const float gauss20[20] =
 	0.004697, 0.004139, 0.003630, 0.003170,
 	0.002756, 0.002385, 0.002055, 0.001763,
 	0.001506, 0.001280, 0.001084, 0.000913
-};*/
-/* radius: 80, std dev: 30 */
-/*static const float gauss80[80] =
-{
-	0.013406, 0.013398, 0.013376, 0.013339, 0.013287, 0.013221,
-	0.013140, 0.013046, 0.012938, 0.012816, 0.012681, 0.012534,
-	0.012375, 0.012205, 0.012023, 0.011831, 0.011629, 0.011417,
-	0.011198, 0.010970, 0.010735, 0.010493, 0.010245, 0.009992,
-	0.009735, 0.009473, 0.009209, 0.008941, 0.008672, 0.008402,
-	0.008131, 0.007860, 0.007590, 0.007321, 0.007053, 0.006788,
-	0.006525, 0.006266, 0.006010, 0.005759, 0.005511, 0.005269,
-	0.005031, 0.004799, 0.004573, 0.004352, 0.004138, 0.003929,
-	0.003727, 0.003532, 0.003343, 0.003160, 0.002985, 0.002816,
-	0.002653, 0.002497, 0.002348, 0.002205, 0.002068, 0.001938,
-	0.001814, 0.001696, 0.001584, 0.001478, 0.001377, 0.001282,
-	0.001192, 0.001107, 0.001027, 0.000952, 0.000881, 0.000815,
-	0.000753, 0.000694, 0.000640, 0.000589, 0.000542, 0.000497,
-	0.000456, 0.000418
-};*/
+};
+#define angauss gauss40
+#define angausssz 39
+#endif
 /* mathematical constants */
 static const float pi = 3.1415926535898;
 
@@ -457,11 +453,11 @@ float4 Anamorphic( float2 coord, Texture2D intex, float insz )
 	float sum = 0.0;
 	float inc = flen/insz;
 	float2 pp;
-	[unroll] for ( i=-19; i<=19; i++ )
+	[unroll] for ( i=-angausssz; i<=angausssz; i++ )
 	{
 		pp = coord+float2(i,0)*inc;
-		res += gauss20[abs(i)]*intex.Sample(Sampler,pp);
-		sum += ((pp.x>=0.0)&&(pp.x<1.0))?gauss20[abs(i)]:0.0;
+		res += angauss[abs(i)]*intex.Sample(Sampler,pp);
+		sum += ((pp.x>=0.0)&&(pp.x<1.0))?angauss[abs(i)]:0.0;
 	}
 	res *= 1.0/sum;
 	float3 flu = tod_ind(flu);
@@ -485,11 +481,11 @@ float4 PS_HorizontalBlur( VS_OUTPUT_POST IN, float4 v0 : SV_Position0,
 	float sum = 0.0;
 	float inc = bloomradiusx/insz;
 	float2 pp;
-	[unroll] for ( i=-3; i<=3; i++ )
+	[unroll] for ( i=-hvgausssz; i<=hvgausssz; i++ )
 	{
 		pp = coord+float2(i,0)*inc;
-		res += gauss4[abs(i)]*intex.Sample(Sampler,pp);
-		sum += ((pp.x>=0.0)&&(pp.x<1.0))?gauss4[abs(i)]:0.0;
+		res += hvgauss[abs(i)]*intex.Sample(Sampler,pp);
+		sum += ((pp.x>=0.0)&&(pp.x<1.0))?hvgauss[abs(i)]:0.0;
 	}
 	res *= 1.0/sum;
 	if ( alfenable ) res += Anamorphic(coord,intex,insz);
@@ -510,11 +506,11 @@ float4 PS_VerticalBlur( VS_OUTPUT_POST IN, float4 v0 : SV_Position0,
 	float sum = 0.0;
 	float inc = bloomradiusy/insz;
 	float2 pp;
-	[unroll] for ( i=-3; i<=3; i++ )
+	[unroll] for ( i=-hvgausssz; i<=hvgausssz; i++ )
 	{
 		pp = coord+float2(0,i)*inc;
-		res += gauss4[abs(i)]*intex.Sample(Sampler,pp);
-		sum += ((pp.y>=0.0)&&(pp.y<1.0))?gauss4[abs(i)]:0.0;
+		res += hvgauss[abs(i)]*intex.Sample(Sampler,pp);
+		sum += ((pp.y>=0.0)&&(pp.y<1.0))?hvgauss[abs(i)]:0.0;
 	}
 	res *= 1.0/sum;
 	float3 blu = tod_ind(blu);
