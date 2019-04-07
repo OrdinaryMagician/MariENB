@@ -1,226 +1,14 @@
 /*
-	menbextrasettings.fx : MariENB extra user-tweakable variables.
-	(C)2013-2015 Marisa Kirisame, UnSX Team.
-	Part of MariENB, the personal ENB of Marisa.
+	menbextrasettings.fx : MariENB 3 extra user-tweakable variables.
+	(C)2015 Marisa Kirisame, UnSX Team.
+	Part of MariENB, the personal ENB of Marisa for Fallout 4.
 	Released under the GNU GPLv3 (or later).
 */
-/* Border darkening */
-bool dkenable
-<
-	string UIName = "UseDark";
-	string UIWidget = "Checkbox";
-> = {false};
-/* radius of darkening (relative to screen width) */
-float dkradius_n
-<
-	string UIName = "DarkRadiusNight";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.25};
-float dkradius_d
-<
-	string UIName = "DarkRadiusDay";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.25};
-float dkradius_in
-<
-	string UIName = "DarkRadiusInteriorNight";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.25};
-float dkradius_id
-<
-	string UIName = "DarkRadiusInteriorDay";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.25};
-/* falloff of darkening */
-float dkcurve_n
-<
-	string UIName = "DarkCurveNight";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float dkcurve_d
-<
-	string UIName = "DarkCurveDay";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float dkcurve_in
-<
-	string UIName = "DarkCurveInteriorNight";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float dkcurve_id
-<
-	string UIName = "DarkCurveInteriorDay";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-/* bump of darkening */
-float dkbump_n
-<
-	string UIName = "DarkBumpNight";
-	string UIWidget = "Spinner";
-> = {-1.0};
-float dkbump_d
-<
-	string UIName = "DarkBumpDay";
-	string UIWidget = "Spinner";
-> = {-1.0};
-float dkbump_in
-<
-	string UIName = "DarkBumpInteriorNight";
-	string UIWidget = "Spinner";
-> = {-1.0};
-float dkbump_id
-<
-	string UIName = "DarkBumpInteriorDay";
-	string UIWidget = "Spinner";
-> = {-1.0};
-/* Letterbox */
-bool boxenable
-<
-	string UIName = "UseBox";
-	string UIWidget = "Checkbox";
-> = {false};
-/* vertical factor */
-float boxv
-<
-	string UIName = "BoxVertical";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-	float UIMax = 1.0;
-> = {0.80};
-/* film grain */
-bool ne
-<
-	string UIName = "UseGrain";
-	string UIWidget = "Checkbox";
-> = {false};
-/* speed of grain */
-float nf
-<
-	string UIName = "GrainFrequency";
-	string UIWidget = "Spinner";
-> = {2500.0};
-/* intensity of grain */
-float ni
-<
-	string UIName = "GrainIntensity";
-	string UIWidget = "Spinner";
-> = {0.05};
-/* saturation of grain */
-float ns
-<
-	string UIName = "GrainSaturation";
-	string UIWidget = "Spinner";
-> = {0.0};
-/* use two-pass grain (double the texture fetches, but looks less uniform) */
-bool np
-<
-	string UIName = "GrainTwoPass";
-	string UIWidget = "Checkbox";
-> = {true};
-/*
-   blending mode for grain:
-   0 -> normal
-   1 -> add
-   2 -> overlay
-   3 -> "dark mask", a personal invention
-*/
-int nb
-<
-	string UIName = "GrainBlend";
-	string UIWidget = "Spinner";
-	int UIMin = 0;
-	int UIMax = 3;
-> = {1};
-/* dark mask blend mode contrast for mask image */
-float bnp
-<
-	string UIName = "GrainDarkMaskPower";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-/* two-pass distortion factor (0 = look just like one-pass grain) */
-float nk
-<
-	string UIName = "GrainTwoPassFactor";
-	string UIWidget = "Spinner";
-> = {0.04};
-/* zoom factors for each component of each noise texture */
-float nm1
-<
-	string UIName = "GrainMagnification1";
-	string UIWidget = "Spinner";
-> = {13.25};
-float nm2
-<
-	string UIName = "GrainMagnification2";
-	string UIWidget = "Spinner";
-> = {19.64};
-float nm3
-<
-	string UIName = "GrainMagnification3";
-	string UIWidget = "Spinner";
-> = {17.35};
-float nm11
-<
-	string UIName = "GrainPass1Magnification1";
-	string UIWidget = "Spinner";
-> = {2.05};
-float nm12
-<
-	string UIName = "GrainPass1Magnification2";
-	string UIWidget = "Spinner";
-> = {3.11};
-float nm13
-<
-	string UIName = "GrainPass1Magnification3";
-	string UIWidget = "Spinner";
-> = {2.22};
-float nm21
-<
-	string UIName = "GrainPass2Magnification1";
-	string UIWidget = "Spinner";
-> = {4.25};
-float nm22
-<
-	string UIName = "GrainPass2Magnification2";
-	string UIWidget = "Spinner";
-> = {0.42};
-float nm23
-<
-	string UIName = "GrainPass2Magnification3";
-	string UIWidget = "Spinner";
-> = {6.29};
-/* contrast of grain */
-float nj
-<
-	string UIName = "GrainPower";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {2.5};
-/* use curvature + chromatic aberration filter */
-bool usecurve
-<
-	string UIName = "UseCurve";
-	string UIWidget = "Checkbox";
-> = {false};
-/* this is a stupid filter and you should feel bad for using it */
-float chromaab
-<
-	string UIName = "CurveChromaAberration";
-	string UIWidget = "Spinner";
-> = {0.05};
 /* BlockGFX filter, I'm proud of it */
+string str_block = "BlockGFX Suite";
 bool useblock
 <
-	string UIName = "UseBlockGFX";
+	string UIName = "Enable Block GFX";
 	string UIWidget = "Checkbox";
 > = {false};
 /*
@@ -231,47 +19,51 @@ bool useblock
 */
 float bresx
 <
-	string UIName = "EmulatedResX";
+	string UIName = "Emulated Resolution Width";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.5};
 float bresy
 <
-	string UIName = "EmulatedResY";
+	string UIName = "Emulated Resolution Height";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.5};
 /* zooming factors (<=0 for stretch) */
 float sresx
 <
-	string UIName = "ZoomedResX";
+	string UIName = "Zoom Factor X";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.0};
 float sresy
 <
-	string UIName = "ZoomedResY";
+	string UIName = "Zoom Factor Y";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.0};
 /*
    palette type:
+    -2 : Standard VGA 256-color palette
     -1 : disable
      0 : CGA (320x200 4-color, or 640x200 monochrome)
      1 : EGA (320x200, 16 colors)
      2 : RGB2 (64-color quarter VGA palette, used in AOS)
      3 : RGB323 (8-bit RGB, I don't think this was a real thing)
-     4 : RGB4 (4bpc, I also don't think this was ever used in real hardware)
-     5 : RGB565 (ol' 16-bit "true color")
-     6 : RGB6 (typical screens incapable of 8bpc)
+     4 : VGA (256 colors, standard palette)
+     5 : Doom (256 colors, does not cover a lot)
+     6 : Quake I (256 colors, covers even less)
+     7 : RGB4 (4bpc, I also don't think this was ever used in real hardware)
+     8 : RGB565 (ol' 16-bit "true color")
+     9 : RGB6 (typical screens incapable of 8bpc)
 */
 int paltype
 <
-	string UIName = "PaletteType";
+	string UIName = "Palette Type";
 	string UIWidget = "Spinner";
 	int UIMin = -1;
-	int UIMax = 6;
-> = {2};
+	int UIMax = 9;
+> = {1};
 /*
    CGA palette to use:
     0 : black, white.
@@ -284,7 +76,7 @@ int paltype
 */
 int cgapal
 <
-	string UIName = "CGAPalette";
+	string UIName = "CGA Palette";
 	string UIWidget = "Spinner";
 	int UIMin = 0;
 	int UIMax = 6;
@@ -296,7 +88,7 @@ int cgapal
 */
 int egapal
 <
-	string UIName = "EGAPalette";
+	string UIName = "EGA Palette";
 	string UIWidget = "Spinner";
 	int UIMin = 0;
 	int UIMax = 1;
@@ -312,7 +104,7 @@ int egapal
 */
 int dither
 <
-	string UIName = "DitherMode";
+	string UIName = "Dithering Pattern";
 	string UIWidget = "Spinner";
 	int UIMin = -1;
 	int UIMax = 4;
@@ -320,26 +112,178 @@ int dither
 /* gamma modifier for base color, lower values raise midtones and viceversa */
 float bgamma
 <
-	string UIName = "GammaMod";
+	string UIName = "Contrast Modifier";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
-> = {0.65};
+> = {0.35};
+/* saturation modifier for base color, helps with limited palettes */
+float bsaturation
+<
+	string UIName = "Saturation Modifier";
+	string UIWidget = "Spinner";
+> = {1.1};
 /* base brightness bump for the dither grid */
 float bdbump
 <
-	string UIName = "DitherBump";
+	string UIName = "Dither Offset";
 	string UIWidget = "Spinner";
 > = {-0.1};
 /* range multiplier for the dither grid */
 float bdmult
 <
-	string UIName = "DitherMultiplier";
+	string UIName = "Dither Range";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
-> = {0.3};
-/* saturation modifier for base color, helps with limited palettes */
-float bsaturation
+> = {0.25};
+/* ASCII art filter */
+string str_ascii = "Luma ASCII Art Filter";
+bool asciienable
 <
-	string UIName = "SaturationMod";
+	string UIName = "Enable ASCII";
+	string UIWidget = "Checkbox";
+> = {false};
+bool asciimono
+<
+	string UIName = "ASCII Monochrome";
+	string UIWidget = "Checkbox";
+> = {true};
+float asciiblend
+<
+	string UIName = "ASCII Blend";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {0.0};
+string str_mask = "Depth Chroma Key";
+bool maskenable
+<
+	string UIName = "Enable Chroma Key";
+	string UIWidget = "Checkbox";
+> = {false};
+float maskr
+<
+	string UIName = "Chroma Key Red";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {0.0};
+float maskg
+<
+	string UIName = "Chroma Key Green";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
 > = {1.0};
+float maskb
+<
+	string UIName = "Chroma Key Blue";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {0.0};
+float maskd
+<
+	string UIName = "Chroma Key Depth";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {0.5};
+string str_dot = "RGBI Dot Matrix";
+bool dotenable
+<
+	string UIName = "Enable Dot Matrix";
+	string UIWidget = "Checkbox";
+> = {false};
+int dotsize
+<
+	string UIName = "Dot Size";
+	string UIWidget = "Spinner";
+	int UIMin = 1;
+> = {1};
+float dotblend
+<
+	string UIName = "Dot Blend";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {0.4};
+float dotmult
+<
+	string UIName = "Dot Intensity";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float dotpow
+<
+	string UIName = "Dot Contrast";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+string str_curve = "Lens Curvature";
+bool curveenable
+<
+	string UIName = "Enable Curvature";
+	string UIWidget = "Checkbox";
+> = {false};
+float chromaab
+<
+	string UIName = "Curve Chromatic Aberration";
+	string UIWidget = "Spinner";
+> = {0.0};
+float lenszoom
+<
+	string UIName = "Curve Zooming";
+	string UIWidget = "Spinner";
+> = {50.0};
+float lensdist
+<
+	string UIName = "Curve Distortion";
+	string UIWidget = "Spinner";
+> = {0.0};
+float curvesoft
+<
+	string UIName = "Curve Sampling Soften";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {0.0};
+/* BlurSharpShift, some people are obsessed with this nonsense */
+string str_bss = "BlurSharpShift";
+bool bssblurenable
+<
+	string UIName = "Enable Blur";
+	string UIWidget = "Checkbox";
+> = {false};
+float bssblurradius
+<
+	string UIName = "Blur Sampling Range";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {0.25};
+bool bsssharpenable
+<
+	string UIName = "Enable Sharp";
+	string UIWidget = "Checkbox";
+> = {false};
+float bsssharpradius
+<
+	string UIName = "Sharp Sampling Range";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float bsssharpamount
+<
+	string UIName = "Sharpening Amount";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {6.0};
+bool bssshiftenable
+<
+	string UIName = "Enable Shift";
+	string UIWidget = "Checkbox";
+> = {false};
+float bssshiftradius
+<
+	string UIName = "Shift Sampling Range";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {0.75};

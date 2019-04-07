@@ -1,7 +1,7 @@
 /*
-	menbextrainternals.fx : MariENB extra internal variables.
-	(C)2013-2015 Marisa Kirisame, UnSX Team.
-	Part of MariENB, the personal ENB of Marisa.
+	menbextrainternals.fx : MariENB 3 extra internal variables.
+	(C)2015 Marisa Kirisame, UnSX Team.
+	Part of MariENB 3, the personal ENB of Marisa for Fallout 4.
 	Released under the GNU GPLv3 (or later).
 */
 /*
@@ -138,61 +138,84 @@ static const float3 aosega[16] =
 	float3(d(256),d(256),d(256)),
 };
 #undef d
+/* gauss stuff */
+float gauss3[3] =
+{
+	0.444814, 0.239936, 0.037657
+};
 /* standard stuff */
 float4 ScreenSize;
-float4 Timer;
-float ENightDayFactor;
-float EInteriorFactor;
+float4 Weather;
+float4 TimeOfDay1;
+float4 TimeOfDay2;
 /* samplers and textures */
-texture2D texColor;
-texture2D texNoise2
+Texture2D TextureColor;
+Texture2D TextureDepth;
+Texture2D TextureFont
 <
-	string ResourceName = "menbnoise1.png";
+	string ResourceName = "menbvgaluma.png";
 >;
-texture2D texNoise3
+Texture2D TextureDots
 <
-	string ResourceName = "menbnoise2.png";
+	string ResourceName = "menbdots.png";
 >;
-sampler2D SamplerColor = sampler_state
+Texture2D TextureDoom
+<
+	string ResourceName = "menbdoomlut.png";
+>;
+Texture2D TextureQuake
+<
+	string ResourceName = "menbquakelut.png";
+>;
+Texture2D TextureVGA
+<
+	string ResourceName = "menbvgalut.png";
+>;
+SamplerState Nearest
 {
-	Texture = <texColor>;
-	MinFilter = LINEAR;
-	MagFilter = LINEAR;
-	MipFilter = NONE;
-	AddressU = Mirror;
-	AddressV = Mirror;
-	SRGBTexture = FALSE;
-	MaxMipLevel = 0;
-	MipMapLodBias = 0;
+	Filter = MIN_MAG_MIP_POINT;
+	AddressU = Clamp;
+	AddressV = Clamp;
+	MaxLod = 0;
+	MipLodBias = 0;
 };
-sampler2D SamplerNoise2 = sampler_state
+SamplerState Linear
 {
-	Texture = <texNoise2>;
-	MinFilter = LINEAR;
-	MagFilter = POINT;
-	MipFilter = NONE;
+	Filter = MIN_MAG_MIP_LINEAR;
+	AddressU = Clamp;
+	AddressV = Clamp;
+	MaxLod = 0;
+	MipLodBias = 0;
+};
+SamplerState sBorder
+{
+	Filter = MIN_MAG_MIP_LINEAR;
+	AddressU = Border;
+	AddressV = Border;
+	BorderColor = float4(0.0,0.0,0.0,1.0);
+	MaxLod = 0;
+	MipLodBias = 0;
+};
+SamplerState sWrap
+{
+	Filter = MIN_MAG_MIP_LINEAR;
 	AddressU = Wrap;
 	AddressV = Wrap;
-	SRGBTexture = FALSE;
-	MaxMipLevel = 0;
-	MipMapLodBias = 0;
+	MaxLod = 0;
+	MipLodBias = 0;
 };
-sampler2D SamplerNoise3 = sampler_state
+SamplerState Font
 {
-	Texture = <texNoise3>;
-	MinFilter = LINEAR;
-	MagFilter = LINEAR;
-	MipFilter = NONE;
+	Filter = MIN_LINEAR_MAG_MIP_POINT;
 	AddressU = Wrap;
 	AddressV = Wrap;
-	SRGBTexture = FALSE;
-	MaxMipLevel = 0;
-	MipMapLodBias = 0;
+	MaxLod = 0;
+	MipLodBias = 0;
 };
 /* whatever */
 struct VS_OUTPUT_POST
 {
-	float4 vpos : POSITION;
+	float4 vpos : SV_POSITION;
 	float2 txcoord : TEXCOORD0;
 };
 struct VS_INPUT_POST

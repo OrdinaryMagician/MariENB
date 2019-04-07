@@ -1,491 +1,342 @@
 /*
-	menbeffectsettings.fx : MariENB base user-tweakable variables.
-	(C)2013-2015 Marisa Kirisame, UnSX Team.
-	Part of MariENB, the personal ENB of Marisa.
+	menbeffectsettings.fx : MariENB 3 base user-tweakable variables.
+	(C)2015 Marisa Kirisame, UnSX Team.
+	Part of MariENB 3, the personal ENB of Marisa for Fallout 4.
 	Released under the GNU GPLv3 (or later).
 */
-/* "adaptation" factors */
-bool aenable
+/* film grain */
+string str_noise = "Film Grain";
+bool ne
 <
-	string UIName = "UseAdaptation";
+	string UIName = "Enable Grain";
 	string UIWidget = "Checkbox";
 > = {false};
-float amin_n
+/* speed of grain */
+float nf
 <
-	string UIName = "AdaptationMinNight";
+	string UIName = "Grain Speed";
+	string UIWidget = "Spinner";
+> = {2500.0};
+/* intensity of grain */
+float ni
+<
+	string UIName = "Grain Intensity";
+	string UIWidget = "Spinner";
+> = {0.05};
+/* saturation of grain */
+float ns
+<
+	string UIName = "Grain Saturation";
 	string UIWidget = "Spinner";
 > = {0.0};
-float amin_d
+/* use two-pass grain (double the texture fetches, but looks less uniform) */
+bool np
 <
-	string UIName = "AdaptationMinDay";
+	string UIName = "Grain Two-Pass";
+	string UIWidget = "Checkbox";
+> = {true};
+/*
+   blending mode for grain:
+   0 -> normal
+   1 -> add
+   2 -> overlay
+   3 -> "dark mask", a personal invention
+*/
+int nb
+<
+	string UIName = "Grain Blending Mode";
 	string UIWidget = "Spinner";
-> = {0.0};
-float amin_in
+	int UIMin = 0;
+	int UIMax = 3;
+> = {1};
+/* dark mask blend mode contrast for mask image */
+float bnp
 <
-	string UIName = "AdaptationMinInteriorNight";
+	string UIName = "Grain Dark Mask Contrast";
 	string UIWidget = "Spinner";
-> = {0.0};
-float amin_id
+	float UIMin = 0.0;
+> = {2.5};
+/* two-pass distortion factor (0 = look just like one-pass grain) */
+float nk
 <
-	string UIName = "AdaptationMinInteriorDay";
+	string UIName = "Grain Two-Pass Factor";
 	string UIWidget = "Spinner";
-> = {0.0};
-float amax_n
+> = {0.04};
+/* zoom factors for each component of each noise texture */
+float nm1
 <
-	string UIName = "AdaptationMaxNight";
+	string UIName = "Grain Magnification 1";
+	string UIWidget = "Spinner";
+> = {13.25};
+float nm2
+<
+	string UIName = "Grain Magnification 2";
+	string UIWidget = "Spinner";
+> = {19.64};
+float nm3
+<
+	string UIName = "Grain Magnification 3";
+	string UIWidget = "Spinner";
+> = {17.35};
+float nm11
+<
+	string UIName = "Grain Pass 1 Magnification 1";
+	string UIWidget = "Spinner";
+> = {2.05};
+float nm12
+<
+	string UIName = "Grain Pass 1 Magnification 2";
+	string UIWidget = "Spinner";
+> = {3.11};
+float nm13
+<
+	string UIName = "Grain Pass 1 Magnification 3";
+	string UIWidget = "Spinner";
+> = {2.22};
+float nm21
+<
+	string UIName = "Grain Pass 2 Magnification 1";
+	string UIWidget = "Spinner";
+> = {4.25};
+float nm22
+<
+	string UIName = "Grain Pass 2 Magnification 2";
+	string UIWidget = "Spinner";
+> = {0.42};
+float nm23
+<
+	string UIName = "Grain Pass 2 Magnification 3";
+	string UIWidget = "Spinner";
+> = {6.29};
+/* contrast of grain */
+float nj
+<
+	string UIName = "Grain Contrast";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {2.0};
+/* tone mapping */
+string str_tonemap = "Filmic Tone Mapping";
+bool tmapenable
+<
+	string UIName = "Enable Tonemapping";
+	string UIWidget = "Checkbox";
+> = {false};
+float unA
+<
+	string UIName = "Tonemap Shoulder Strength";
+	string UIWidget = "Spinner";
+> = {0.5};
+float unB
+<
+	string UIName = "Tonemap Linear Strengtht";
 	string UIWidget = "Spinner";
 > = {1.0};
-float amax_d
+float unC
 <
-	string UIName = "AdaptationMaxDay";
+	string UIName = "Tonemap Linear Angle";
 	string UIWidget = "Spinner";
-> = {1.0};
-float amax_in
+> = {0.2};
+float unD
 <
-	string UIName = "AdaptationMaxInteriorNight";
+	string UIName = "Tonemap Toe Strengtht";
 	string UIWidget = "Spinner";
-> = {1.0};
-float amax_id
+> = {0.75};
+float unE
 <
-	string UIName = "AdaptationMaxInteriorDay";
+	string UIName = "Tonemap Toe Numerator";
 	string UIWidget = "Spinner";
-> = {1.0};
+> = {0.02};
+float unF
+<
+	string UIName = "Tonemap Toe Denominator";
+	string UIWidget = "Spinner";
+> = {0.30};
+float unW
+<
+	string UIName = "Tonemap Linear Whitet";
+	string UIWidget = "Spinner";
+> = {10.0};
+bool tmapbeforecomp
+<
+	string UIName = "Tonemap Before Compensate";
+	string UIWidget = "Checkbox";
+> = {false};
 /* overshine/bloom compensation */
+string str_comp = "Overbright Compensation";
 bool compenable
 <
-	string UIName = "UseCompensate";
+	string UIName = "Enable Compensate";
 	string UIWidget = "Checkbox";
 > = {false};
 /* compensation factor */
-float compfactor_n
+float compfactor
 <
-	string UIName = "CompensateFactorNight";
-	string UIWidget = "Spinner";
-> = {0.0};
-float compfactor_d
-<
-	string UIName = "CompensateFactorDay";
-	string UIWidget = "Spinner";
-> = {0.0};
-float compfactor_in
-<
-	string UIName = "CompensateFactorInteriorNight";
-	string UIWidget = "Spinner";
-> = {0.0};
-float compfactor_id
-<
-	string UIName = "CompensateFactorInteriorDay";
+	string UIName = "Compensate Factor";
 	string UIWidget = "Spinner";
 > = {0.0};
 /* compensation power (contrast) */
-float comppow_n
+float comppow
 <
-	string UIName = "CompensatePowerNight";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float comppow_d
-<
-	string UIName = "CompensatePowerDay";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float comppow_in
-<
-	string UIName = "CompensatePowerInteriorNight";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float comppow_id
-<
-	string UIName = "CompensatePowerInteriorDay";
+	string UIName = "Compensate Contrast";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
 /* compensation saturation (higher values desaturate highlights) */
-float compsat_n
+float compsat
 <
-	string UIName = "CompensateSaturationNight";
-	string UIWidget = "Spinner";
-> = {1.0};
-float compsat_d
-<
-	string UIName = "CompensateSaturationDay";
-	string UIWidget = "Spinner";
-> = {1.0};
-float compsat_in
-<
-	string UIName = "CompensateSaturationInteriorNight";
-	string UIWidget = "Spinner";
-> = {1.0};
-float compsat_id
-<
-	string UIName = "CompensateSaturationInteriorDay";
+	string UIName = "Compensate Saturationt";
 	string UIWidget = "Spinner";
 > = {1.0};
 /* Color grading */
+string str_grade = "Color Grading Suite";
 bool gradeenable1
 <
-	string UIName = "UseRGBGrading";
+	string UIName = "Enable RGB Grading";
 	string UIWidget = "Checkbox";
 > = {false};
 /* color component multipliers */
-float grademul_r_n
+float grademul_r
 <
-	string UIName = "GradingMulRNight";
+	string UIName = "Grading Intensity Red";
 	string UIWidget = "Spinner";
 > = {1.0};
-float grademul_g_n
+float grademul_g
 <
-	string UIName = "GradingMulGNight";
+	string UIName = "Grading Intensity Green";
 	string UIWidget = "Spinner";
 > = {1.0};
-float grademul_b_n
+float grademul_b
 <
-	string UIName = "GradingMulBNight";
-	string UIWidget = "Spinner";
-> = {1.0};
-float grademul_r_d
-<
-	string UIName = "GradingMulRDay";
-	string UIWidget = "Spinner";
-> = {1.0};
-float grademul_g_d
-<
-	string UIName = "GradingMulGDay";
-	string UIWidget = "Spinner";
-> = {1.0};
-float grademul_b_d
-<
-	string UIName = "GradingMulBDay";
-	string UIWidget = "Spinner";
-> = {1.0};
-float grademul_r_in
-<
-	string UIName = "GradingMulRInteriorNight";
-	string UIWidget = "Spinner";
-> = {1.0};
-float grademul_g_in
-<
-	string UIName = "GradingMulGInteriorNight";
-	string UIWidget = "Spinner";
-> = {1.0};
-float grademul_b_in
-<
-	string UIName = "GradingMulBInteriorNight";
-	string UIWidget = "Spinner";
-> = {1.0};
-float grademul_r_id
-<
-	string UIName = "GradingMulRInteriorDay";
-	string UIWidget = "Spinner";
-> = {1.0};
-float grademul_g_id
-<
-	string UIName = "GradingMulGInteriorDay";
-	string UIWidget = "Spinner";
-> = {1.0};
-float grademul_b_id
-<
-	string UIName = "GradingMulBInteriorDay";
+	string UIName = "Grading Intensity Blue";
 	string UIWidget = "Spinner";
 > = {1.0};
 /* color component contrasts */
-float gradepow_r_n
+float gradepow_r
 <
-	string UIName = "GradingPowRNight";
+	string UIName = "Grading Contrast Red";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
-float gradepow_g_n
+float gradepow_g
 <
-	string UIName = "GradingPowGNight";
+	string UIName = "Grading Contrast Green";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
-float gradepow_b_n
+float gradepow_b
 <
-	string UIName = "GradingPowBNight";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float gradepow_r_d
-<
-	string UIName = "GradingPowRDay";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float gradepow_g_d
-<
-	string UIName = "GradingPowGDay";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float gradepow_b_d
-<
-	string UIName = "GradingPowBDay";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float gradepow_r_in
-<
-	string UIName = "GradingPowRInteriorNight";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float gradepow_g_in
-<
-	string UIName = "GradingPowGInteriorNight";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float gradepow_b_in
-<
-	string UIName = "GradingPowBInteriorNight";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float gradepow_r_id
-<
-	string UIName = "GradingPowRInteriorDay";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float gradepow_g_id
-<
-	string UIName = "GradingPowGInteriorDay";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float gradepow_b_id
-<
-	string UIName = "GradingPowBInteriorDay";
+	string UIName = "Grading Contrast Blue";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
 /* colorization factors */
 bool gradeenable2
 <
-	string UIName = "UseColorizeGrading";
+	string UIName = "Enable Vibrance Grading";
 	string UIWidget = "Checkbox";
 > = {false};
-float gradecol_r_n
+float gradecol_r
 <
-	string UIName = "GradingColRNight";
+	string UIName = "Grading Color Red";
 	string UIWidget = "Spinner";
 > = {1.0};
-float gradecol_g_n
+float gradecol_g
 <
-	string UIName = "GradingColGNight";
+	string UIName = "Grading Color Green";
 	string UIWidget = "Spinner";
 > = {1.0};
-float gradecol_b_n
+float gradecol_b
 <
-	string UIName = "GradingColBNight";
-	string UIWidget = "Spinner";
-> = {1.0};
-float gradecol_r_d
-<
-	string UIName = "GradingColRDay";
-	string UIWidget = "Spinner";
-> = {1.0};
-float gradecol_g_d
-<
-	string UIName = "GradingColGDay";
-	string UIWidget = "Spinner";
-> = {1.0};
-float gradecol_b_d
-<
-	string UIName = "GradingColBDay";
-	string UIWidget = "Spinner";
-> = {1.0};
-float gradecol_r_in
-<
-	string UIName = "GradingColRInteriorNight";
-	string UIWidget = "Spinner";
-> = {1.0};
-float gradecol_g_in
-<
-	string UIName = "GradingColGInteriorNight";
-	string UIWidget = "Spinner";
-> = {1.0};
-float gradecol_b_in
-<
-	string UIName = "GradingColBInteriorNight";
-	string UIWidget = "Spinner";
-> = {1.0};
-float gradecol_r_id
-<
-	string UIName = "GradingColRInteriorDay";
-	string UIWidget = "Spinner";
-> = {1.0};
-float gradecol_g_id
-<
-	string UIName = "GradingColGInteriorDay";
-	string UIWidget = "Spinner";
-> = {1.0};
-float gradecol_b_id
-<
-	string UIName = "GradingColBInteriorDay";
+	string UIName = "Grading Color Blue";
 	string UIWidget = "Spinner";
 > = {1.0};
 /* blend factor for colorization (negative values are quite fancy) */
-float gradecolfact_n
+float gradecolfact
 <
-	string UIName = "GradingColFactorNight";
-	string UIWidget = "Spinner";
-> = {0.0};
-float gradecolfact_d
-<
-	string UIName = "GradingColFactorDay";
-	string UIWidget = "Spinner";
-> = {0.0};
-float gradecolfact_in
-<
-	string UIName = "GradingColFactorInteriorNight";
-	string UIWidget = "Spinner";
-> = {0.0};
-float gradecolfact_id
-<
-	string UIName = "GradingColFactorInteriorDay";
+	string UIName = "Grading Color Factor";
 	string UIWidget = "Spinner";
 > = {0.0};
 /* HSV grading */
 bool gradeenable3
 <
-	string UIName = "UseHSVGrading";
+	string UIName = "Enable HSV Grading";
 	string UIWidget = "Checkbox";
 > = {false};
 /* saturation multiplier */
-float gradesatmul_n
+float gradesatmul
 <
-	string UIName = "GradingSatMulNight";
-	string UIWidget = "Spinner";
-> = {1.0};
-float gradesatmul_d
-<
-	string UIName = "GradingSatMulDay";
-	string UIWidget = "Spinner";
-> = {1.0};
-float gradesatmul_in
-<
-	string UIName = "GradingSatMulInteriorNight";
-	string UIWidget = "Spinner";
-> = {1.0};
-float gradesatmul_id
-<
-	string UIName = "GradingSatMulInteriorDay";
+	string UIName = "Grading Saturation Intensity";
 	string UIWidget = "Spinner";
 > = {1.0};
 /* saturation power */
-float gradesatpow_n
+float gradesatpow
 <
-	string UIName = "GradingSatPowNight";
-	string UIWidget = "Spinner";
-> = {1.0};
-float gradesatpow_d
-<
-	string UIName = "GradingSatPowDay";
-	string UIWidget = "Spinner";
-> = {1.0};
-float gradesatpow_in
-<
-	string UIName = "GradingSatPowInteriorNight";
-	string UIWidget = "Spinner";
-> = {1.0};
-float gradesatpow_id
-<
-	string UIName = "GradingSatPowInteriorDay";
+	string UIName = "Grading Saturation Contrast";
 	string UIWidget = "Spinner";
 > = {1.0};
 /* value multiplier */
-float gradevalmul_n
+float gradevalmul
 <
-	string UIName = "GradingValMulNight";
-	string UIWidget = "Spinner";
-> = {1.0};
-float gradevalmul_d
-<
-	string UIName = "GradingValMulDay";
-	string UIWidget = "Spinner";
-> = {1.0};
-float gradevalmul_in
-<
-	string UIName = "GradingValMulInteriorNight";
-	string UIWidget = "Spinner";
-> = {1.0};
-float gradevalmul_id
-<
-	string UIName = "GradingValMulInteriorDay";
+	string UIName = "Grading Value Intensity";
 	string UIWidget = "Spinner";
 > = {1.0};
 /* value power */
-float gradevalpow_n
+float gradevalpow
 <
-	string UIName = "GradingValPowNight";
-	string UIWidget = "Spinner";
-> = {1.0};
-float gradevalpow_d
-<
-	string UIName = "GradingValPowDay";
-	string UIWidget = "Spinner";
-> = {1.0};
-float gradevalpow_in
-<
-	string UIName = "GradingValPowInteriorNight";
-	string UIWidget = "Spinner";
-> = {1.0};
-float gradevalpow_id
-<
-	string UIName = "GradingValPowInteriorDay";
+	string UIName = "Grading Value Contrast";
 	string UIWidget = "Spinner";
 > = {1.0};
 bool colorizeafterhsv
 <
-	string UIName = "ColorizeAfterHSV";
-	string UIWidget = "Checkbox";
-> = {false};
-/* game tinting support */
-bool tintenable
-<
-	string UIName = "UseTint";
+	string UIName = "Colorize After HSV";
 	string UIWidget = "Checkbox";
 > = {true};
-float tintblend
+/* vanilla imagespace support */
+string str_vanilla = "Vanilla Processing";
+bool vanillaenable
 <
-	string UIName = "TintingBlend";
+	string UIName = "Enable Vanilla Processing";
+	string UIWidget = "Checkbox";
+> = {true};
+float vanillablend
+<
+	string UIName = "Vanilla Blend";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 	float UIMax = 1.0;
 > = {1.0};
-bool tintbeforegrade
+/* LUT grading */
+string str_lut = "RGB Lookup Table Grading";
+bool lutenable
 <
-	string UIName = "TintingBeforeGrading";
+	string UIName = "Enable LUT Grading";
 	string UIWidget = "Checkbox";
 > = {false};
-/* vanilla grading */
-bool vgradeenable
+float lutblend
 <
-	string UIName = "EnableVanillaGrading";
+	string UIName = "LUT Blend";
+	string UIWidget = "Spinner";
+> = {1.0};
+#ifdef LUTMODE_LEGACY
+int clut
+<
+	string UIName = "LUT Preset";
+	string UIWidget = "Spinner";
+	int UIMin = 0;
+	int UIMax = 63;
+> = {1};
+#endif
+string str_dither = "Dithering";
+bool dodither
+<
+	string UIName = "Enable Post Dither";
 	string UIWidget = "Checkbox";
 > = {true};
-float vgradeblend
+int dither
 <
-	string UIName = "VanillaGradingBlend";
+	string UIName = "Dither Pattern";
 	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-	float UIMax = 1.0;
-> = {1.0};
-/* debug vanilla shader registers */
-bool regdebug
-<
-	string UIName = "DebugRegisters";
-	string UIWidget = "Checkbox";
-> = {false};
-/* scale of register bars */
-float regdebugscale
-<
-	string UIName = "DebugRegistersScale";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
+	int UIMin = 0;
+	int UIMax = 4;
+> = {4};
