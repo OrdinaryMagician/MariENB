@@ -75,7 +75,7 @@ float4 PS_BloomTexture1(VS_OUTPUT_POST In) : COLOR
 float4 PS_BloomTexture2(VS_OUTPUT_POST In) : COLOR
 {
 	float2 coord = In.txcoord0.xy;
-	float4 res = float4(0,0,0,0), base = tex2D(SamplerBloom1,coord);
+	float4 res = float4(0,0,0,0), base = tex2D(SamplerBloom5,coord);
 	int i;
 	[unroll] for ( i=-7; i<=7; i++ )
 		res += gauss8[abs(i)]*tex2D(SamplerBloom1,coord+float2(0,i)
@@ -87,10 +87,10 @@ float4 PS_BloomTexture2(VS_OUTPUT_POST In) : COLOR
 	float3 blu_id = float3(blu_id_r,blu_id_g,blu_id_b);
 	float3 blu = lerp(lerp(blu_n,blu_d,tod),lerp(blu_in,blu_id,tod),ind);
 	float bsi = lerp(lerp(bsi_n,bsi_d,tod),lerp(bsi_in,bsi_id,tod),ind);
-	float lm = max(0,luminance(res.rgb)-luminance(base.rgb))*10*bsi;
+	float lm = max(0,luminance(res.rgb)-luminance(base.rgb))*bsi;
 	lm = lm/(1.0+lm);
-	lm *= 1.0-saturate((TempParameters.w-1.0)*0.22);
-	blu = saturate(blu+(TempParameters.w-1.0)*0.33);
+	lm *= 1.0-saturate((TempParameters.w-1.0)*bslp);
+	blu = saturate(blu+(TempParameters.w-1.0)*bsbp);
 	res.rgb *= lerp(1.0,blu,lm);
 	res.a = 1.0;
 	return res;
@@ -100,7 +100,7 @@ float4 PS_AnamPass(VS_OUTPUT_POST In) : COLOR
 {
 	if ( !alfenable ) return float4(0,0,0,1);
 	float2 coord = In.txcoord0.xy;
-	float4 res = float4(0,0,0,0), base = tex2D(SamplerBloom1,coord);
+	float4 res = float4(0,0,0,0), base = tex2D(SamplerBloom5,coord);
 	int i;
 	[unroll] for ( i=-79; i<=79; i++ )
 		res += gauss80[abs(i)]*tex2D(SamplerBloom1,coord+float2(i,0)
@@ -112,7 +112,7 @@ float4 PS_AnamPass(VS_OUTPUT_POST In) : COLOR
 	float3 flu_id = float3(flu_id_r,flu_id_g,flu_id_b);
 	float3 flu = lerp(lerp(flu_n,flu_d,tod),lerp(flu_in,flu_id,tod),ind);
 	float fsi = lerp(lerp(fsi_n,fsi_d,tod),lerp(fsi_in,fsi_id,tod),ind);
-	float lm = max(0,luminance(res.rgb)-luminance(base.rgb))*10*fsi;
+	float lm = max(0,luminance(res.rgb)-luminance(base.rgb))*fsi;
 	lm = lm/(1.0+lm);
 	float fbl = lerp(lerp(fbl_n,fbl_d,tod),lerp(fbl_in,fbl_id,tod),ind);
 	float fpw = lerp(lerp(fpw_n,fpw_d,tod),lerp(fpw_in,fpw_id,tod),ind);

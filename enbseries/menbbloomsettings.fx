@@ -250,6 +250,18 @@ float bsi_id
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.5};
+float bslp
+<
+	string UIName = "BlueShiftLuminanceFactorPass";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {0.22};
+float bsbp
+<
+	string UIName = "BlueShiftColorFactorPass";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {0.33};
 /* anamorphic bloom (very intensive) */
 bool alfenable
 <
