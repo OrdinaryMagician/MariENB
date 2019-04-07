@@ -1,0 +1,11 @@
+/*
+	effect.txt : MariENB extra shader.
+	(C)2013-2017 Marisa Kirisame, UnSX Team.
+	Part of MariENB, the personal ENB of Marisa.
+	Released under the GNU GPLv3 (or later).
+*/
+/* separate for easier maintenance */
+#include "menbglobaldefs.fx"
+#include "menbextrasettings.fx"
+#include "menbextrainternals.fx"
+#include "menbextrafilters.fx"
