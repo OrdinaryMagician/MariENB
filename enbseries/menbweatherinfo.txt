@@ -1,3 +1,7 @@
+This is still a work in progress.
+Hopefully the classification will be ready by the time
+Fallout 4 ENB supports weathers.
+
 Fallout4
 
 15E	DefaultWeather				WARM
