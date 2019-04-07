@@ -624,7 +624,7 @@ float4 PS_PostPass( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 float4 PS_SPostPass( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 {
 	float2 coord = IN.txcoord0.xy;
-	float4 res = bloommixs*RenderTarget32.Sample(Sampler2,coord);
+	float4 res = bloommixs*RenderTarget128.Sample(Sampler2,coord);
 	res.rgb = clamp(res.rgb,0.0,32768.0);
 	res.a = 1.0;
 	if ( !dirtenable ) return res;
@@ -708,10 +708,27 @@ technique11 BloomSimplePass7
 	pass p0
 	{
 		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
+		SetPixelShader(CompileShader(ps_5_0,PS_HorizontalBlur(RenderTarget128,128.0)));
+	}
+}
+technique11 BloomSimplePass8 <string RenderTarget="RenderTarget128";>
+{
+	pass p0
+	{
+		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
+		SetPixelShader(CompileShader(ps_5_0,PS_VerticalBlur(TextureColor,128.0,3.0)));
+	}
+}
+
+technique11 BloomSimplePass9
+{
+	pass p0
+	{
+		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
 		SetPixelShader(CompileShader(ps_5_0,PS_HorizontalBlur(RenderTarget32,32.0)));
 	}
 }
-technique11 BloomSimplePass8 <string RenderTarget="RenderTarget32";>
+technique11 BloomSimplePass10 <string RenderTarget="RenderTarget32";>
 {
 	pass p0
 	{
@@ -720,7 +737,7 @@ technique11 BloomSimplePass8 <string RenderTarget="RenderTarget32";>
 	}
 }
 
-technique11 BloomSimplePass9
+technique11 BloomSimplePass11
 {
 	pass p0
 	{

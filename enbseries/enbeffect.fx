@@ -398,7 +398,11 @@ bool bloomdebug
 	string UIName = "Display Bloom";
 	string UIWidget = "Checkbox";
 > = {false};
-
+bool adaptdebug
+<
+	string UIName = "Display Adaptation";
+	string UIWidget = "Checkbox";
+> = {false};
 
 /*
    dithering threshold maps
@@ -753,7 +757,7 @@ float4 PS_Draw( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	/* Insert MariENB filters here */
 	float2 coord = IN.txcoord0.xy;
 	if ( bloomdebug	) res = TextureBloom.Sample(Sampler1,Params01[4].zw
-		*IN.txcoord0.xy)*ENBParams01.x;
+		*coord)*ENBParams01.x;
 	if ( tmapenable ) res.rgb = Tonemap(res.rgb);
 	if ( gradeenable1 ) res.rgb = GradingRGB(res.rgb);
 	if ( colorizeafterhsv )
@@ -768,6 +772,7 @@ float4 PS_Draw( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	}
 	if ( lutenable ) res.rgb = GradingLUT(res.rgb);
 	if ( ne ) res.rgb = FilmGrain(res.rgb,coord);
+	if ( adaptdebug	) res.rgb = TextureAdaptation.Sample(Sampler1,coord).x;
 	if ( dodither ) res.rgb = Dither(res.rgb,coord);
 	res.rgb = max(0,res.rgb);
 	res.a = 1.0;
