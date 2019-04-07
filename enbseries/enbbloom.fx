@@ -1,12 +1,12 @@
 /*
-	effect.txt : MariENB additional filters.
+	enbbloom.fx : MariENB bloom filter.
 	(C)2013-2014 Marisa Kirisame, UnSX Team.
 	Part of MariENB, the personal ENB of Marisa.
-	Released under the MIT License.
+	Released under the WTFPL.
 */
 /* do not touch this! */
 #define E_SHADER_3_0
 /* separate for easier maintenance */
-#include "menbsettings.fx"
-#include "menbinternals.fx"
-#include "menbfilters.fx"
+#include "menbbloomsettings.fx"
+#include "menbbloominternals.fx"
+#include "menbbloomfilters.fx"

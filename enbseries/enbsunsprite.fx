@@ -2,9 +2,9 @@
 	enbsunsprite.fx : MariENB sun sprite filters.
 	(C)2013-2014 Marisa Kirisame, UnSX Team.
 	Part of MariENB, the personal ENB of Marisa.
-	Released under the MIT License.
+	Released under the WTFPL.
 */
-/* Effects have yet to be implemented. Sorry for the inconvenience. */
+/* This shader intentionally does nothing */
 struct VS_OUTPUT_POST
 {
 	float4 vpos : POSITION;

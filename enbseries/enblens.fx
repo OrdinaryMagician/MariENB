@@ -2,9 +2,27 @@
 	enblens.fx : MariENB Lens filters.
 	(C)2013-2014 Marisa Kirisame, UnSX Team.
 	Part of MariENB, the personal ENB of Marisa.
-	Released under the MIT License.
+	Released under the WTFPL.
 */
-/* Effects have yet to be implemented. Sorry for the inconvenience. */
+/*
+   This shader left unimplemented. Development of the filter is a massive pain
+   in the ass thanks to the incompetence of a certain individual named Boris
+   Vorontsov and the major breakage of his ENB project.
+
+   Lots of blind debugging are necessary to get the goddamn thing to compile,
+   and from the looks of it the filter, which works flawlessly on MariEFX, is
+   completely unportable to this massive bag of dicks. After DAYS of
+   selectively commenting out code, the only way it can compile is if the
+   shader does NOTHING. For ever minor change to the code, five minutes of
+   waiting are needed so the entire thing recompiles! FIVE MINUTES! Just how
+   can you fuck up that badly? By comparison eFX takes mere seconds to reload
+   everything on the considerably more complex MariEFX project, but this... I
+   can't imagine what awful programming resulted in such a terrible bottleneck.
+
+   tl;dr: Fuck you, Boris.
+
+     -- Marisa
+*/
 struct VS_OUTPUT_POST
 {
 	float4 vpos : POSITION;
