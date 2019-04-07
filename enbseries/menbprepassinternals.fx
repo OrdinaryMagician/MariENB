@@ -71,10 +71,6 @@ float ENightDayFactor;
 float EInteriorFactor;
 float FadeFactor;
 float4 Timer;
-float FieldOfView;
-float4 WeatherAndTime;
-/* this still doesn't do anything */
-extern float fWaterLevel;
 /* samplers and textures */
 texture2D texColor;
 texture2D texDepth;
@@ -88,22 +84,6 @@ texture2D texHeat
 	string ResourceName = "menbheat.dds";
 #else
 	string ResourceName = "menbheat.png";
-#endif
->;
-texture2D texFrost
-<
-#ifdef FROST_DDS
-	string ResourceName = "menbfrost.dds";
-#else
-	string ResourceName = "menbfrost.png";
-#endif
->;
-texture2D texFrostBump
-<
-#ifdef FROSTBUMP_DDS
-	string ResourceName = "menbfrostbump.dds";
-#else
-	string ResourceName = "menbfrostbump.png";
 #endif
 >;
 texture2D texFocus;
@@ -148,30 +128,6 @@ sampler2D SamplerNoise3 = sampler_state
 sampler2D SamplerHeat = sampler_state
 {
 	Texture = <texHeat>;
-	MinFilter = LINEAR;
-	MagFilter = LINEAR;
-	MipFilter = NONE;
-	AddressU = Wrap;
-	AddressV = Wrap;
-	SRGBTexture = FALSE;
-	MaxMipLevel = 0;
-	MipMapLodBias = 0;
-};
-sampler2D SamplerFrost = sampler_state
-{
-	Texture = <texFrost>;
-	MinFilter = LINEAR;
-	MagFilter = LINEAR;
-	MipFilter = NONE;
-	AddressU = Wrap;
-	AddressV = Wrap;
-	SRGBTexture = FALSE;
-	MaxMipLevel = 0;
-	MipMapLodBias = 0;
-};
-sampler2D SamplerFrostBump = sampler_state
-{
-	Texture = <texFrostBump>;
 	MinFilter = LINEAR;
 	MagFilter = LINEAR;
 	MipFilter = NONE;

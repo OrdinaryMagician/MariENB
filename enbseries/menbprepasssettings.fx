@@ -43,76 +43,6 @@ float distcha
 	string UIName = "Distortion Chromatic Aberration";
 	string UIWidget = "Spinner";
 > = {10.0};
-bool waterenable
-<
-	string UIName = "Enable Underwater";
-	string UIWidget = "Checkbox";
-> = {false};
-float uwm1
-<
-	string UIName = "Underwater Frequency 1";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.4};
-float uwm2
-<
-	string UIName = "Underwater Frequency 2";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.6};
-float uwm3
-<
-	string UIName = "Underwater Frequency 3";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.4};
-float uwf1
-<
-	string UIName = "Underwater Speed 1";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {10.0};
-float uwf2
-<
-	string UIName = "Underwater Speed 2";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {8.0};
-float uwf3
-<
-	string UIName = "Underwater Speed 3";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {16.0};
-float uws1
-<
-	string UIName = "Underwater Amplitude 1";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.3};
-float uws2
-<
-	string UIName = "Underwater Amplitude 2";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.5};
-float uws3
-<
-	string UIName = "Underwater Amplitude 3";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.8};
-float uwz
-<
-	string UIName = "Underwater Zoom";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.5};
-bool wateralways
-<
-	string UIName = "Always Underwater";
-	string UIWidget = "Checkbox";
-> = {false};
 bool heatenable
 <
 	string UIName = "Enable Hot Air Refraction";
@@ -169,98 +99,11 @@ float heatfactor_d
 	string UIName = "Heat Factor Day";
 	string UIWidget = "Spinner";
 > = {1.0};
-float heatfactor_in
+float heatfactor_i
 <
-	string UIName = "Heat Factor Interior Night";
+	string UIName = "Heat Factor Interior";
 	string UIWidget = "Spinner";
 > = {1.0};
-float heatfactor_id
-<
-	string UIName = "Heat Factor Interior Day";
-	string UIWidget = "Spinner";
-> = {1.0};
-bool heatalways
-<
-	string UIName = "Heat Always Enable";
-	string UIWidget = "Checkbox";
-> = {false};
-bool frostenable
-<
-	string UIName = "Enable Screen Frost";
-	string UIWidget = "Checkbox";
-> = {false};
-float frostpow
-<
-	string UIName = "Frost Contrast";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float froststrength
-<
-	string UIName = "Frost Strength";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float frostrpow
-<
-	string UIName = "Frost Radial Contrast";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float frostrmult
-<
-	string UIName = "Frost Radial Intensity";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float frostrbump
-<
-	string UIName = "Frost Radial Offset";
-	string UIWidget = "Spinner";
-> = {0.0};
-float frostblend
-<
-	string UIName = "Frost Texture Blend";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float frostbpow
-<
-	string UIName = "Frost Texture Blend Contrast";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float frostsize
-<
-	string UIName = "Frost Texture Size";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float frostfactor_n
-<
-	string UIName = "Frost Factor Night";
-	string UIWidget = "Spinner";
-> = {1.0};
-float frostfactor_d
-<
-	string UIName = "Frost Factor Day";
-	string UIWidget = "Spinner";
-> = {1.0};
-float frostfactor_in
-<
-	string UIName = "Frost Factor Interior Night";
-	string UIWidget = "Spinner";
-> = {1.0};
-float frostfactor_id
-<
-	string UIName = "Frost Factor Interior Day";
-	string UIWidget = "Spinner";
-> = {1.0};
-bool frostalways
-<
-	string UIName = "Frost Always Enable";
-	string UIWidget = "Checkbox";
-> = {false};
 string str_focus = "Focusing Parameters";
 /*
    focus modes:
@@ -324,14 +167,9 @@ float focusradius_d
 	string UIName = "Focus Triangle Radius Day";
 	string UIWidget = "Spinner";
 > = {20.0};
-float focusradius_in
+float focusradius_i
 <
-	string UIName = "Focus Triangle Radius Interior Night";
-	string UIWidget = "Spinner";
-> = {20.0};
-float focusradius_id
-<
-	string UIName = "Focus Triangle Radius Interior Day";
+	string UIName = "Focus Triangle Radius Interior";
 	string UIWidget = "Spinner";
 > = {20.0};
 /* mix factor with sample at screen center */
@@ -345,14 +183,9 @@ float focusmix_d
 	string UIName = "Focus Triangle Blending Day";
 	string UIWidget = "Spinner";
 > = {0.5};
-float focusmix_in
+float focusmix_i
 <
-	string UIName = "Focus Triangle Blending Interior Night";
-	string UIWidget = "Spinner";
-> = {0.5};
-float focusmix_id
-<
-	string UIName = "Focus Triangle Blending Interior Day";
+	string UIName = "Focus Triangle Blending Interior";
 	string UIWidget = "Spinner";
 > = {0.5};
 /* maximum focus depth */
@@ -366,14 +199,9 @@ float focusmax_d
 	string UIName = "Focus Maximum Depth Day";
 	string UIWidget = "Spinner";
 > = {1000.0};
-float focusmax_in
+float focusmax_i
 <
-	string UIName = "Focus Maximum Depth Interior Night";
-	string UIWidget = "Spinner";
-> = {1000.0};
-float focusmax_id
-<
-	string UIName = "Focus Maximum Depth Interior Day";
+	string UIName = "Focus Maximum Depth Interior";
 	string UIWidget = "Spinner";
 > = {1000.0};
 /* dof filter */
@@ -391,15 +219,9 @@ float dofmult_d
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {500.0};
-float dofmult_in
+float dofmult_i
 <
-	string UIName = "DOF Intensity Interior Night";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {500.0};
-float dofmult_id
-<
-	string UIName = "DOF Intensity Interior Day";
+	string UIName = "DOF Intensity Interior";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {500.0};
@@ -416,15 +238,9 @@ float dofpow_d
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {4.0};
-float dofpow_in
+float dofpow_i
 <
-	string UIName = "DOF Contrast Interior Night";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {4.0};
-float dofpow_id
-<
-	string UIName = "DOF Contrast Interior Day";
+	string UIName = "DOF Contrast Interior";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {4.0};
@@ -439,14 +255,9 @@ float dofbump_d
 	string UIName = "DOF Shift Day";
 	string UIWidget = "Spinner";
 > = {0.0};
-float dofbump_in
+float dofbump_i
 <
-	string UIName = "DOF Shift Interior Night";
-	string UIWidget = "Spinner";
-> = {0.0};
-float dofbump_id
-<
-	string UIName = "DOF Shift Interior Day";
+	string UIName = "DOF Shift Interior";
 	string UIWidget = "Spinner";
 > = {0.0};
 /* fixed focused depth factors */
@@ -462,15 +273,9 @@ float doffixedfocusmult_d
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
-float doffixedfocusmult_in
+float doffixedfocusmult_i
 <
-	string UIName = "DOF Fixed Focus Intensity Interior Night";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float doffixedfocusmult_id
-<
-	string UIName = "DOF Fixed Focus Intensity Interior Day";
+	string UIName = "DOF Fixed Focus Intensity Interior";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
@@ -486,15 +291,9 @@ float doffixedfocuspow_d
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
-float doffixedfocuspow_in
+float doffixedfocuspow_i
 <
-	string UIName = "DOF Fixed Focus Contrast Interior Night";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float doffixedfocuspow_id
-<
-	string UIName = "DOF Fixed Focus Contrast Interior Day";
+	string UIName = "DOF Fixed Focus Contrast Interior";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
@@ -508,14 +307,9 @@ float doffixedfocusbump_d
 	string UIName = "DOF Fixed Focus Shift Day";
 	string UIWidget = "Spinner";
 > = {0.0};
-float doffixedfocusbump_in
+float doffixedfocusbump_i
 <
-	string UIName = "DOF Fixed Focus Shift Interior Night";
-	string UIWidget = "Spinner";
-> = {0.0};
-float doffixedfocusbump_id
-<
-	string UIName = "DOF Fixed Focus Shift Interior Day";
+	string UIName = "DOF Fixed Focus Shift Interior";
 	string UIWidget = "Spinner";
 > = {0.0};
 float doffixedfocusblend_n
@@ -530,15 +324,9 @@ float doffixedfocusblend_d
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.0};
-float doffixedfocusblend_in
+float doffixedfocusblend_i
 <
-	string UIName = "DOF Fixed Focus Blend Interior Night";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.0};
-float doffixedfocusblend_id
-<
-	string UIName = "DOF Fixed Focus Blend Interior Day";
+	string UIName = "DOF Fixed Focus Blend Interior";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.0};
@@ -569,15 +357,9 @@ float doffixedunfocusmult_d
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {2.0};
-float doffixedunfocusmult_in
+float doffixedunfocusmult_i
 <
-	string UIName = "DOF Fixed Unfocus Intensity Interior Night";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {2.0};
-float doffixedunfocusmult_id
-<
-	string UIName = "DOF Fixed Unfocus Intensity Interior Day";
+	string UIName = "DOF Fixed Unfocus Intensity Interior";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {2.0};
@@ -593,15 +375,9 @@ float doffixedunfocuspow_d
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1000.0};
-float doffixedunfocuspow_in
+float doffixedunfocuspow_i
 <
-	string UIName = "DOF Fixed Unfocus Contrast Interior Night";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1000.0};
-float doffixedunfocuspow_id
-<
-	string UIName = "DOF Fixed Unfocus Contrast Interior Day";
+	string UIName = "DOF Fixed Unfocus Contrast Interior";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1000.0};
@@ -615,14 +391,9 @@ float doffixedunfocusbump_d
 	string UIName = "DOF Fixed Unfocus Shift Day";
 	string UIWidget = "Spinner";
 > = {0.0};
-float doffixedunfocusbump_in
+float doffixedunfocusbump_i
 <
-	string UIName = "DOF Fixed Unfocus Shift Interior Night";
-	string UIWidget = "Spinner";
-> = {0.0};
-float doffixedunfocusbump_id
-<
-	string UIName = "DOF Fixed Unfocus Shift Interior Day";
+	string UIName = "DOF Fixed Unfocus Shift Interior";
 	string UIWidget = "Spinner";
 > = {0.0};
 float doffixedunfocusblend_n
@@ -637,15 +408,9 @@ float doffixedunfocusblend_d
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.0};
-float doffixedunfocusblend_in
+float doffixedunfocusblend_i
 <
-	string UIName = "DOF Fixed Unfocus Blend Interior Night";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.0};
-float doffixedunfocusblend_id
-<
-	string UIName = "DOF Fixed Unfocus Blend Interior Day";
+	string UIName = "DOF Fixed Unfocus Blend Interior";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.0};
@@ -662,113 +427,6 @@ bool doffixedcut
 	string UIName = "DOF Fixed Use Cutoff";
 	string UIWidget = "Checkbox";
 > = {true};
-#ifndef FALLOUT
-/* fixed dof for foggy weathers */
-bool doffogenable
-<
-	string UIName = "Enable DOF Fog";
-	string UIWidget = "Checkbox";
-> = {true};
-float doffogmult_n
-<
-	string UIName = "DOF Fog Intensity Night";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {2.0};
-float doffogmult_d
-<
-	string UIName = "DOF Fog Intensity Day";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {2.0};
-float doffogmult_in
-<
-	string UIName = "DOF Fog Intensity Interior Night";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {2.0};
-float doffogmult_id
-<
-	string UIName = "DOF Fog Intensity Interior Day";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {2.0};
-float doffogpow_n
-<
-	string UIName = "DOF Fog Contrast Night";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1000.0};
-float doffogpow_d
-<
-	string UIName = "DOF Fog Contrast Day";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1000.0};
-float doffogpow_in
-<
-	string UIName = "DOF Fog Contrast Interior Night";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1000.0};
-float doffogpow_id
-<
-	string UIName = "DOF Fog Contrast Interior Day";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1000.0};
-float doffogbump_n
-<
-	string UIName = "DOF Fog Shift Night";
-	string UIWidget = "Spinner";
-> = {0.0};
-float doffogbump_d
-<
-	string UIName = "DOF Fog Shift Day";
-	string UIWidget = "Spinner";
-> = {0.0};
-float doffogbump_in
-<
-	string UIName = "DOF Fog Shift Interior Night";
-	string UIWidget = "Spinner";
-> = {0.0};
-float doffogbump_id
-<
-	string UIName = "DOF Fog Shift Interior Day";
-	string UIWidget = "Spinner";
-> = {0.0};
-float doffogblend_n
-<
-	string UIName = "DOF Fog Blend Night";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.0};
-float doffogblend_d
-<
-	string UIName = "DOF Fog Blend Day";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.0};
-float doffogblend_in
-<
-	string UIName = "DOF Fog Blend Interior Night";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.0};
-float doffogblend_id
-<
-	string UIName = "DOF Fog Blend Interior Day";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.0};
-float doffogdepth
-<
-	string UIName = "DOF Fog Depth";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-	float UIMax = 1.0;
-> = {0.0};
-#endif
 /* disable depth of field */
 bool dofdisable
 <
@@ -837,40 +495,6 @@ float dofbnoise
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.01};
-#ifndef FALLOUT
-bool dofrelfov
-<
-	string UIName = "DOF Relative to FOV";
-	string UIWidget = "Checkbox";
-> = {true};
-float fovdefault
-<
-	string UIName = "Default FOV";
-	string UIWidget = "Spinner";
-	float UIMin = 1.0;
-	float UIMax = 180.0;
-> = {75.0};
-float relfovfactor_n
-<
-	string UIName = "DOF Relative Factor Night";
-	string UIWidget = "Spinner";
-> = {2.0};
-float relfovfactor_d
-<
-	string UIName = "DOF Relative Factor Day";
-	string UIWidget = "Spinner";
-> = {2.0};
-float relfovfactor_in
-<
-	string UIName = "DOF Relative Factor Interior Night";
-	string UIWidget = "Spinner";
-> = {2.0};
-float relfovfactor_id
-<
-	string UIName = "DOF Relative Factor Interior Day";
-	string UIWidget = "Spinner";
-> = {2.0};
-#endif
 /* tilting */
 float doftiltxcenter
 <
@@ -934,15 +558,9 @@ float edgevfadepow_d
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {2.0};
-float edgevfadepow_in
+float edgevfadepow_i
 <
-	string UIName = "Edgevision Fade Contrast Interior Night";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {2.0};
-float edgevfadepow_id
-<
-	string UIName = "Edgevision Fade Contrast Interior Day";
+	string UIName = "Edgevision Fade Contrast Interior";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {2.0};
@@ -958,15 +576,9 @@ float edgevfademult_d
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {500.0};
-float edgevfademult_in
+float edgevfademult_i
 <
-	string UIName = "Edgevision Fade Intensity Interior Night";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {500.0};
-float edgevfademult_id
-<
-	string UIName = "Edgevision Fade Intensity Interior Day";
+	string UIName = "Edgevision Fade Intensity Interior";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {500.0};
@@ -1019,15 +631,9 @@ float ssaofadepow_d
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.05};
-float ssaofadepow_in
+float ssaofadepow_i
 <
-	string UIName = "SSAO Fade Contrast Interior Night";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.05};
-float ssaofadepow_id
-<
-	string UIName = "SSAO Fade Contrast Interior Day";
+	string UIName = "SSAO Fade Contrast Interior";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.05};
@@ -1043,15 +649,9 @@ float ssaofademult_d
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
-float ssaofademult_in
+float ssaofademult_i
 <
-	string UIName = "SSAO Fade Intensity Interior Night";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float ssaofademult_id
-<
-	string UIName = "SSAO Fade Intensity Interior Day";
+	string UIName = "SSAO Fade Intensity Interior";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
@@ -1152,15 +752,9 @@ float dgradedpow_d
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
-float dgradedpow_in
+float dgradedpow_i
 <
-	string UIName = "Depth Grading Contrast Interior Night";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float dgradedpow_id
-<
-	string UIName = "Depth Grading Contrast Interior Day";
+	string UIName = "Depth Grading Contrast Interior";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
@@ -1176,15 +770,9 @@ float dgradedmul_d
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
-float dgradedmul_in
+float dgradedmul_i
 <
-	string UIName = "Depth Grading Intensity Interior Night";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float dgradedmul_id
-<
-	string UIName = "Depth Grading Intensity Interior Day";
+	string UIName = "Depth Grading Intensity Interior";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
@@ -1198,14 +786,9 @@ float dgradedbump_d
 	string UIName = "Depth Grading Shift Day";
 	string UIWidget = "Spinner";
 > = {0.0};
-float dgradedbump_in
+float dgradedbump_i
 <
-	string UIName = "Depth Grading Shift Interior Night";
-	string UIWidget = "Spinner";
-> = {0.0};
-float dgradedbump_id
-<
-	string UIName = "Depth Grading Shift Interior Day";
+	string UIName = "Depth Grading Shift Interior";
 	string UIWidget = "Spinner";
 > = {0.0};
 float dgradedblend_n
@@ -1222,16 +805,9 @@ float dgradedblend_d
 	float UIMin = 0.0;
 	float UIMax = 1.0;
 > = {1.0};
-float dgradedblend_in
+float dgradedblend_i
 <
-	string UIName = "Depth Grading Blend Interior Night";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-	float UIMax = 1.0;
-> = {1.0};
-float dgradedblend_id
-<
-	string UIName = "Depth Grading Blend Interior Day";
+	string UIName = "Depth Grading Blend Interior";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 	float UIMax = 1.0;
@@ -1272,34 +848,19 @@ float dgrademul_b_d
 	string UIName = "Grading Intensity Day Blue";
 	string UIWidget = "Spinner";
 > = {1.0};
-float dgrademul_r_in
+float dgrademul_r_i
 <
-	string UIName = "Grading Intensity Interior Night Red";
+	string UIName = "Grading Intensity Interior Red";
 	string UIWidget = "Spinner";
 > = {1.0};
-float dgrademul_g_in
+float dgrademul_g_i
 <
-	string UIName = "Grading Intensity Interior Night Green";
+	string UIName = "Grading Intensity Interior Green";
 	string UIWidget = "Spinner";
 > = {1.0};
-float dgrademul_b_in
+float dgrademul_b_i
 <
-	string UIName = "Grading Intensity Interior Night Blue";
-	string UIWidget = "Spinner";
-> = {1.0};
-float dgrademul_r_id
-<
-	string UIName = "Grading Intensity Interior Day Red";
-	string UIWidget = "Spinner";
-> = {1.0};
-float dgrademul_g_id
-<
-	string UIName = "Grading Intensity Interior Day Green";
-	string UIWidget = "Spinner";
-> = {1.0};
-float dgrademul_b_id
-<
-	string UIName = "Grading Intensity Interior Day Blue";
+	string UIName = "Grading Intensity Interior Blue";
 	string UIWidget = "Spinner";
 > = {1.0};
 /* color component contrasts */
@@ -1339,39 +900,21 @@ float dgradepow_b_d
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
-float dgradepow_r_in
+float dgradepow_r_i
 <
-	string UIName = "Grading Contrast Interior Night Red";
+	string UIName = "Grading Contrast Interior Red";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
-float dgradepow_g_in
+float dgradepow_g_i
 <
-	string UIName = "Grading Contrast Interior Night Green";
+	string UIName = "Grading Contrast Interior Green";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
-float dgradepow_b_in
+float dgradepow_b_i
 <
-	string UIName = "Grading Contrast Interior Night Blue";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float dgradepow_r_id
-<
-	string UIName = "Grading Contrast Interior Day Red";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float dgradepow_g_id
-<
-	string UIName = "Grading Contrast Interior Day Green";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float dgradepow_b_id
-<
-	string UIName = "Grading Contrast Interior Day Blue";
+	string UIName = "Grading Contrast Interior Blue";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
@@ -1411,34 +954,19 @@ float dgradecol_b_d
 	string UIName = "Grading Color Day Blue";
 	string UIWidget = "Spinner";
 > = {1.0};
-float dgradecol_r_in
+float dgradecol_r_i
 <
-	string UIName = "Grading Color Interior Night Red";
+	string UIName = "Grading Color Interior Red";
 	string UIWidget = "Spinner";
 > = {1.0};
-float dgradecol_g_in
+float dgradecol_g_i
 <
-	string UIName = "Grading Color Interior Night Green";
+	string UIName = "Grading Color Interior Green";
 	string UIWidget = "Spinner";
 > = {1.0};
-float dgradecol_b_in
+float dgradecol_b_i
 <
-	string UIName = "Grading Color Interior Night Blue";
-	string UIWidget = "Spinner";
-> = {1.0};
-float dgradecol_r_id
-<
-	string UIName = "Grading Color Interior Day Red";
-	string UIWidget = "Spinner";
-> = {1.0};
-float dgradecol_g_id
-<
-	string UIName = "Grading Color Interior Day Green";
-	string UIWidget = "Spinner";
-> = {1.0};
-float dgradecol_b_id
-<
-	string UIName = "Grading Color Interior Day Blue";
+	string UIName = "Grading Color Interior Blue";
 	string UIWidget = "Spinner";
 > = {1.0};
 /* blend factor for colorization (negative values are quite fancy) */
@@ -1452,14 +980,9 @@ float dgradecolfact_d
 	string UIName = "Grading Color Factor Day";
 	string UIWidget = "Spinner";
 > = {0.0};
-float dgradecolfact_in
+float dgradecolfact_i
 <
-	string UIName = "Grading Color Factor Interior Night";
-	string UIWidget = "Spinner";
-> = {0.0};
-float dgradecolfact_id
-<
-	string UIName = "Grading Color Factor Interior Day";
+	string UIName = "Grading Color Factor Interior";
 	string UIWidget = "Spinner";
 > = {0.0};
 /* HSV grading */
@@ -1479,14 +1002,9 @@ float dgradesatmul_d
 	string UIName = "Grading Saturation Intensity Day";
 	string UIWidget = "Spinner";
 > = {1.0};
-float dgradesatmul_in
+float dgradesatmul_i
 <
-	string UIName = "Grading Saturation Intensity Interior Night";
-	string UIWidget = "Spinner";
-> = {1.0};
-float dgradesatmul_id
-<
-	string UIName = "Grading Saturation Intensity Interior Day";
+	string UIName = "Grading Saturation Intensity Interior";
 	string UIWidget = "Spinner";
 > = {1.0};
 /* saturation power */
@@ -1500,14 +1018,9 @@ float dgradesatpow_d
 	string UIName = "Grading Saturation Contrast Day";
 	string UIWidget = "Spinner";
 > = {1.0};
-float dgradesatpow_in
+float dgradesatpow_i
 <
-	string UIName = "Grading Saturation Contrast Interior Night";
-	string UIWidget = "Spinner";
-> = {1.0};
-float dgradesatpow_id
-<
-	string UIName = "Grading Saturation Contrast Interior Day";
+	string UIName = "Grading Saturation Contrast Interior";
 	string UIWidget = "Spinner";
 > = {1.0};
 /* value multiplier */
@@ -1521,14 +1034,9 @@ float dgradevalmul_d
 	string UIName = "Grading Value Intensity Day";
 	string UIWidget = "Spinner";
 > = {1.0};
-float dgradevalmul_in
+float dgradevalmul_i
 <
-	string UIName = "Grading Value Intensity Interior Night";
-	string UIWidget = "Spinner";
-> = {1.0};
-float dgradevalmul_id
-<
-	string UIName = "Grading Value Intensity Interior Day";
+	string UIName = "Grading Value Intensity Interior";
 	string UIWidget = "Spinner";
 > = {1.0};
 /* value power */
@@ -1542,14 +1050,9 @@ float dgradevalpow_d
 	string UIName = "Grading Value Contrast Day";
 	string UIWidget = "Spinner";
 > = {1.0};
-float dgradevalpow_in
+float dgradevalpow_i
 <
-	string UIName = "Grading Value Contrast Interior Night";
-	string UIWidget = "Spinner";
-> = {1.0};
-float dgradevalpow_id
-<
-	string UIName = "Grading Value Contrast Interior Day";
+	string UIName = "Grading Value Contrast Interior";
 	string UIWidget = "Spinner";
 > = {1.0};
 bool dcolorizeafterhsv

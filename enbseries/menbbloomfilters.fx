@@ -91,8 +91,7 @@ float4 PS_BloomTexture2(VS_OUTPUT_POST In) : COLOR
 	/* blue shift */
 	float3 blu_n = float3(blu_n_r,blu_n_g,blu_n_b);
 	float3 blu_d = float3(blu_d_r,blu_d_g,blu_d_b);
-	float3 blu_in = float3(blu_in_r,blu_in_g,blu_in_b);
-	float3 blu_id = float3(blu_id_r,blu_id_g,blu_id_b);
+	float3 blu_i = float3(blu_i_r,blu_i_g,blu_i_b);
 	float3 blu = tod_ind(blu);
 	float bsi = tod_ind(bsi);
 	float lm = clamp(0,1,luminance(res.rgb)-luminance(base.rgb))*bsi;
@@ -137,8 +136,7 @@ float4 PS_AnamPass(VS_OUTPUT_POST In) : COLOR
 	/* blue shift */
 	float3 flu_n = float3(flu_n_r,flu_n_g,flu_n_b);
 	float3 flu_d = float3(flu_d_r,flu_d_g,flu_d_b);
-	float3 flu_in = float3(flu_in_r,flu_in_g,flu_in_b);
-	float3 flu_id = float3(flu_id_r,flu_id_g,flu_id_b);
+	float3 flu_i = float3(flu_i_r,flu_i_g,flu_i_b);
 	float3 flu = tod_ind(flu);
 	float fsi = tod_ind(fsi);
 	float lm = clamp(0,1,luminance(res.rgb)-luminance(base.rgb))*fsi;

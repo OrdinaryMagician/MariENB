@@ -18,15 +18,9 @@ float bloomintensity_d
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
-float bloomintensity_in
+float bloomintensity_i
 <
-	string UIName = "Bloom Intensity Interior Night";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float bloomintensity_id
-<
-	string UIName = "Bloom Intensity Interior Day";
+	string UIName = "Bloom Intensity Interior";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
@@ -43,15 +37,9 @@ float bloompower_d
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
-float bloompower_in
+float bloompower_i
 <
-	string UIName = "Bloom Contrast Interior Night";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float bloompower_id
-<
-	string UIName = "Bloom Contrast Interior Day";
+	string UIName = "Bloom Contrast Interior";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
@@ -66,14 +54,9 @@ float bloomsaturation_d
 	string UIName = "Bloom Saturation Day";
 	string UIWidget = "Spinner";
 > = {0.75};
-float bloomsaturation_in
+float bloomsaturation_i
 <
-	string UIName = "Bloom Saturation Interior Night";
-	string UIWidget = "Spinner";
-> = {0.75};
-float bloomsaturation_id
-<
-	string UIName = "Bloom Saturation Interior Day";
+	string UIName = "Bloom Saturation Interior";
 	string UIWidget = "Spinner";
 > = {0.75};
 /* bloom offset (negative values keep dark areas from muddying up) */
@@ -87,14 +70,9 @@ float bloombump_d
 	string UIName = "Bloom Offset Day";
 	string UIWidget = "Spinner";
 > = {-0.5};
-float bloombump_in
+float bloombump_i
 <
-	string UIName = "Bloom Offset Interior Night";
-	string UIWidget = "Spinner";
-> = {-0.5};
-float bloombump_id
-<
-	string UIName = "Bloom Offset Interior Day";
+	string UIName = "Bloom Offset Interior";
 	string UIWidget = "Spinner";
 > = {-0.5};
 /* bloom cap (maximum brightness samples can have) */
@@ -108,14 +86,9 @@ float bloomcap_d
 	string UIName = "Bloom Intensity Cap Day";
 	string UIWidget = "Spinner";
 > = {20.0};
-float bloomcap_in
+float bloomcap_i
 <
-	string UIName = "Bloom Intensity Cap Interior Night";
-	string UIWidget = "Spinner";
-> = {20.0};
-float bloomcap_id
-<
-	string UIName = "Bloom Intensity Cap Interior Day";
+	string UIName = "Bloom Intensity Cap Interior";
 	string UIWidget = "Spinner";
 > = {20.0};
 string str_bloomper = "Bloom Per-pass";
@@ -163,34 +136,19 @@ float blu_d_b
 	string UIName = "Blue Shift Day Blue";
 	string UIWidget = "Spinner";
 > = {1.0};
-float blu_in_r
+float blu_i_r
 <
-	string UIName = "Blue Shift Interior Night Red";
+	string UIName = "Blue Shift Interior Red";
 	string UIWidget = "Spinner";
 > = {0.2};
-float blu_in_g
+float blu_i_g
 <
-	string UIName = "Blue Shift Interior Night Green";
+	string UIName = "Blue Shift Interior Green";
 	string UIWidget = "Spinner";
 > = {0.6};
-float blu_in_b
+float blu_i_b
 <
-	string UIName = "Blue Shift Interior Night Blue";
-	string UIWidget = "Spinner";
-> = {1.0};
-float blu_id_r
-<
-	string UIName = "Blue Shift Interior Day Red";
-	string UIWidget = "Spinner";
-> = {0.2};
-float blu_id_g
-<
-	string UIName = "Blue Shift Interior Day Green";
-	string UIWidget = "Spinner";
-> = {0.6};
-float blu_id_b
-<
-	string UIName = "Blue Shift Interior Day Blue";
+	string UIName = "Blue Shift Interior Blue";
 	string UIWidget = "Spinner";
 > = {1.0};
 float bsi_n
@@ -205,15 +163,9 @@ float bsi_d
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.5};
-float bsi_in
+float bsi_i
 <
-	string UIName = "Blue Shift Intensity Interior Night";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.5};
-float bsi_id
-<
-	string UIName = "Blue Shift Intensity Interior Day";
+	string UIName = "Blue Shift Intensity Interior";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.5};
@@ -248,15 +200,9 @@ float fbl_d
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.75};
-float fbl_in
+float fbl_i
 <
-	string UIName = "Anamorphic Bloom Blend Interior Night";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.75};
-float fbl_id
-<
-	string UIName = "Anamorphic Bloom Blend Interior Day";
+	string UIName = "Anamorphic Bloom Blend Interior";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.75};
@@ -290,34 +236,19 @@ float flu_d_b
 	string UIName = "Anamorphic Bloom Blue Shift Day Blue";
 	string UIWidget = "Spinner";
 > = {1.0};
-float flu_in_r
+float flu_i_r
 <
-	string UIName = "Anamorphic Bloom Blue Shift Interior Night Red";
+	string UIName = "Anamorphic Bloom Blue Shift Interior Red";
 	string UIWidget = "Spinner";
 > = {0.5};
-float flu_in_g
+float flu_i_g
 <
-	string UIName = "Anamorphic Bloom Blue Shift Interior Night Green";
+	string UIName = "Anamorphic Bloom Blue Shift Interior Green";
 	string UIWidget = "Spinner";
 > = {0.1};
-float flu_in_b
+float flu_i_b
 <
-	string UIName = "Anamorphic Bloom Blue Shift Interior Night Blue";
-	string UIWidget = "Spinner";
-> = {1.0};
-float flu_id_r
-<
-	string UIName = "Anamorphic Bloom Blue Shift Interior Day Red";
-	string UIWidget = "Spinner";
-> = {0.5};
-float flu_id_g
-<
-	string UIName = "Anamorphic Bloom Blue Shift Interior Day Green";
-	string UIWidget = "Spinner";
-> = {0.1};
-float flu_id_b
-<
-	string UIName = "Anamorphic Bloom Blue Shift Interior Day Blue";
+	string UIName = "Anamorphic Bloom Blue Shift Interior Blue";
 	string UIWidget = "Spinner";
 > = {1.0};
 float fsi_n
@@ -332,15 +263,9 @@ float fsi_d
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
-float fsi_in
+float fsi_i
 <
-	string UIName = "Anamorphic Bloom Blue Shift Interior Night";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float fsi_id
-<
-	string UIName = "Anamorphic Bloom Blue Shift Interior Day";
+	string UIName = "Anamorphic Bloom Blue Shift Intensity Interior";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
@@ -356,15 +281,9 @@ float fpw_d
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
-float fpw_in
+float fpw_i
 <
-	string UIName = "Anamorphic Bloom Contrast Interior Night";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float fpw_id
-<
-	string UIName = "Anamorphic Bloom Contrast Interior Day";
+	string UIName = "Anamorphic Bloom Contrast Interior";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
