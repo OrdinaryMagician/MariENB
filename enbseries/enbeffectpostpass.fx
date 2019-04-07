@@ -532,9 +532,9 @@ float3 hsv2rgb( float3 c )
 /* prepass */
 float4 ReducePrepass( in float4 col, in float2 coord )
 {
-	float3 hsv = rgb2hsv(col);
+	float3 hsv = rgb2hsv(col.rgb);
 	hsv.y = clamp(hsv.y*bsaturation,0.0,1.0);
-	hsv.z = pow(hsv.z,bgamma);
+	hsv.z = pow(max(0,hsv.z),bgamma);
 	col.rgb = hsv2rgb(saturate(hsv));
 	if ( dither == 0 )
 		col += bdbump+checkers[int(coord.x%2)+2*int(coord.y%2)]*bdmult;
@@ -852,7 +852,7 @@ float4 PS_DotMatrix( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	   moire patterns when using the default size of 2x2.
 	*/
 	float4 dots = TextureDots.Sample(SamplerDots,coord*bresl)*dac;
-	float3 tcol = pow((dots.rgb+dots.a),dotpow)*dotmult;
+	float3 tcol = pow(max(0,dots.rgb+dots.a),dotpow)*dotmult;
 	res.rgb = res.rgb*(1-dotblend)+tcol*dotblend;
 	return res;
 }
@@ -982,7 +982,7 @@ float4 PS_LumaSharp( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	crawling += TextureColor.Sample(Sampler,coord+float2(0,1)*bof);
 	crawling *= 0.25;
 	float4 inmyskin = res-crawling;
-	float thesewounds = luminance(inmyskin);
+	float thesewounds = luminance(inmyskin.rgb);
 	thesewounds = clamp(thesewounds,-lsharpclamp*0.01,lsharpclamp*0.01);
 	float4 theywillnotheal = res+thesewounds*lsharpblend;
 	return theywillnotheal;

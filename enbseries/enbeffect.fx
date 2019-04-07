@@ -589,7 +589,7 @@ float3 GradingRGB( float3 res )
 {
 	float3 grademul = tod_ind(grademul);
 	float3 gradepow = tod_ind(gradepow);
-	return pow(res,gradepow)*grademul;
+	return pow(max(0,res),gradepow)*grademul;
 }
 float3 GradingColorize( float3 res )
 {
@@ -606,8 +606,8 @@ float3 GradingHSV( float3 res )
 	float gradevalmul = tod_ind(gradevalmul);
 	float gradevalpow = tod_ind(gradevalpow);
 	float3 hsv = rgb2hsv(res);
-	hsv.y = clamp(pow(hsv.y,gradesatpow)*gradesatmul,0.0,1.0);
-	hsv.z = pow(hsv.z,gradevalpow)*gradevalmul;
+	hsv.y = clamp(pow(max(0,hsv.y),gradesatpow)*gradesatmul,0.0,1.0);
+	hsv.z = pow(max(0,hsv.z),gradevalpow)*gradevalmul;
 	return hsv2rgb(hsv);
 }
 /* LUT colour grading */
@@ -639,8 +639,8 @@ float3 GradingLUT( float3 res )
 	float2 lc2 = float2(tcol.r,tcol.g/64.0+ceil(tcol.b*64.0)/64.0);
 	float dec = (ceil(tcol.b*64.0)==64.0)?(0.0):frac(tcol.b*64.0);
 #endif
-	float3 tcl1 = TextureLUT.Sample(SamplerLUT,lc1);
-	float3 tcl2 = TextureLUT.Sample(SamplerLUT,lc2);
+	float3 tcl1 = TextureLUT.Sample(SamplerLUT,lc1).rgb;
+	float3 tcl2 = TextureLUT.Sample(SamplerLUT,lc2).rgb;
 	tcol = lerp(tcl1,tcl2,dec);
 	float lutblend = tod_ind(lutblend);
 	return lerp(res,tcol,lutblend);
@@ -750,7 +750,7 @@ float4 PS_Draw( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	r1.xyz = Params01[2].w*r1.xyz-r0.w;
 	r0.xyz = Params01[2].z*r1.xyz+r0.w;
 	color.xyz = lerp(r0.xyz,Params01[5].xyz,Params01[5].w);
-	color.xyz = saturate(color);
+	color.xyz = saturate(color.xyz);
 	color.xyz = pow(color.xyz,1.0/2.2);
 	res.xyz = max(0,color.xyz);
 	res.w = 1.0;
@@ -815,7 +815,7 @@ float4 PS_DrawOriginal( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Targe
 	r1.xyz = Params01[2].w*r1.xyz-r0.w;
 	r0.xyz = Params01[2].z*r1.xyz+r0.w;
 	res.xyz = lerp(r0.xyz,Params01[5].xyz,Params01[5].w);
-	res.xyz = pow(res.xyz,1.0/2.2);
+	res.xyz = pow(max(0,res.xyz),1.0/2.2);
 	res.w = 1.0;
 	return res;
 }

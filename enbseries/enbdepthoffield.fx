@@ -971,7 +971,7 @@ VS_OUTPUT_POST VS_Quad( VS_INPUT_POST IN )
 /* these are znear/zfar values for Skyrim, but MAY match Fallout too */
 float depthlinear( float2 coord )
 {
-	float z = TextureDepth.Sample(Sampler1,coord).x;
+	float z = TextureDepth.SampleLevel(Sampler1,coord,0).x;
 	return (2*zNear)/(zFar+zNear-z*(zFar-zNear));
 }
 
@@ -986,8 +986,8 @@ float3 pseudonormal( float dep, float2 coord )
 	float2 bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
 	float2 ofs1 = float2(0,1.0/bresl.y);
 	float2 ofs2 = float2(1.0/bresl.x,0);
-	float dep1 = TextureDepth.Sample(Sampler1,coord+ofs1).x;
-	float dep2 = TextureDepth.Sample(Sampler1,coord+ofs2).x;
+	float dep1 = TextureDepth.SampleLevel(Sampler1,coord+ofs1,0).x;
+	float dep2 = TextureDepth.SampleLevel(Sampler1,coord+ofs2,0).x;
 	float3 p1 = float3(ofs1,dep1-dep);
 	float3 p2 = float3(ofs2,dep2-dep);
 	float3 normal = cross(p1,p2);
@@ -1012,9 +1012,9 @@ float4 PS_SSAOPre( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	float3 normal = pseudonormal(depth,coord);
 	float2 nc = coord*(bresl/256.0);
 	float2 bof = float2(1.0/bresl.x,1.0/bresl.y)*ssaoradius;
-	float2 nc2 = TextureNoise3.Sample(Sampler2,nc+48000.0*Timer.x
-		*ssaonoise).xy;
-	float3 rnormal = TextureNoise3.Sample(Sampler2,nc2).xyz*2.0-1.0;
+	float2 nc2 = TextureNoise3.SampleLevel(Sampler2,nc+48000.0*Timer.x
+		*ssaonoise,0).xy;
+	float3 rnormal = TextureNoise3.SampleLevel(Sampler2,nc2,0).xyz*2.0-1.0;
 	rnormal = normalize(rnormal);
 	float occ = 0.0;
 	int i;
@@ -1026,7 +1026,7 @@ float4 PS_SSAOPre( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	{
 		sample = reflect(ssao_samples_lq[i],rnormal);
 		sample *= sign(dot(normal,sample));
-		so = ldepth-sample.z*bof;
+		so = ldepth-sample.z*bof.x;
 		sdepth = depthlinear(coord+bof*sample.xy/ldepth);
 		delta = saturate(so-sdepth);
 		delta *= 1.0-smoothstep(0.0,sclamp,delta);
@@ -1037,7 +1037,7 @@ float4 PS_SSAOPre( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	{
 		sample = reflect(ssao_samples_hq[i],rnormal);
 		sample *= sign(dot(normal,sample));
-		so = ldepth-sample.z*bof;
+		so = ldepth-sample.z*bof.x;
 		sdepth = depthlinear(coord+bof*sample.xy/ldepth);
 		delta = saturate(so-sdepth);
 		delta *= 1.0-smoothstep(0.0,sclamp,delta);
@@ -1046,8 +1046,8 @@ float4 PS_SSAOPre( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	}
 	float uocc = saturate(occ/(ssaoquarter?16.0:64.0));
 	float fade = 1.0-depth;
-	uocc *= saturate(pow(fade,ssaofadepow)*ssaofademult);
-	uocc = saturate(pow(uocc,ssaopow)*ssaomult);
+	uocc *= saturate(pow(max(0,fade),ssaofadepow)*ssaofademult);
+	uocc = saturate(pow(max(0,uocc),ssaopow)*ssaomult);
 	return saturate(1.0-(uocc*ssaoblend));
 }
 /*
@@ -1207,8 +1207,8 @@ float3 EdgeView( float3 res, float2 coord )
 	mdy += GY[2][2]*depths[2][2];
 	mud = pow(mdx*mdx+mdy*mdy,0.5);
 	float fade = 1.0-TextureDepth.Sample(Sampler1,coord).x;
-	mud *= saturate(pow(fade,edgevfadepow)*edgevfademult);
-	mud = saturate(pow(mud,edgevpow)*edgevmult);
+	mud *= saturate(pow(max(0,fade),edgevfadepow)*edgevfademult);
+	mud = saturate(pow(max(0,mud),edgevpow)*edgevmult);
 	return mud;
 }
 
@@ -1242,8 +1242,8 @@ float2 DistantHeat( float2 coord )
 	float2 bresl;
 	float dep, odep;
 	dep = TextureDepth.Sample(Sampler1,coord).x;
-	float distfade = clamp(pow(dep,heatfadepow)*heatfademul+heatfadebump,
-		0.0,1.0);
+	float distfade = clamp(pow(max(0,dep),heatfadepow)*heatfademul
+		+heatfadebump,0.0,1.0);
 	if ( distfade <= 0.0 ) return coord;
 	float todpow = todx_ind(heatfactor);
 	if ( !heatalways && (todpow <= 0.0) ) return coord;
@@ -1251,15 +1251,15 @@ float2 DistantHeat( float2 coord )
 	else bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
 	float2 nc = coord*(bresl/HEATSIZE)*heatsize;
 	float2 ts = float2(0.01,1.0)*Timer.x*10000.0*heatspeed;
-	float2 ofs = TextureHeat.Sample(Sampler2,nc+ts).xy;
+	float2 ofs = TextureHeat.SampleLevel(Sampler2,nc+ts,0).xy;
 	ofs = (ofs-0.5)*2.0;
 	ofs *= pow(length(ofs),heatpow);
 	ofs *= todpow;
 	if ( !heatalways ) ofs *= weatherfactor(WT_HOT);
-	odep = TextureDepth.Sample(Sampler1,coord+ofs*heatstrength*distfade
-		*0.01).x;
-	float odistfade = clamp(pow(odep,heatfadepow)*heatfademul+heatfadebump,
-		0.0,1.0);
+	odep = TextureDepth.SampleLevel(Sampler1,coord+ofs*heatstrength
+		*distfade*0.01,0).x;
+	float odistfade = clamp(pow(max(0,odep),heatfadepow)*heatfademul
+		+heatfadebump,0.0,1.0);
 	if ( odistfade <= 0.0 ) return coord;
 	return coord+ofs*heatstrength*distfade*0.01;
 }
@@ -1376,9 +1376,10 @@ float4 PS_DoFBlur( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	{
 		sc = TextureColor.SampleLevel(Sampler1,coord+poisson32[i]*bsz,
 			dfc*4.0);
-		ds = TextureDepth.Sample(Sampler1,coord+poisson32[i]*bsz).x;
-		sd = RenderTargetR32F.Sample(Sampler1,coord+poisson32[i]
-			*bsz).x;
+		ds = TextureDepth.SampleLevel(Sampler1,coord+poisson32[i]*bsz,
+			0).x;
+		sd = RenderTargetR32F.SampleLevel(Sampler1,coord+poisson32[i]
+			*bsz,0).x;
 		sw = (ds>dep)?1.0:sd;
 		tw += sw;
 		res += sc*sw;
@@ -1405,14 +1406,14 @@ float4 PS_DoFBlurH( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	isd = dfc;
 	[unroll] for ( i=-7; i<=7; i++ )
 	{
-		sd = RenderTargetR32F.Sample(Sampler1,coord+float2(i,0)*bof
-			*dfc).x;
+		sd = RenderTargetR32F.SampleLevel(Sampler1,coord+float2(i,0)
+			*bof*dfc,0).x;
 		ds = abs(isd-sd)*dofbfact+0.5;
 		sw = 1.0/(ds+1.0);
 		sw *= gauss8[abs(i)];
 		tw += sw;
-		res += sw*TextureColor.Sample(Sampler1,coord+float2(i,0)*bof
-			*dfc);
+		res += sw*TextureColor.SampleLevel(Sampler1,coord+float2(i,0)
+			*bof*dfc,0);
 	}
 	res /= tw;
 	return res;
@@ -1433,14 +1434,14 @@ float4 PS_DoFBlurV( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	isd = dfc;
 	[unroll] for ( i=-7; i<=7; i++ )
 	{
-		sd = RenderTargetR32F.Sample(Sampler1,coord+float2(0,i)*bof
-			*dfc).x;
+		sd = RenderTargetR32F.SampleLevel(Sampler1,coord+float2(0,i)
+			*bof*dfc,0).x;
 		ds = abs(isd-sd)*dofbfact+0.5;
 		sw = 1.0/(ds+1.0);
 		sw *= gauss8[abs(i)];
 		tw += sw;
-		res += sw*TextureColor.Sample(Sampler1,coord+float2(0,i)*bof
-			*dfc);
+		res += sw*TextureColor.SampleLevel(Sampler1,coord+float2(0,i)
+			*bof*dfc,0);
 	}
 	res /= tw;
 	return res;
@@ -1473,7 +1474,7 @@ float4 PS_FrostPass( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	if ( (fixed.x > 0) && (fixed.y > 0) ) bresl = fixed;
 	else bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
 	float4 res;
-	if ( frostenable )
+	[branch] if ( frostenable )
 	{
 		float2 ofs = ScreenFrost(coord);
 		ofs -= coord;
@@ -1489,7 +1490,8 @@ float4 PS_FrostPass( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 		}
 		else res = TextureColor.Sample(Sampler1,coord+ofs);
 		float2 nc = coord*(bresl/FROSTSIZE)*frostsize;
-		float bmp = pow(TextureFrost.Sample(Sampler2,nc).x,frostbpow);
+		float bmp = pow(max(0,TextureFrost.SampleLevel(Sampler2,nc,
+			0).x),frostbpow);
 		float dist = distance(coord,float2(0.5,0.5))*2.0;
 		dist = clamp(pow(dist,frostrpow)*frostrmult+frostrbump,0.0,
 			1.0)*frostblend;

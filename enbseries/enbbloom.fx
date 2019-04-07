@@ -529,7 +529,7 @@ float4 Anamorphic( float2 coord, Texture2D intex, float insz )
 	res.rgb *= lerp(1.0,flu,lm);
 	float fbl = tod_ind(fbl);
 	float fpw = tod_ind(fpw);
-	res.rgb = pow(res.rgb,fpw)*fbl;
+	res.rgb = pow(max(0,res.rgb),fpw)*fbl;
 	return res;
 }
 
