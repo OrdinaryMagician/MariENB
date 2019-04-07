@@ -130,24 +130,6 @@ float bsaturation
 	string UIName = "SaturationMod";
 	string UIWidget = "Spinner";
 > = {1.1};
-/* Painting filter, mixes Kuwahara with median for a smooth result */
-bool paintenable
-<
-	string UIName = "EnablePainting";
-	string UIWidget = "Checkbox";
-> = {false};
-float paintradius
-<
-	string UIName = "PaintingRadius";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float paintmradius
-<
-	string UIName = "PaintingMedianRadius";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
 /* ASCII art filter */
 bool asciienable
 <

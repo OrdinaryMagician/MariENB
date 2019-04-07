@@ -39,12 +39,12 @@ float3 Sharpen( float3 res, float2 coord )
 	crawling += tex2D(SamplerColor,coord+float2(0,1)*bof);
 	crawling *= 0.25;
 	float3 inmyskin = res-crawling.rgb;
-	float thesewounds = dot(inmyskin,0.33);
-	thesewounds = clamp(thesewounds,-sharpclamp,sharpclamp);
+	float thesewounds = luminance(inmyskin);
+	thesewounds = clamp(thesewounds,-sharpclamp*0.01,sharpclamp*0.01);
 	float3 theywillnotheal = res+thesewounds*sharpblend;
 	return theywillnotheal;
 }
-/* New and improved edge detection, generally useful for contour shading */
+/* New and improved edge detection, for contour shading */
 float3 Edge( float3 res, float2 coord )
 {
 	float2 bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
@@ -55,6 +55,61 @@ float3 Edge( float3 res, float2 coord )
 	float edgefademult = lerp(lerp(edgefademult_n,edgefademult_d,tod),
 		lerp(edgefademult_in,edgefademult_id,tod),ind);
 	float2 bof = float2(1.0/bresl.x,1.0/bresl.y)*edgeradius;
+	float dep = depthlinear(coord);
+	float cont = depthlinear(coord+float2(-1,-1)*bof);
+	cont += depthlinear(coord+float2(0,-1)*bof);
+	cont += depthlinear(coord+float2(1,-1)*bof);
+	cont += depthlinear(coord+float2(-1,0)*bof);
+	cont += depthlinear(coord+float2(0,0)*bof);
+	cont += depthlinear(coord+float2(1,0)*bof);
+	cont += depthlinear(coord+float2(-1,1)*bof);
+	cont += depthlinear(coord+float2(0,1)*bof);
+	cont += depthlinear(coord+float2(1,1)*bof);
+	cont /= 9.0;
+	float mud = 0.0;
+	if ( abs(cont-dep) > (edgethreshold*0.00001) ) mud = 1.0;
+	float fade = 1.0-tex2D(SamplerDepth,coord).x;
+	mud *= saturate(pow(fade,edgefadepow)*edgefademult);
+	mud = saturate(pow(mud,edgepow)*edgemult);
+	if ( edgedebug ) return 1.0-mud;
+	return lerp(res,0,mud);
+}
+/* Secondary "comicbook filter" for additional contour shading */
+float3 EdgeColor( float3 res, float2 coord )
+{
+	float2 bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
+	if ( fixedx>0 ) bresl.x = fixedx;
+	if ( fixedy>0 ) bresl.y = fixedy;
+	float2 bof = float2(1.0/bresl.x,1.0/bresl.y)*celradius;
+	float3 col = tex2D(SamplerColor,coord).rgb;
+	float lum = luminance(col);
+	float3 ccol = tex2D(SamplerColor,coord+float2(-1,-1)*bof).rgb;
+	ccol += tex2D(SamplerColor,coord+float2(0,-1)*bof).rgb;
+	ccol += tex2D(SamplerColor,coord+float2(1,-1)*bof).rgb;
+	ccol += tex2D(SamplerColor,coord+float2(-1,0)*bof).rgb;
+	ccol += tex2D(SamplerColor,coord+float2(0,0)*bof).rgb;
+	ccol += tex2D(SamplerColor,coord+float2(1,0)*bof).rgb;
+	ccol += tex2D(SamplerColor,coord+float2(-1,1)*bof).rgb;
+	ccol += tex2D(SamplerColor,coord+float2(0,1)*bof).rgb;
+	ccol += tex2D(SamplerColor,coord+float2(1,1)*bof).rgb;
+	ccol /= 9.0;
+	float clum = luminance(ccol);
+	float mud = abs(clum-lum);
+	mud = saturate(pow(mud,celpow)*celmult);
+	if ( celdebug ) return 1.0-mud;
+	return lerp(res,0,mud);
+}
+/* old Edgevision mode */
+float3 EdgeView( float3 res, float2 coord )
+{
+	float2 bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
+	if ( fixedx>0 ) bresl.x = fixedx;
+	if ( fixedy>0 ) bresl.y = fixedy;
+	float edgevfadepow = lerp(lerp(edgevfadepow_n,edgevfadepow_d,tod),
+		lerp(edgevfadepow_in,edgevfadepow_id,tod),ind);
+	float edgevfademult = lerp(lerp(edgevfademult_n,edgevfademult_d,tod),
+		lerp(edgevfademult_in,edgevfademult_id,tod),ind);
+	float2 bof = float2(1.0/bresl.x,1.0/bresl.y)*edgevradius;
 	float mdx = 0, mdy = 0, mud = 0;
 	/* this reduces texture fetches by half, big difference */
 	float3x3 depths;
@@ -87,10 +142,9 @@ float3 Edge( float3 res, float2 coord )
 	mdy += GY[2][2]*depths[2][2];
 	mud = pow(mdx*mdx+mdy*mdy,0.5);
 	float fade = 1.0-tex2D(SamplerDepth,coord).x;
-	mud *= saturate(pow(fade,edgefadepow)*edgefademult);
-	mud = saturate(pow(mud,edgepow)*edgemult);
-	if ( edgeview ) return mud;
-	return max(0,res-mud);
+	mud *= saturate(pow(fade,edgevfadepow)*edgevfademult);
+	mud = saturate(pow(mud,edgevpow)*edgevmult);
+	return mud;
 }
 /* the pass that happens before everything else */
 float4 PS_FirstPass( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
@@ -99,6 +153,8 @@ float4 PS_FirstPass( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	float4 res = tex2D(SamplerColor,coord);
 	if ( sharpenable ) res.rgb = Sharpen(res.rgb,coord);
 	if ( edgeenable ) res.rgb = Edge(res.rgb,coord);
+	if ( celenable ) res.rgb = EdgeColor(res.rgb,coord);
+	if ( edgevenable ) res.rgb = EdgeView(res.rgb,coord);
 	return res;
 }
 /* Crappy SSAO */
@@ -328,7 +384,8 @@ float4 PS_DoFBlurH( VS_OUTPUT_POST IN, float2 vPos : VPOS) : COLOR
 	float2 coord = IN.txcoord.xy;
 	if ( dofdisable ) return tex2D(SamplerColor,coord);
 	float dfc = tex2D(SamplerColor,coord).a;
-	if ( dofdebug ) return dfc;
+	if ( dofdebug ) return tex2D(SamplerDepth,coord).x;
+	if ( dfcdebug ) return dfc;
 	float bresl = (fixedx>0)?fixedx:ScreenSize.x;
 	float bof = (1.0/bresl)*dofbradius;
 	float4 res = float4(0,0,0,0);
@@ -369,7 +426,8 @@ float4 PS_DoFBlurV( VS_OUTPUT_POST IN, float2 vPos : VPOS) : COLOR
 	float2 coord = IN.txcoord.xy;
 	if ( dofdisable ) return tex2D(SamplerColor,coord);
 	float dfc = tex2D(SamplerColor,coord).a;
-	if ( dofdebug ) return dfc;
+	if ( dofdebug ) return tex2D(SamplerDepth,coord).x;
+	if ( dfcdebug ) return dfc;
 	float bresl = (fixedy>0)?fixedy:(ScreenSize.x*ScreenSize.w);
 	float bof = (1.0/bresl)*dofbradius;
 	float4 res = float4(0,0,0,0);

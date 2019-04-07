@@ -245,88 +245,6 @@ float4 PS_ASCII( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	}
 	return res;
 }
-/* Painting filter */
-float4 PS_Paint1( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
-{
-	float2 coord = IN.txcoord.xy;
-	float4 res = tex2D(SamplerColor,coord);
-	if ( !paintenable ) return res;
-	/* Kuwahara filter */
-	float2 bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
-	float2 bof = (1.0/bresl)*paintradius;
-	float n = 16.0;
-	float3 m[4], s[4], c;
-	int i, j;
-	[unroll] for ( i=0; i<4; i++ )
-	{
-		m[i] = float3(0,0,0);
-		s[i] = float3(0,0,0);
-	}
-	[unroll] for ( i=-3; i<=0; i++ ) [unroll] for ( j=-3; j<=0; j++ )
-	{
-		c = tex2D(SamplerColor,coord+float2(i,j)*bof).rgb;
-		m[0] += c;
-		s[0] += c*c;
-	}
-	[unroll] for ( i=-3; i<=0; i++ ) [unroll] for ( j=0; j<=3; j++ )
-	{
-		c = tex2D(SamplerColor,coord+float2(i,j)*bof).rgb;
-		m[1] += c;
-		s[1] += c*c;
-	}
-	[unroll] for ( i=0; i<=3; i++ ) [unroll] for ( j=-3; j<=0; j++ )
-	{
-		c = tex2D(SamplerColor,coord+float2(i,j)*bof).rgb;
-		m[2] += c;
-		s[2] += c*c;
-	}
-	[unroll] for ( i=0; i<=3; i++ ) [unroll] for ( j=0; j<=3; j++ )
-	{
-		c = tex2D(SamplerColor,coord+float2(i,j)*bof).rgb;
-		m[3] += c;
-		s[3] += c*c;
-	}
-	float min_sigma2 = 1e+2, sigma2;
-	[unroll] for ( i=0; i<4; i++ )
-	{
-		m[i] /= n;
-		s[i] = abs(s[i]/n-m[i]*m[i]);
-		sigma2 = s[i].r+s[i].g+s[i].b;
-		if ( sigma2 >= min_sigma2 ) continue;
-		min_sigma2 = sigma2;
-		res.rgb = m[i];
-	}
-	return res;
-}
-float4 PS_Paint2( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
-{
-	float2 coord = IN.txcoord.xy;
-	float4 res = tex2D(SamplerColor,coord);
-	if ( !paintenable ) return res;
-	/* Median filter */
-	float2 bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
-	float2 bof = (1.0/bresl)*paintmradius;
-	float3 m1, m2, m3;
-	float3 a, b, c;
-	a = tex2D(SamplerColor,coord+float2(-1,-1)*bof).rgb;
-	b = tex2D(SamplerColor,coord+float2( 0,-1)*bof).rgb;
-	c = tex2D(SamplerColor,coord+float2( 1,-1)*bof).rgb;
-	m1 = (luminance(a)<luminance(b))?((luminance(b)<luminance(c))?b
-		:max(a,c)):((luminance(a)<luminance(c))?a:max(b,c));
-	a = tex2D(SamplerColor,coord+float2(-1, 0)*bof).rgb;
-	b = tex2D(SamplerColor,coord+float2( 0, 0)*bof).rgb;
-	c = tex2D(SamplerColor,coord+float2( 1, 0)*bof).rgb;
-	m2 = (luminance(a)<luminance(b))?((luminance(b)<luminance(c))?b
-		:max(a,c)):((luminance(a)<luminance(c))?a:max(b,c));
-	a = tex2D(SamplerColor,coord+float2(-1, 1)*bof).rgb;
-	b = tex2D(SamplerColor,coord+float2( 0, 1)*bof).rgb;
-	c = tex2D(SamplerColor,coord+float2( 1, 1)*bof).rgb;
-	m3 = (luminance(a)<luminance(b))?((luminance(b)<luminance(c))?b
-		:max(a,c)):((luminance(a)<luminance(c))?a:max(b,c));
-	res.rgb = (luminance(m1)<luminance(m2))?((luminance(m2)<luminance(m3))
-		?m2:max(m1,m3)):((luminance(m1)<luminance(m3))?m1:max(m2,m3));
-	return res;
-}
 float4 PS_ChromaKey( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 {
 	float2 coord = IN.txcoord.xy;
@@ -337,40 +255,6 @@ float4 PS_ChromaKey( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	return res;
 }
 technique PostProcess
-{
-	pass p0
-	{
-		VertexShader = compile vs_3_0 VS_Pass();
-		PixelShader = compile ps_3_0 PS_Paint1();
-		DitherEnable = FALSE;
-		ZEnable = FALSE;
-		CullMode = NONE;
-		ALPHATESTENABLE = FALSE;
-		SEPARATEALPHABLENDENABLE = FALSE;
-		AlphaBlendEnable = FALSE;
-		StencilEnable = FALSE;
-		FogEnable = FALSE;
-		SRGBWRITEENABLE = FALSE;
-	}
-}
-technique PostProcess2
-{
-	pass p0
-	{
-		VertexShader = compile vs_3_0 VS_Pass();
-		PixelShader = compile ps_3_0 PS_Paint2();
-		DitherEnable = FALSE;
-		ZEnable = FALSE;
-		CullMode = NONE;
-		ALPHATESTENABLE = FALSE;
-		SEPARATEALPHABLENDENABLE = FALSE;
-		AlphaBlendEnable = FALSE;
-		StencilEnable = FALSE;
-		FogEnable = FALSE;
-		SRGBWRITEENABLE = FALSE;
-	}
-}
-technique PostProcess3
 {
 	pass p0
 	{
@@ -387,7 +271,7 @@ technique PostProcess3
 		SRGBWRITEENABLE = FALSE;
 	}
 }
-technique PostProcess4
+technique PostProcess2
 {
 	pass p0
 	{
@@ -404,7 +288,7 @@ technique PostProcess4
 		SRGBWRITEENABLE = FALSE;
 	}
 }
-technique PostProcess5
+technique PostProcess3
 {
 	pass p0
 	{

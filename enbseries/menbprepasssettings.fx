@@ -577,18 +577,17 @@ bool dofdebug
 	string UIName = "DebugDepth";
 	string UIWidget = "Checkbox";
 > = {false};
+bool dfcdebug
+<
+	string UIName = "DebugFocus";
+	string UIWidget = "Checkbox";
+> = {false};
 /* enable edge detect filters */
 bool edgeenable
 <
 	string UIName = "EdgeEnable";
 	string UIWidget = "Checkbox";
 > = {false};
-/* use "edge vision" instead of contour filter (just because it looks fancy) */
-bool edgeview
-<
-	string UIName = "EdgeView";
-	string UIWidget = "Checkbox";
-> = {true};
 /* factors */
 float edgefadepow_n
 <
@@ -643,16 +642,129 @@ float edgepow
 	string UIName = "EdgePower";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
-> = {0.5};
+> = {1.5};
 float edgemult
 <
 	string UIName = "EdgeMultiplier";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
-> = {128.0};
+> = {1.0};
 float edgeradius
 <
 	string UIName = "EdgeRadius";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {0.01};
+float edgethreshold
+<
+	string UIName = "EdgeThreshold";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {0.01};
+bool edgedebug
+<
+	string UIName = "DebugEdge";
+	string UIWidget = "Checkbox";
+> = {false};
+/* use luma edge detection filter */
+bool celenable
+<
+	string UIName = "CelEnable";
+	string UIWidget = "Checkbox";
+> = {false};
+float celradius
+<
+	string UIName = "CelRadius";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float celmult
+<
+	string UIName = "CelMultiplier";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {4.0};
+float celpow
+<
+	string UIName = "CelPower";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {0.5};
+bool celdebug
+<
+	string UIName = "DebugCel";
+	string UIWidget = "Checkbox";
+> = {false};
+/* use "edge vision" filter */
+bool edgevenable
+<
+	string UIName = "EdgeViewEnable";
+	string UIWidget = "Checkbox";
+> = {false};
+/* factors */
+float edgevfadepow_n
+<
+	string UIName = "EdgeViewFadePowerNight";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {2.0};
+float edgevfadepow_d
+<
+	string UIName = "EdgeViewFadePowerDay";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {2.0};
+float edgevfadepow_in
+<
+	string UIName = "EdgeViewFadePowerInteriorNight";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {2.0};
+float edgevfadepow_id
+<
+	string UIName = "EdgeViewFadePowerInteriorDay";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {2.0};
+float edgevfademult_n
+<
+	string UIName = "EdgeViewFadeMultiplierNight";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {500.0};
+float edgevfademult_d
+<
+	string UIName = "EdgeViewFadeMultiplierDay";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {500.0};
+float edgevfademult_in
+<
+	string UIName = "EdgeViewFadeMultiplierInteriorNight";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {500.0};
+float edgevfademult_id
+<
+	string UIName = "EdgeViewFadeMultiplierInteriorDay";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {500.0};
+float edgevpow
+<
+	string UIName = "EdgeViewPower";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {0.25};
+float edgevmult
+<
+	string UIName = "EdgeViewMultiplier";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {4.0};
+float edgevradius
+<
+	string UIName = "EdgeViewRadius";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
