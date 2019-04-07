@@ -1,6 +1,6 @@
 /*
 	menbglobaldefs.fx : MariENB global shared code.
-	(C)2013-2016 Marisa Kirisame, UnSX Team.
+	(C)2013-2017 Marisa Kirisame, UnSX Team.
 	Part of MariENB, the personal ENB of Marisa.
 	Released under the GNU GPLv3 (or later).
 */
@@ -20,6 +20,10 @@
 #define WT_TEMPERATE 0.0
 #define WT_HOT 1.0
 #define WT_COLD 2.0
+/* new additions */
+#define WT_TEMPERATE_FOG 3.0
+#define WT_COLD_FOG 4.0
+#define WT_HOT_FOG 5.0
 #define weatherfactor(id) ((WeatherAndTime.x==id)?(WeatherAndTime.y==id)\
 	?(1.0):(WeatherAndTime.z):(WeatherAndTime.y==id)\
 	?(1.0-WeatherAndTime.z):(0.0))

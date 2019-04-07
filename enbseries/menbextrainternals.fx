@@ -1,6 +1,6 @@
 /*
 	menbextrainternals.fx : MariENB extra internal variables.
-	(C)2013-2016 Marisa Kirisame, UnSX Team.
+	(C)2013-2017 Marisa Kirisame, UnSX Team.
 	Part of MariENB, the personal ENB of Marisa.
 	Released under the GNU GPLv3 (or later).
 */
@@ -40,14 +40,6 @@ float EInteriorFactor;
 /* samplers and textures */
 texture2D texColor;
 texture2D texDepth;
-texture2D texFont
-<
-	string ResourceName = "menbvgaluma.png";
->;
-texture2D texDots
-<
-	string ResourceName = "menbdots.png";
->;
 texture2D texCGA
 <
 	string ResourceName = "menbcgalut.png";
@@ -92,30 +84,6 @@ sampler2D SamplerDepth = sampler_state
 	MipFilter = NONE;
 	AddressU = Clamp;
 	AddressV = Clamp;
-	SRGBTexture = FALSE;
-	MaxMipLevel = 0;
-	MipMapLodBias = 0;
-};
-sampler2D SamplerFont = sampler_state
-{
-	Texture = <texFont>;
-	MinFilter = LINEAR;
-	MagFilter = POINT;
-	MipFilter = NONE;
-	AddressU = Wrap;
-	AddressV = Wrap;
-	SRGBTexture = FALSE;
-	MaxMipLevel = 0;
-	MipMapLodBias = 0;
-};
-sampler2D SamplerDots = sampler_state
-{
-	Texture = <texDots>;
-	MinFilter = LINEAR;
-	MagFilter = LINEAR;
-	MipFilter = NONE;
-	AddressU = Wrap;
-	AddressV = Wrap;
 	SRGBTexture = FALSE;
 	MaxMipLevel = 0;
 	MipMapLodBias = 0;

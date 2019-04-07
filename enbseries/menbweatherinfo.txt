@@ -7,7 +7,7 @@ Skyrim
 12F89	SkyrimCloudy			HOT
 2E7AB	TESTCloudyRain			HOT
 48C14	BlackreachWeather		TEMPERATE
-4D7FB	SkyrimOvercastSnow		COLD
+4D7FB	SkyrimOvercastSnow		COLD FOG
 5ED7A	FXWthrInvertLightsSolitude	TEMPERATE
 6ED5A	FXWthrInvertDayNight		TEMPERATE
 6ED5B	FXWthrCaveBlueSkylight		TEMPERATE
@@ -17,54 +17,54 @@ Skyrim
 777CF	FXWthrInvertDayNighWarm		TEMPERATE
 8277A	FXWthrInvertWindowsWhiterun	TEMPERATE
 8282A	FXWthrInvertLightsWhiterun	TEMPERATE
-923FD	SovngardeFog			TEMPERATE
+923FD	SovngardeFog			TEMPERATE FOG
 A6858	WorldMapWeather			HOT
 AEE84	FXWthrInvertWindowsWindhelm	COLD
-C821E	SkyrimFog			COLD
-C821F	SkyrimOvercastRain		COLD
-C8220	SkyrimStormRain			COLD
-C8221	SkyrimStormSnow			COLD
-D299E	SkyrimOvercastWar		TEMPERATE
-D4886	FXMagicStormRain		COLD
+C821E	SkyrimFog			COLD FOG
+C821F	SkyrimOvercastRain		COLD FOG
+C8220	SkyrimStormRain			COLD FOG
+C8221	SkyrimStormSnow			COLD FOG
+D299E	SkyrimOvercastWar		TEMPERATE FOG
+D4886	FXMagicStormRain		COLD FOG
 D9329	HelgenAttackWeather		HOT
 ECC96	FXWthrInvertWindowsWindhelm2	COLD
 101910	FXWthrInvertLightMarkarth	TEMPERATE
 10199F	SkyrimMQ206weather		HOT
 104AB4	SkuldafnCloudy			COLD
-105941	BloatedMansGrottoFog		HOT
-105942	SolitudeBluePalaceFogARENA	TEMPERATE
-105943	SolitudeBluePalaceFogFEAR	TEMPERATE
-105944	SolitudeBluePalaceFogNMARE	TEMPERATE
-105945	SolitudeBluePalaceFog		TEMPERATE
+105941	BloatedMansGrottoFog		HOT FOG
+105942	SolitudeBluePalaceFogARENA	TEMPERATE FOG
+105943	SolitudeBluePalaceFogFEAR	TEMPERATE FOG
+105944	SolitudeBluePalaceFogNMARE	TEMPERATE FOG
+105945	SolitudeBluePalaceFog		TEMPERATE FOG
 105F40	SkyrimDA02Weather		TEMPERATE
-106635	KarthspireRedoubtFog		TEMPERATE
+106635	KarthspireRedoubtFog		TEMPERATE FOG
 10A230	SkyrimClearMA			HOT
-10A231	SkyrimOvercastRainMA		TEMPERATE
-10A232	SkyrimFogMA			TEMPERATE
+10A231	SkyrimOvercastRainMA		TEMPERATE FOG
+10A232	SkyrimFogMA			TEMPERATE FOG
 10A233	SkyrimCloudyMA			HOT
 10A234	SkyrimClearCO			TEMPERATE
-10A235	SkyrimFogCO			TEMPERATE
+10A235	SkyrimFogCO			TEMPERATE FOG
 10A236	SkyrimCloudyCO			TEMPERATE
 10A237	SkyrimClearRE			HOT
-10A238	SkyrimOvercastRainRE		TEMPERATE
-10A239	SkyrimFogRE			TEMPERATE
+10A238	SkyrimOvercastRainRE		TEMPERATE FOG
+10A239	SkyrimFogRE			TEMPERATE FOG
 10A23A	SkyrimCloudyRE			HOT
 10A23B	SkyrimClearFF			HOT
-10A23C	SkyrimStormRainFF		TEMPERATE
-10A23D	SkyrimOvercastRainFF		TEMPERATE
-10A23E	SkyrimFogFF			TEMPERATE
+10A23C	SkyrimStormRainFF		TEMPERATE FOG
+10A23D	SkyrimOvercastRainFF		TEMPERATE FOG
+10A23E	SkyrimFogFF			TEMPERATE FOG
 10A23F	SkyrimCloudyFF			HOT
 10A240	SkyrimClearTU			HOT
-10A241	SkyrimStormRainTU		TEMPERATE
-10A242	SkyrimOvercastRainTU		TEMPERATE
+10A241	SkyrimStormRainTU		TEMPERATE FOG
+10A242	SkyrimOvercastRainTU		TEMPERATE FOG
 10A243	SkyrimCloudyTU			HOT
 10A244	SkyrimClearSN			TEMPERATE
 10A245	SkyrimCloudySN			TEMPERATE
 10A7A5	SkyrimClearVT			HOT
-10A7A6	SkyrimOvercastRainVT		TEMPERATE
-10A7A7	SkyrimFogVT			TEMPERATE
+10A7A6	SkyrimOvercastRainVT		TEMPERATE FOG
+10A7A7	SkyrimFogVT			TEMPERATE FOG
 10A7A8	SkyrimCloudyVT			HOT
-10C32F	FXSkyrimStormBlowingGrass	TEMPERATE
+10C32F	FXSkyrimStormBlowingGrass	TEMPERATE FOG
 10D9EC	SovngardeClear			HOT
 10DA13	FXWthrInvertWindowsWinterhold	COLD
 10E1E3	SkyrimCloudyVT_A		HOT
@@ -84,7 +84,7 @@ ECC96	FXWthrInvertWindowsWindhelm2	COLD
 10E1F1	SkyrimCloudy_A			HOT
 10E1F2	SkyrimClear_A			HOT
 10E3D4	EditorCloudPreview		TEMPERATE
-10FE7E	RiftenOvercastFog		TEMPERATE
+10FE7E	RiftenOvercastFog		TEMPERATE FOG
 10FEF8	SovngardeDark			COLD
 
 Dawnguard
@@ -107,21 +107,21 @@ F89D	DLC1MagicAurielBowCloudyWeather	TEMPERATE
 
 Dragonborn
 
-18471	DLC02VolcanicAsh01		HOT
-1D760	DLC02VolcanicAshTundra01	COLD
+18471	DLC02VolcanicAsh01		HOT FOG
+1D760	DLC02VolcanicAshTundra01	COLD FOG
 1DFF5	DLC2ApocryphaWeather		TEMPERATE
-31AC0	DLC02VolcanicAsh02		HOT
-32336	DLC02VolcanicAshStorm01		HOT
-34CFB	DLC2ApocryphaWeatherNew		TEMPERATE
-374B8	DLC02VolcanicAsh01_A		HOT
-374B9	DLC02VolcanicAsh02_A		HOT
-374BA	DLC02VolcanicAshTundra01_A	COLD
+31AC0	DLC02VolcanicAsh02		HOT FOG
+32336	DLC02VolcanicAshStorm01		HOT FOG
+34CFB	DLC2ApocryphaWeatherNew		TEMPERATE FOG
+374B8	DLC02VolcanicAsh01_A		HOT FOG
+374B9	DLC02VolcanicAsh02_A		HOT FOG
+374BA	DLC02VolcanicAshTundra01_A	COLD FOG
 
 Wet and Cold - Ashes
 
-5B29C	_WetAshFallLight	HOT
-5B29D	_WetAshFallMed		HOT
-5B2A0	_WetAshFallHeavy	HOT
+5B29C	_WetAshFallLight	HOT FOG
+5B29D	_WetAshFallMed		HOT FOG
+5B2A0	_WetAshFallHeavy	HOT FOG
 
 Natural Lighting and Atmospherics
 
@@ -131,18 +131,18 @@ Natural Lighting and Atmospherics
 19BBF	SkyrimMarkarthCloudy		HOT
 19BC0	SkyrimMarkarthClear_NoClouds	HOT
 1BC0D	SkyrimClearMA_CM_NoClouds	HOT
-1C6D2	SkyrimMarkarthFog		TEMPERATE
-1CC35	SkyrimMarkarthOvercast		TEMPERATE
+1C6D2	SkyrimMarkarthFog		TEMPERATE FOG
+1CC35	SkyrimMarkarthOvercast		TEMPERATE FOG
 25D8D	SkyrimClearSN_CM_NoClouds	HOT
 2E982	SkyrimClearCO_CM_NoClouds	HOT
 2E983	SkyrimClearFF_CM_NoCoulds	HOT
 3AB68	SkyrimClearRE_CM_NoClouds	HOT
-4BDF7	SkyrimMist_CM			TEMPERATE
-57500	SkyrimOvercast_CM		TEMPERATE
-73963	SkyrimStormRainHeavy_CM		TEMPERATE
-73964	SkyrimOvercastMarsh_CM		TEMPERATE
-73EC8	SkyrimFogHeavy_CM		TEMPERATE
-83665	SkyrimFogRain_CM		TEMPERATE
+4BDF7	SkyrimMist_CM			TEMPERATE FOG
+57500	SkyrimOvercast_CM		TEMPERATE FOG
+73963	SkyrimStormRainHeavy_CM		TEMPERATE FOG
+73964	SkyrimOvercastMarsh_CM		TEMPERATE FOG
+73EC8	SkyrimFogHeavy_CM		TEMPERATE FOG
+83665	SkyrimFogRain_CM		TEMPERATE FOG
 
 -- In progress
 
@@ -156,13 +156,13 @@ Darkend
 
 Vigilant
 
-56A0C	zzzCHMonoFogWeather		TEMPERATE
-56A0D	zzzCHMonoClearWeather		TEMPERATE
+56A0C	zzzCHMonoFogWeather		TEMPERATE FOG
+56A0D	zzzCHMonoClearWeather		TEMPERATE FOG
 62484	zzzCOCursedWeather		COLD
 67BB2	zzzCHMolagWeatherNoCore		HOT
 701D2	zzzCHMolagWeather		HOT
-2C603B	zzzCHOldForestStormRain		COLD
-2DA92C	zzzCHWhaleGraveyardStormSnow	COLD
+2C603B	zzzCHOldForestStormRain		COLD FOG
+2DA92C	zzzCHWhaleGraveyardStormSnow	COLD FOG
 
 Enderal
 

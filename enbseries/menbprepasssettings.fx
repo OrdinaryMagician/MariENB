@@ -1,6 +1,6 @@
 /*
 	menbprepasssettings.fx : MariENB prepass user-tweakable variables.
-	(C)2013-2016 Marisa Kirisame, UnSX Team.
+	(C)2013-2017 Marisa Kirisame, UnSX Team.
 	Part of MariENB, the personal ENB of Marisa.
 	Released under the GNU GPLv3 (or later).
 */
@@ -619,6 +619,104 @@ bool doffixedcut
 	string UIName = "DOF Fixed Use Cutoff";
 	string UIWidget = "Checkbox";
 > = {true};
+/* fixed dof for foggy weathers */
+bool doffogenable
+<
+	string UIName = "Enable DOF Fog";
+	string UIWidget = "Checkbox";
+> = {true};
+float doffogmult_n
+<
+	string UIName = "DOF Fog Intensity Night";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {2.0};
+float doffogmult_d
+<
+	string UIName = "DOF Fog Intensity Day";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {2.0};
+float doffogmult_in
+<
+	string UIName = "DOF Fog Intensity Interior Night";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {2.0};
+float doffogmult_id
+<
+	string UIName = "DOF Fog Intensity Interior Day";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {2.0};
+float doffogpow_n
+<
+	string UIName = "DOF Fog Contrast Night";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1000.0};
+float doffogpow_d
+<
+	string UIName = "DOF Fog Contrast Day";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1000.0};
+float doffogpow_in
+<
+	string UIName = "DOF Fog Contrast Interior Night";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1000.0};
+float doffogpow_id
+<
+	string UIName = "DOF Fog Contrast Interior Day";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1000.0};
+float doffogbump_n
+<
+	string UIName = "DOF Fog Shift Night";
+	string UIWidget = "Spinner";
+> = {0.0};
+float doffogbump_d
+<
+	string UIName = "DOF Fog Shift Day";
+	string UIWidget = "Spinner";
+> = {0.0};
+float doffogbump_in
+<
+	string UIName = "DOF Fog Shift Interior Night";
+	string UIWidget = "Spinner";
+> = {0.0};
+float doffogbump_id
+<
+	string UIName = "DOF Fog Shift Interior Day";
+	string UIWidget = "Spinner";
+> = {0.0};
+float doffogblend_n
+<
+	string UIName = "DOF Fog Blend Night";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {0.0};
+float doffogblend_d
+<
+	string UIName = "DOF Fog Blend Day";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {0.0};
+float doffogblend_in
+<
+	string UIName = "DOF Fog Blend Interior Night";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {0.0};
+float doffogblend_id
+<
+	string UIName = "DOF Fog Blend Interior Day";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {0.0};
 /* disable depth of field */
 bool dofdisable
 <

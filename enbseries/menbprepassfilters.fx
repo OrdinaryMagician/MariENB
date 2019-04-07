@@ -1,6 +1,6 @@
 /*
 	menbprepassfilters.fx : MariENB prepass shader routines.
-	(C)2013-2016 Marisa Kirisame, UnSX Team.
+	(C)2013-2017 Marisa Kirisame, UnSX Team.
 	Part of MariENB, the personal ENB of Marisa.
 	Released under the GNU GPLv3 (or later).
 */
@@ -179,7 +179,7 @@ float2 DistantHeat( float2 coord )
 		+heatfadebump,0.0,1.0);
 	if ( distfade <= 0.0 ) return coord;
 	float todpow = pow(max(0,ENightDayFactor*min(1.0,weatherfactor(WT_HOT)
-		+1.0-EInteriorFactor)),
+		+weatherfactor(WT_HOT_FOG)+1.0-EInteriorFactor)),
 		heattodpow);
 	if ( !heatalways && (todpow <= 0.0) ) return coord;
 	if ( (fixedx > 0) && (fixedy > 0) ) bresl = float2(fixedx,fixedy);
@@ -191,7 +191,8 @@ float2 DistantHeat( float2 coord )
 	ofs *= pow(length(ofs),heatpow);
 	if ( !heatalways ) ofs *= todpow
 #ifndef FALLOUT
-		*weatherfactor(WT_HOT)+(1.0-weatherfactor(WT_COLD))
+		*(weatherfactor(WT_HOT)+weatherfactor(WT_HOT_FOG))
+		+(1.0-weatherfactor(WT_COLD)-weatherfactor(WT_COLD_FOG))
 #endif
 		;
 	odep = tex2D(SamplerDepth,coord+ofs*heatstrength*distfade*0.01).x;
@@ -346,6 +347,10 @@ float4 PS_DoFPrepass( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	float doffixedunfocusmult = tod_ind(doffixedunfocusmult);
 	float doffixedunfocusbump = tod_ind(doffixedunfocusbump);
 	float doffixedunfocusblend = tod_ind(doffixedunfocusblend);
+	float doffogpow = tod_ind(doffogpow);
+	float doffogmult = tod_ind(doffogmult);
+	float doffogbump = tod_ind(doffogbump);
+	float doffogblend = tod_ind(doffogblend);
 	float dep = tex2D(SamplerDepth,coord).x;
 	float foc = tex2D(SamplerFocus,coord).x;
 	/* cheap tilt */
@@ -355,6 +360,7 @@ float4 PS_DoFPrepass( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	float dff = abs(dep);
 	float dfu = dff;
 	if ( doffixedcut && (dep >= cutoff*0.000001) ) dfu *= 0;
+	float dfog = dff;
 	/*
 	   Change power of dof based on field of view. Works only in Skyrim.
 	   The FieldOfView variable seems to hold bogus values in Fallout
@@ -375,9 +381,14 @@ float4 PS_DoFPrepass( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 		+doffixedfocusbump,0.0,1.0);
 	dfu = clamp(pow(dfu,doffixedunfocuspow)*doffixedunfocusmult
 		+doffixedunfocusbump,0.0,1.0);
+	dfog = clamp(pow(dfog,doffogpow)*doffogmult+doffogbump,0.0,1.0);
 	if ( doffixedonly ) dfc *= 0;
 	dfc *= lerp(1.0,dff,doffixedfocusblend);
 	dfc += lerp(0.0,dfu,doffixedunfocusblend);
+	if ( doffogenable )
+		dfc += (weatherfactor(WT_TEMPERATE_FOG)
+			+weatherfactor(WT_COLD_FOG)+weatherfactor(WT_HOT_FOG))
+			*lerp(0.0,dfog,doffogblend);
 	dfc = saturate(dfc);
 	float4 res = tex2D(SamplerColor,coord);
 	res.a = dfc;
@@ -515,7 +526,8 @@ float2 ScreenFrost( float2 coord )
 	ofs *= pow(length(ofs),frostpow)*froststrength;
 	if ( !frostalways ) ofs *=
 #ifndef FALLOUT
-		weatherfactor(WT_COLD)+(1.0-weatherfactor(WT_HOT))*
+		weatherfactor(WT_COLD)+weatherfactor(WT_COLD_FOG)
+		+(1.0-weatherfactor(WT_HOT)-weatherfactor(WT_HOT_FOG))*
 #endif
 		(1.0-ENightDayFactor)*frostnight;
 	if ( EInteriorFactor == 1.0 ) ofs *= frostind;
@@ -553,7 +565,8 @@ float4 PS_FrostPass( VS_OUTPUT_POST IN, float2 vPos : VPOS) : COLOR
 			1.0)*frostblend;
 		if ( !frostalways ) dist *=
 #ifndef FALLOUT
-			weatherfactor(WT_COLD)+(1.0-weatherfactor(WT_HOT))*
+			weatherfactor(WT_COLD)+weatherfactor(WT_COLD_FOG)
+			+(1.0-weatherfactor(WT_HOT)-weatherfactor(WT_HOT_FOG))*
 #endif
 			(1.0-ENightDayFactor)*frostnight;
 		if ( EInteriorFactor == 1.0 ) dist *= frostind;
