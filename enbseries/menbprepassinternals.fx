@@ -85,10 +85,6 @@ texture2D texNoise3
 <
 	string ResourceName = "menbnoise2.png";
 >;
-texture2D texWater
-<
-	string ResourceName = "menbwater.png";
->;
 texture2D texHeat
 <
 	string ResourceName = "menbheat.png";

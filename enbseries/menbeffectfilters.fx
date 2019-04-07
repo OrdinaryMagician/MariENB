@@ -300,30 +300,17 @@ float3 FilmGrain( float3 res, float2 coord )
 	}
 	return lerp(res,nt,ni);
 }
-/* REVOLUTIONARY ULTRA-AWESOME FILTER */
-float3 Aberration( sampler2D smp, float2 coord )
-{
-	float3 eta = float3(1+chromaab*0.09,1+chromaab*0.06,1+chromaab*0.03);
-	float2 mid = coord-0.5;
-	float2 rc = eta.r*(1.0-chromaab*0.1)*mid+0.5;
-	float2 gc = eta.g*(1.0-chromaab*0.1)*mid+0.5;
-	float2 bc = eta.b*(1.0-chromaab*0.1)*mid+0.5;
-	float3 ab = float3(tex2D(smp,rc).r,tex2D(smp,gc).g,tex2D(smp,bc).b);
-	return ab;
-}
 /* MariENB shader */
 float4 PS_Mari( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 {
 	float2 coord = IN.txcoord0.xy;
 	float4 res = tex2D(_s0,coord);
-	if ( usecurve ) res.rgb = Aberration(_s0,coord);
 	if ( aenable ) res.rgb = Adaptation(res.rgb);
 	if ( tmapenable && tmapbeforecomp ) res.rgb = Tonemap(res.rgb);
 	if ( compenable ) res.rgb = Compensate(res.rgb);
 	if ( tmapenable && !tmapbeforecomp ) res.rgb = Tonemap(res.rgb);
 	if ( bloomdebug	) res.rgb *= 0;
-	if ( usecurve ) res.rgb += Aberration(_s3,coord)*EBloomAmount;
-	else res += tex2D(_s3,coord)*EBloomAmount;
+	res.rgb += tex2D(_s3,coord).rgb*EBloomAmount;
 	if ( tintbeforegrade && tintenable ) res.rgb = Tint(res.rgb);
 	if ( vgradeenable ) res.rgb = GradingGame(res.rgb);
 	if ( gradeenable1 ) res.rgb = GradingRGB(res.rgb);

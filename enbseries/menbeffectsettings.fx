@@ -205,18 +205,6 @@ float nj
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {2.0};
-/* use curvature + chromatic aberration filter */
-bool usecurve
-<
-	string UIName = "UseCurve";
-	string UIWidget = "Checkbox";
-> = {false};
-/* this is a stupid filter and you should feel bad for using it */
-float chromaab
-<
-	string UIName = "CurveChromaAberration";
-	string UIWidget = "Spinner";
-> = {0.05};
 /* "adaptation" factors */
 bool aenable
 <
