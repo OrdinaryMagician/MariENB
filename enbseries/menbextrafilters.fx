@@ -98,7 +98,7 @@ float4 ReduceRGB565( in float4 color, in float2 coord )
 float4 ReduceVGA( in float4 color, in float2 coord )
 {
 	float4 dac = clamp(ReducePrepass(color,coord),0.02,0.98);
-	float2 lc = float2((dac.r+vgapal)/3.0,
+	float2 lc = float2((dac.r+vgapal)/15.0,
 		dac.g/64.0+floor(dac.b*64.0)/64.0);
 	return tex2D(SamplerVGA,lc);
 }

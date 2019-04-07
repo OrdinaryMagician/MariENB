@@ -77,16 +77,28 @@ int egapal
 /*
     VGA palette to use:
      0 : Standard VGA
-     1 : Doom
-     2 : Quake
-     TODO Add other games, including DOS TES ones
+     1 : Amulets & Armor
+     2 : Blood
+     3 : Doom
+     4 : Duke Nukem 3D
+     5 : Hacx 2.0
+     6 : Heretic
+     7 : Hexen
+     8 : Hexen 2
+     9 : Quake
+     10 : Quake 2
+     11 : Rise of the Triad
+     12 : Shadow Warrior
+     13 : Strife
+     14 : Wolfenstein 3D
+     TODO Project .Blank palette (when the design is finished)
 */
 int vgapal
 <
 	string UIName = "VGA Palette";
 	string UIWidget = "Spinner";
 	int UIMin = 0;
-	int UIMax = 2;
+	int UIMax = 14;
 > = {0};
 /*
    Dithering mode:
