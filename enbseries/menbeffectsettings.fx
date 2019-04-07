@@ -207,6 +207,33 @@ bool nbt
 	string UIName = "Apply Grain Before Tone Mapping";
 	string UIWidget = "Checkbox";
 > = {true};
+/* old dirt filter */
+string str_dirt = "Screen Dirt";
+bool dirtenable
+<
+	string UIName = "Enable Dirt";
+	string UIWidget = "Checkbox";
+> = {false};
+float dirtcfactor
+<
+	string UIName = "Dirt Coord Factor";
+	string UIWidget = "Spinner";
+> = {0.1};
+float dirtlfactor
+<
+	string UIName = "Dirt Luminance Factor";
+	string UIWidget = "Spinner";
+> = {0.0};
+float dirtmc
+<
+	string UIName = "Dirt Coord Zoom";
+	string UIWidget = "Spinner";
+> = {3.0};
+float dirtml
+<
+	string UIName = "Dirt Luminance Zoom";
+	string UIWidget = "Spinner";
+> = {1.0};
 /* "adaptation" factors */
 string str_adaptation = "Eye Adaptation";
 bool aenable
@@ -731,29 +758,6 @@ float lutblend_i
 	string UIName = "LUT Blend Interior";
 	string UIWidget = "Spinner";
 > = {1.0};
-#ifdef LUTMODE_LEGACY
-int clut_n
-<
-	string UIName = "LUT Preset Night";
-	string UIWidget = "Spinner";
-	int UIMin = 0;
-	int UIMax = 63;
-> = {1};
-int clut_d
-<
-	string UIName = "LUT Preset Day";
-	string UIWidget = "Spinner";
-	int UIMin = 0;
-	int UIMax = 63;
-> = {1};
-int clut_i
-<
-	string UIName = "LUT Preset Interior";
-	string UIWidget = "Spinner";
-	int UIMin = 0;
-	int UIMax = 63;
-> = {1};
-#endif
 /* technicolor shader */
 string str_tech = "Technicolor";
 bool techenable

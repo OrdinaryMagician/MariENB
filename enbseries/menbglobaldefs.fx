@@ -14,12 +14,7 @@
 #define NOISESIZE 256.0
 #define HEATSIZE 1024.0
 #define FROSTSIZE 1024.0
-/* LUT mode (use only one) - The 256px option was discarded for size reasons */
-//#define LUTMODE_LEGACY
-//#define LUTMODE_16
-#define LUTMODE_64
 /* some textures can be provided as DDS rather than PNG to save space */
 //#define HEAT_DDS
 //#define FROST_DDS
-//#define FROSTBUMP_DDS
 //#define VIGNETTE_DDS
