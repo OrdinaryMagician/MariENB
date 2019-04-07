@@ -53,3 +53,7 @@ FROST
 
 2224b	CommonwealthFoggyLight		-
 25054	CommonwealthOvercastStormy	-
+
+Nuclear Winter Snow Only
+
+80d	-				-

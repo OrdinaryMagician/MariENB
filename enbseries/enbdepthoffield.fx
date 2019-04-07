@@ -626,6 +626,163 @@ float edgevradius
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
+bool edgevinv
+<
+	string UIName = "Invert Edgevision";
+	string UIWidget = "Checkbox";
+> = {false};
+bool edgevblend
+<
+	string UIName = "Blend Edgevision";
+	string UIWidget = "Checkbox";
+> = {false};
+/* use luma edge detection filter */
+string str_com = "Edge Detect";
+bool comenable
+<
+	string UIName = "Enable Edge Detect";
+	string UIWidget = "Checkbox";
+> = {false};
+float compow
+<
+	string UIName = "Edge Detect Contrast";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float commult
+<
+	string UIName = "Edge Detect Intensity";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float comradius
+<
+	string UIName = "Edge Detect Radius";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+bool cominv
+<
+	string UIName = "Invert Edge Detect";
+	string UIWidget = "Checkbox";
+> = {false};
+bool comblend
+<
+	string UIName = "Blend Edge Detect";
+	string UIWidget = "Checkbox";
+> = {false};
+/* use edge threshold filter aka "linevision" */
+string str_cont = "Linevision";
+bool contenable
+<
+	string UIName = "Enable Linevision";
+	string UIWidget = "Checkbox";
+> = {false};
+/* factors */
+float contfadepow_n
+<
+	string UIName = "Linevision Fade Contrast Night";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {2.0};
+float contfadepow_d
+<
+	string UIName = "Linevision Fade Contrast Day";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {2.0};
+float contfadepow_i
+<
+	string UIName = "Linevision Fade Contrast Interior";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {2.0};
+float contfademult_n
+<
+	string UIName = "Linevision Fade Intensity Night";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {500.0};
+float contfademult_d
+<
+	string UIName = "Linevision Fade Intensity Day";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {500.0};
+float contfademult_i
+<
+	string UIName = "Linevision Fade Intensity Interior";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {500.0};
+float contpow
+<
+	string UIName = "Linevision Contrast";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float contmult
+<
+	string UIName = "Linevision Intensity";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {2.0};
+float contradius
+<
+	string UIName = "Linevision Radius";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float contthreshold
+<
+	string UIName = "Linevision Threshold";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {0.05};
+bool continv
+<
+	string UIName = "Invert Linevision";
+	string UIWidget = "Checkbox";
+> = {false};
+bool contblend
+<
+	string UIName = "Blend Linevision";
+	string UIWidget = "Checkbox";
+> = {false};
+/* fog filter */
+string str_fog = "Custom Fog Filter";
+bool fogenable
+<
+	string UIName = "Enable Custom Fog";
+	string UIWidget = "Checkbox";
+> = {false};
+float fogpow
+<
+	string UIName = "Fog Contrast";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float fogmult
+<
+	string UIName = "Fog Intensity";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float fogbump
+<
+	string UIName = "Fog Shift";
+	string UIWidget = "Spinner";
+> = {0.0};
+float3 fogcolor
+<
+	string UIName = "Fog Color";
+	string UIWidget = "Spinner";
+> = {1.0,1.0,1.0};
+bool foglimbo
+<
+	string UIName = "Limbo Mode";
+	string UIWidget = "Checkbox";
+> = {false};
 /* ssao filter */
 string str_ssao = "Ray Marching SSAO";
 bool ssaoenable
@@ -693,6 +850,11 @@ float ssaopow
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.5};
+float ssaobump
+<
+	string UIName = "SSAO Shift";
+	string UIWidget = "Spinner";
+> = {0.0};
 float ssaoblend
 <
 	string UIName = "SSAO Blending";
@@ -979,6 +1141,12 @@ static const float3x3 GY =
 	 0, 0, 0,
 	-1,-2,-1
 };
+/* radius: 8, std dev: 3 */
+static const float gauss8[8] =
+{
+	0.134598, 0.127325, 0.107778, 0.081638,
+	0.055335, 0.033562, 0.018216, 0.008847
+};
 /* radius: 16, std dev: 13 */
 static const float gauss16[16] =
 {
@@ -988,18 +1156,42 @@ static const float gauss16[16] =
 	0.026131, 0.024268, 0.022405, 0.020563
 };
 /* SSAO samples */
-static const float3 ssao_samples[16] = 
+static const float3 ssao_samples[64] = 
 {
-	float3( 0.0000,-0.0002, 0.0000),float3(-0.0004, 0.0013, 0.0014),
-	float3(-0.0030, 0.0048,-0.0034),float3( 0.0147, 0.0046,-0.0026),
-	float3(-0.0097, 0.0275,-0.0092),float3(-0.0178,-0.0072, 0.0491),
-	float3( 0.0227,-0.0431,-0.0681),float3( 0.1052, 0.0332,-0.0588),
-	float3( 0.0997, 0.0056, 0.1473),float3(-0.1252, 0.2019, 0.0564),
-	float3(-0.1054,-0.2072, 0.2271),float3(-0.0542, 0.3096, 0.2814),
-	float3( 0.0072,-0.3534, 0.4035),float3(-0.0024,-0.2385, 0.6260),
-	float3(-0.1940, 0.5722,-0.5602),float3(-0.0910,-0.7548,-0.6497)
+	float3(-0.0051, 0.0021, 0.0146),float3(-0.0197,-0.0213,-0.0116),
+	float3( 0.0005,-0.0432,-0.0182),float3(-0.0011,-0.0586,-0.0217),
+	float3(-0.0549, 0.0461, 0.0309),float3(-0.0448,-0.0764,-0.0306),
+	float3(-0.0366, 0.0758,-0.0699),float3(-0.0770,-0.0707,-0.0686),
+	float3( 0.1181,-0.0340,-0.0683),float3(-0.0647, 0.0356, 0.1377),
+	float3(-0.1167, 0.1262, 0.0024),float3(-0.1353,-0.0861, 0.0971),
+	float3(-0.0096, 0.0936, 0.1800),float3( 0.1311,-0.1013,-0.1429),
+	float3(-0.1186,-0.0653, 0.1913),float3( 0.1641, 0.0260, 0.1868),
+	float3(-0.1225,-0.2319, 0.0424),float3( 0.1036,-0.2000, 0.1684),
+	float3( 0.1656, 0.2022,-0.1408),float3(-0.1809,-0.1673, 0.1922),
+	float3(-0.2485,-0.1236, 0.1750),float3( 0.1030,-0.0550, 0.3233),
+	float3(-0.0405, 0.3068, 0.1827),float3(-0.0576, 0.1632, 0.3327),
+	float3( 0.0392, 0.3583,-0.1505),float3( 0.0082, 0.2865, 0.2879),
+	float3( 0.0055,-0.2835, 0.3124),float3(-0.2733, 0.1991,-0.2776),
+	float3( 0.2667, 0.1127,-0.3486),float3(-0.3326, 0.2740,-0.1844),
+	float3( 0.2887,-0.3838, 0.0630),float3( 0.1088, 0.1546, 0.4629),
+	float3( 0.0977,-0.3565, 0.3595),float3(-0.4204, 0.0855, 0.3133),
+	float3(-0.2237,-0.4932, 0.0759),float3( 0.4245, 0.3169,-0.1891),
+	float3( 0.0084,-0.5682, 0.1062),float3(-0.1489,-0.5296,-0.2235),
+	float3( 0.0014,-0.4153,-0.4460),float3( 0.0300,-0.4392, 0.4437),
+	float3( 0.2627, 0.4518, 0.3704),float3(-0.4945, 0.3659, 0.2285),
+	float3(-0.2550,-0.5311, 0.3230),float3(-0.4477, 0.0828,-0.5151),
+	float3( 0.4682, 0.4531,-0.2644),float3(-0.1235,-0.0366, 0.7071),
+	float3( 0.3545, 0.4559, 0.4536),float3(-0.1037,-0.2199,-0.7095),
+	float3( 0.4269, 0.5299,-0.3510),float3( 0.7051,-0.1468,-0.3027),
+	float3( 0.4590,-0.5669,-0.3208),float3( 0.2330, 0.1264, 0.7680),
+	float3(-0.3954, 0.5619,-0.4622),float3( 0.5977,-0.5110, 0.3059),
+	float3(-0.5800,-0.6306, 0.0672),float3(-0.2211,-0.0332,-0.8460),
+	float3(-0.3808,-0.2238,-0.7734),float3(-0.5616, 0.6858,-0.1887),
+	float3(-0.2995, 0.5165,-0.7024),float3( 0.5042,-0.0537, 0.7885),
+	float3(-0.6477,-0.3691, 0.5938),float3(-0.3969, 0.8815, 0.0620),
+	float3(-0.4300,-0.8814,-0.0852),float3(-0.1683, 0.9379, 0.3033)
 };
-/* For high quality DOF */
+/* For low quality DOF */
 static const float2 poisson32[32] =
 {
 	float2( 0.7284430,-0.1927130),float2( 0.4051600,-0.2312710),
@@ -1042,7 +1234,7 @@ Texture2D RenderTargetR32F; /* for DOF */
 
 Texture2D TextureNoise3
 <
-	string ResourceName = "menbnoise2.png";
+	string ResourceName = "menbnoise3.png";
 >;
 Texture2D TextureHeat
 <
@@ -1164,7 +1356,7 @@ float4 PS_SSAOPre( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	float sdepth, so, delta;
 	float sclamp = ssaoclamp/100000.0;
 	float sclampmin = ssaoclampmin/100000.0;
-	[unroll] for ( i=0; i<16; i++ )
+	[unroll] for ( i=0; i<64; i++ )
 	{
 		sample = reflect(ssao_samples[i],rnormal);
 		sample *= sign(dot(normal,sample));
@@ -1175,64 +1367,47 @@ float4 PS_SSAOPre( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 		if ( (delta > sclampmin) && (delta < sclamp) )
 			occ += 1.0-delta;
 	}
-	float uocc = saturate(occ/16.0);
+	float uocc = saturate(occ/64.0);
 	float fade = 1.0-depth;
 	uocc *= saturate(pow(max(0,fade),ssaofadepow)*ssaofademult);
-	uocc = saturate(pow(max(0,uocc),ssaopow)*ssaomult);
+	uocc = saturate(pow(max(0,uocc),ssaopow)*ssaomult+ssaobump);
 	return saturate(1.0-(uocc*ssaoblend));
 }
 /*
-   The blur passes use bilateral filtering to mostly preserve borders.
+   The blur pass uses bilateral filtering to mostly preserve borders.
    An additional factor using difference of normals was tested, but the
    performance decrease was too much, so it's gone forever.
 */
-float4 PS_SSAOBlurH( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
+float4 PS_SSAOBlur( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 {
 	float2 coord = IN.txcoord.xy;
-	if ( !ssaoenable ) return 0.0;
-	if ( !ssaobenable ) return TextureColor.Sample(Sampler1,coord);
-	float bresl = ScreenSize.x;
-	float bof = (1.0/bresl)*ssaobradius;
-	float isd, sd, ds, sw, tw = 0;
-	float res = 0.0;
-	int i;
-	isd = TextureDepth.Sample(Sampler1,coord).x;
-	[unroll] for ( i=-15; i<=15; i++ )
+	float4 res = TextureColor.Sample(Sampler1,coord);
+	float mud = RenderTargetR16F.Sample(Sampler1,coord).x;
+	if ( !ssaoenable ) return res;
+	if ( !ssaobenable )
 	{
-		sd = TextureDepth.Sample(Sampler1,coord+float2(i,0)*bof).x;
+		if ( ssaodebug ) return saturate(mud);
+		return res*mud;
+	}
+	float2 bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
+	float2 bof = (1.0/bresl)*ssaobradius;
+	float isd, sd, ds, sw, tw = 0;
+	mud = 0.0;
+	int i, j;
+	isd = TextureDepth.Sample(Sampler1,coord).x;
+	[unroll] for ( j=-7; j<=7; j++ ) [unroll] for ( i=-7; i<=7; i++ )
+	{
+		sd = TextureDepth.Sample(Sampler1,coord+float2(i,j)*bof).x;
 		ds = 1.0/pow(1.0+abs(isd-sd),ssaobfact);
 		sw = ds;
-		sw *= gauss16[abs(i)];
+		sw *= gauss8[abs(i)]*gauss8[abs(j)];
 		tw += sw;
-		res += sw*TextureColor.Sample(Sampler1,coord+float2(i,0)
+		mud += sw*RenderTargetR16F.Sample(Sampler1,coord+float2(i,j)
 			*bof).x;
 	}
-	res /= tw;
-	return res;
-}
-float4 PS_SSAOBlurV( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
-{
-	float2 coord = IN.txcoord.xy;
-	if ( !ssaoenable ) return 0.0;
-	if ( !ssaobenable ) return TextureColor.Sample(Sampler1,coord);
-	float bresl = ScreenSize.x*ScreenSize.w;
-	float bof = (1.0/bresl)*ssaobradius;
-	float isd, sd, ds, sw, tw = 0;
-	float res = 0.0;
-	int i;
-	isd = TextureDepth.Sample(Sampler1,coord).x;
-	[unroll] for ( i=-15; i<=15; i++ )
-	{
-		sd = TextureDepth.Sample(Sampler1,coord+float2(0,i)*bof).x;
-		ds = 1.0/pow(1.0+abs(isd-sd),ssaobfact);
-		sw = ds;
-		sw *= gauss16[abs(i)];
-		tw += sw;
-		res += sw*TextureColor.Sample(Sampler1,coord+float2(0,i)
-			*bof).x;
-	}
-	res /= tw;
-	return res;
+	mud /= tw;
+	if ( ssaodebug ) return saturate(mud);
+	return res*mud;
 }
 
 /* precalculate DOF factors */
@@ -1312,9 +1487,97 @@ float3 EdgeView( float3 res, float2 coord )
 	mdy += GY[2][2]*depths[2][2];
 	mud = pow(mdx*mdx+mdy*mdy,0.5);
 	float fade = 1.0-TextureDepth.Sample(Sampler1,coord).x;
-	mud *= saturate(pow(max(0,fade),edgevfadepow)*edgevfademult);
-	mud = saturate(pow(max(0,mud),edgevpow)*edgevmult);
-	return mud;
+	mud *= clamp(pow(max(0,fade),edgevfadepow)*edgevfademult,0.0,1.0);
+	mud = clamp(pow(max(0,mud),edgevpow)*edgevmult,0.0,1.0);
+	if ( edgevblend ) return res-(edgevinv?1.0-mud:mud);
+	return edgevinv?1.0-mud:mud;
+}
+
+/* luminance edge detection */
+float3 EdgeDetect( float3 res, float2 coord )
+{
+	float2 bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
+	if ( fixed.x>0 && fixed.y>0 ) bresl = fixed;
+	float2 bof = float2(1.0/bresl.x,1.0/bresl.y)*comradius;
+	float mdx = 0, mdy = 0, mud = 0;
+	float3x3 lums;
+	float3 col;
+	col = TextureOriginal.Sample(Sampler1,coord+float2(-1,-1)*bof).rgb;
+	lums[0][0] = luminance(col);
+	col = TextureOriginal.Sample(Sampler1,coord+float2(0,-1)*bof).rgb;
+	lums[0][1] = luminance(col);
+	col = TextureOriginal.Sample(Sampler1,coord+float2(1,-1)*bof).rgb;
+	lums[0][2] = luminance(col);
+	col = TextureOriginal.Sample(Sampler1,coord+float2(-1,0)*bof).rgb;
+	lums[1][0] = luminance(col);
+	col = TextureOriginal.Sample(Sampler1,coord+float2(0,0)*bof).rgb;
+	lums[1][1] = luminance(col);
+	col = TextureOriginal.Sample(Sampler1,coord+float2(1,0)*bof).rgb;
+	lums[1][2] = luminance(col);
+	col = TextureOriginal.Sample(Sampler1,coord+float2(-1,1)*bof).rgb;
+	lums[2][0] = luminance(col);
+	col = TextureOriginal.Sample(Sampler1,coord+float2(0,1)*bof).rgb;
+	lums[2][1] = luminance(col);
+	col = TextureOriginal.Sample(Sampler1,coord+float2(1,1)*bof).rgb;
+	lums[2][2] = luminance(col);
+	mdx += GX[0][0]*lums[0][0];
+	mdx += GX[0][1]*lums[0][1];
+	mdx += GX[0][2]*lums[0][2];
+	mdx += GX[1][0]*lums[1][0];
+	mdx += GX[1][1]*lums[1][1];
+	mdx += GX[1][2]*lums[1][2];
+	mdx += GX[2][0]*lums[2][0];
+	mdx += GX[2][1]*lums[2][1];
+	mdx += GX[2][2]*lums[2][2];
+	mdy += GY[0][0]*lums[0][0];
+	mdy += GY[0][1]*lums[0][1];
+	mdy += GY[0][2]*lums[0][2];
+	mdy += GY[1][0]*lums[1][0];
+	mdy += GY[1][1]*lums[1][1];
+	mdy += GY[1][2]*lums[1][2];
+	mdy += GY[2][0]*lums[2][0];
+	mdy += GY[2][1]*lums[2][1];
+	mdy += GY[2][2]*lums[2][2];
+	mud = pow(max(mdx*mdx+mdy*mdy,0.0),0.5);
+	mud = clamp(pow(max(mud,0.0),compow)*commult,0.0,1.0);
+	if ( comblend ) return res-(cominv?1.0-mud:mud);
+	return cominv?1.0-mud:mud;
+}
+
+/* linevision filter */
+float3 LineView( float3 res, float2 coord )
+{
+	float2 bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
+	if ( fixed.x>0 && fixed.y>0 ) bresl = fixed;
+	float contfadepow = tod_ind(contfadepow);
+	float contfademult = tod_ind(contfademult);
+	float2 bof = float2(1.0/bresl.x,1.0/bresl.y)*contradius;
+	float dep = depthlinear(coord);
+	float cont = depthlinear(coord+float2(-1,-1)*bof);
+	cont += depthlinear(coord+float2(0,-1)*bof);
+	cont += depthlinear(coord+float2(1,-1)*bof);
+	cont += depthlinear(coord+float2(-1,0)*bof);
+	cont += depthlinear(coord+float2(1,0)*bof);
+	cont += depthlinear(coord+float2(-1,1)*bof);
+	cont += depthlinear(coord+float2(0,1)*bof);
+	cont += depthlinear(coord+float2(1,1)*bof);
+	cont /= 8.0;
+	float mud = 0.0;
+	if ( abs(cont-dep) > (contthreshold*0.00001) ) mud = 1.0;
+	float fade = 1.0-TextureDepth.Sample(Sampler1,coord).x;
+	mud *= clamp(pow(max(0.0,fade),contfadepow)*contfademult,0.0,1.0);
+	mud = clamp(pow(max(0.0,mud),contpow)*contmult,0.0,1.0);
+	if ( contblend ) return res-(continv?1.0-mud:mud);
+	return continv?1.0-mud:mud;
+}
+
+/* fog filter */
+float3 Limbo( float3 res, float2 coord )
+{
+	float mud = clamp(pow(max(0.0,depthlinear(coord)),fogpow)*fogmult
+		+fogbump,0.0,1.0);
+	if ( foglimbo ) return fogcolor*mud;
+	return lerp(res,fogcolor,mud);
 }
 
 /* Colour grading based on depth */
@@ -1367,17 +1630,25 @@ float3 DepthGrade( float3 res, float2 coord )
 	return res;
 }
 
-/* apply SSAO to screen */
-float4 PS_SSAOApply( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
+float4 PS_DepthGrade( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 {
 	float2 coord = IN.txcoord.xy;
-	float4 res = TextureOriginal.Sample(Sampler1,coord);
-	if ( edgevenable ) res.rgb = EdgeView(res.rgb,coord);
+	float4 res = TextureColor.Sample(Sampler1,coord);
 	res.rgb = DepthGrade(res.rgb,coord);
-	if ( !ssaoenable ) return res;
-	float mud = RenderTargetR16F.Sample(Sampler1,coord).x;
-	if ( ssaodebug ) return saturate(mud);
-	return res*mud;
+	res.rgb = max(res.rgb,0.0);
+	return res;
+}
+
+float4 PS_PreFilters( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
+{
+	float2 coord = IN.txcoord.xy;
+	float4 res = TextureColor.Sample(Sampler1,coord);
+	if ( edgevenable ) res.rgb = EdgeView(res.rgb,coord);
+	if ( comenable ) res.rgb = EdgeDetect(res.rgb,coord);
+	if ( contenable ) res.rgb = LineView(res.rgb,coord);
+	if ( fogenable ) res.rgb = Limbo(res.rgb,coord);
+	res.rgb = max(res.rgb,0.0);
+	return res;
 }
 
 /* Distant hot air refraction. Not very realistic, but does the job. */
@@ -1741,7 +2012,7 @@ technique11 Prepass <string UIName="MariENB";>
 	pass p0
 	{
 		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
-		SetPixelShader(CompileShader(ps_5_0,PS_SSAOPre()));
+		SetPixelShader(CompileShader(ps_5_0,PS_PreFilters()));
 	}
 }
 technique11 Prepass1
@@ -1749,7 +2020,7 @@ technique11 Prepass1
 	pass p0
 	{
 		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
-		SetPixelShader(CompileShader(ps_5_0,PS_SSAOBlurH()));
+		SetPixelShader(CompileShader(ps_5_0,PS_DepthGrade()));
 	}
 }
 technique11 Prepass2 <string RenderTarget="RenderTargetR16F";>
@@ -1757,15 +2028,15 @@ technique11 Prepass2 <string RenderTarget="RenderTargetR16F";>
 	pass p0
 	{
 		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
-		SetPixelShader(CompileShader(ps_5_0,PS_SSAOBlurV()));
+		SetPixelShader(CompileShader(ps_5_0,PS_SSAOPre()));
 	}
 }
-technique11 Prepass3 <string RenderTarget="RenderTargetR32F";>
+technique11 Prepass3
 {
 	pass p0
 	{
 		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
-		SetPixelShader(CompileShader(ps_5_0,PS_DoFPrepass()));
+		SetPixelShader(CompileShader(ps_5_0,PS_Distortion()));
 	}
 }
 technique11 Prepass4
@@ -1773,15 +2044,15 @@ technique11 Prepass4
 	pass p0
 	{
 		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
-		SetPixelShader(CompileShader(ps_5_0,PS_SSAOApply()));
+		SetPixelShader(CompileShader(ps_5_0,PS_SSAOBlur()));
 	}
 }
-technique11 Prepass5
+technique11 Prepass5 <string RenderTarget="RenderTargetR32F";>
 {
 	pass p0
 	{
 		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
-		SetPixelShader(CompileShader(ps_5_0,PS_Distortion()));
+		SetPixelShader(CompileShader(ps_5_0,PS_DoFPrepass()));
 	}
 }
 technique11 Prepass6
@@ -1814,7 +2085,7 @@ technique11 PrepassB <string UIName="MariENB (HQ Bokeh)";>
 	pass p0
 	{
 		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
-		SetPixelShader(CompileShader(ps_5_0,PS_SSAOPre()));
+		SetPixelShader(CompileShader(ps_5_0,PS_PreFilters()));
 	}
 }
 technique11 PrepassB1
@@ -1822,7 +2093,7 @@ technique11 PrepassB1
 	pass p0
 	{
 		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
-		SetPixelShader(CompileShader(ps_5_0,PS_SSAOBlurH()));
+		SetPixelShader(CompileShader(ps_5_0,PS_DepthGrade()));
 	}
 }
 technique11 PrepassB2 <string RenderTarget="RenderTargetR16F";>
@@ -1830,15 +2101,15 @@ technique11 PrepassB2 <string RenderTarget="RenderTargetR16F";>
 	pass p0
 	{
 		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
-		SetPixelShader(CompileShader(ps_5_0,PS_SSAOBlurV()));
+		SetPixelShader(CompileShader(ps_5_0,PS_SSAOPre()));
 	}
 }
-technique11 PrepassB3 <string RenderTarget="RenderTargetR32F";>
+technique11 PrepassB3
 {
 	pass p0
 	{
 		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
-		SetPixelShader(CompileShader(ps_5_0,PS_DoFPrepass()));
+		SetPixelShader(CompileShader(ps_5_0,PS_Distortion()));
 	}
 }
 technique11 PrepassB4
@@ -1846,15 +2117,15 @@ technique11 PrepassB4
 	pass p0
 	{
 		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
-		SetPixelShader(CompileShader(ps_5_0,PS_SSAOApply()));
+		SetPixelShader(CompileShader(ps_5_0,PS_SSAOBlur()));
 	}
 }
-technique11 PrepassB5
+technique11 PrepassB5 <string RenderTarget="RenderTargetR32F";>
 {
 	pass p0
 	{
 		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
-		SetPixelShader(CompileShader(ps_5_0,PS_Distortion()));
+		SetPixelShader(CompileShader(ps_5_0,PS_DoFPrepass()));
 	}
 }
 technique11 PrepassB6
