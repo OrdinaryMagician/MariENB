@@ -519,8 +519,8 @@ float4 PS_Mari( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 		if ( gradeenable2 ) res.rgb = GradingColorize(res.rgb);
 		if ( gradeenable3 ) res.rgb = GradingHSV(res.rgb);
 	}
-	if ( lutenable ) res.rgb = GradingLUT(res.rgb);
 	if ( techenable ) res.rgb = Technicolor(res.rgb);
+	if ( lutenable ) res.rgb = GradingLUT(res.rgb);
 	if ( !nbt && ne ) res.rgb = FilmGrain(res.rgb,coord);
 	res.rgb = _r5.w*(_r5.rgb-res.rgb)+res.rgb;
 	if ( dodither ) res.rgb = Dither(res.rgb,coord);

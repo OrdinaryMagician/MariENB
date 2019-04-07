@@ -4,17 +4,8 @@
 	Part of MariENB, the personal ENB of Marisa.
 	Released under the GNU GPLv3 (or later).
 */
-/*
-   Paint filters:
-   -1 : Disabled
-    0 : Oil painting filter, mixes Kuwahara with median for a smooth result
-    1 : "Van Gogh" filter, ported from https://www.shadertoy.com/view/MdGSDG
-        with some small changes
-    2 : "Watercolor" filter, ported from https://www.shadertoy.com/view/ltyGRV
-        also with some small changes
-    
-*/
-string str_paint = "Painting Filters";
+/* Paint filter */
+string str_paint = "Painting Filter";
 bool oilenable
 <
 	string UIName = "Enable Oil Filter";

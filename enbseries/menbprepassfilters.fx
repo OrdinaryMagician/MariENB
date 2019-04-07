@@ -322,10 +322,10 @@ float4 PS_EdgeFilters( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 {
 	float2 coord = IN.txcoord.xy;
 	float4 res = tex2D(SamplerColor,coord);
-	if ( fogenable ) res.rgb = Limbo(res.rgb,coord);
 	if ( edgevenable ) res.rgb = EdgeView(res.rgb,coord);
 	if ( comenable ) res.rgb = EdgeDetect(res.rgb,coord);
 	if ( contenable ) res.rgb = LineView(res.rgb,coord);
+	if ( fogenable ) res.rgb = Limbo(res.rgb,coord);
 	return res;
 }
 /* Distant hot air refraction. Not very realistic, but does the job. */
