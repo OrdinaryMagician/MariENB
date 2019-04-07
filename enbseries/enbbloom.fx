@@ -403,6 +403,14 @@ SamplerState Sampler
 	MaxLOD = 0;
 	MinLOD = 0;
 };
+SamplerState Sampler2
+{
+	Filter = MIN_MAG_MIP_LINEAR;
+	AddressU = Clamp;
+	AddressV = Clamp;
+	MaxLOD = 0;
+	MinLOD = 0;
+};
 
 SamplerState SamplerLens
 {
@@ -462,7 +470,7 @@ float4 PS_PrePass( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	float bloompower = tod_ind(bloompower);
 	float bloomsaturation = tod_ind(bloomsaturation);
 	float bloomintensity = tod_ind(bloomintensity);
-	float4 res = TextureDownsampled.Sample(Sampler,coord);
+	float4 res = TextureDownsampled.Sample(Sampler2,coord);
 	float3 hsv = rgb2hsv(res.rgb);
 	if ( hsv.z > bloomcap ) hsv.z = bloomcap;
 	res.rgb = hsv2rgb(hsv);
@@ -476,8 +484,7 @@ float4 PS_PrePass( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 }
 
 /*
-   progressive downsizing of textures, uses a method taken from GeDoSaTo to
-   preserve bright spots.
+   progressive downsizing of textures, with interpolation.
    
    First downsample is unnecessary because both textures are the same size.
 */
@@ -487,11 +494,11 @@ float4 PS_Downsize( VS_OUTPUT_POST IN, float4 v0 : SV_Position0,
 	float2 coord = IN.txcoord0.xy;
 	float2 ssz;
 	if ( insz > 0.0 ) ssz = float2(1.0/insz,1.0/insz);
-	else return intex.Sample(Sampler,coord);
-	float4 res = max(intex.Sample(Sampler,coord),
-		max(intex.Sample(Sampler,coord+float2(ssz.x,0.0)),
-		max(intex.Sample(Sampler,coord+float2(0.0,ssz.y)),
-		intex.Sample(Sampler,coord+float2(ssz.x,ssz.y)))));
+	else return intex.Sample(Sampler2,coord);
+	float4 res = 0.25*(intex.Sample(Sampler2,coord)
+		+intex.Sample(Sampler2,coord+float2(ssz.x,0.0))
+		+intex.Sample(Sampler2,coord+float2(0.0,ssz.y))
+		+intex.Sample(Sampler2,coord+float2(ssz.x,ssz.y)));
 	return res;
 }
 
@@ -589,15 +596,15 @@ float4 PS_PostPass( VS_OUTPUT_POST IN, float4 v0 : SV_Position0,
 {
 	float2 coord = IN.txcoord0.xy;
 	float4 res = float4(0.0,0.0,0.0,0.0);
-	if ( simple ) res += bloommixs*RenderTarget32.Sample(Sampler,coord);
+	if ( simple ) res += bloommixs*RenderTarget32.Sample(Sampler2,coord);
 	else
 	{
-		res += bloommix1*RenderTarget1024.Sample(Sampler,coord);
-		res += bloommix2*RenderTarget512.Sample(Sampler,coord);
-		res += bloommix3*RenderTarget256.Sample(Sampler,coord);
-		res += bloommix4*RenderTarget128.Sample(Sampler,coord);
-		res += bloommix5*RenderTarget64.Sample(Sampler,coord);
-		res += bloommix6*RenderTarget32.Sample(Sampler,coord);
+		res += bloommix1*RenderTarget1024.Sample(Sampler2,coord);
+		res += bloommix2*RenderTarget512.Sample(Sampler2,coord);
+		res += bloommix3*RenderTarget256.Sample(Sampler2,coord);
+		res += bloommix4*RenderTarget128.Sample(Sampler2,coord);
+		res += bloommix5*RenderTarget64.Sample(Sampler2,coord);
+		res += bloommix6*RenderTarget32.Sample(Sampler2,coord);
 		res.rgb /= 6.0;
 	}
 	res.rgb = clamp(res.rgb,0.0,32768.0);
@@ -610,15 +617,15 @@ float4 PS_PostPass( VS_OUTPUT_POST IN, float4 v0 : SV_Position0,
 	ccoord.y = (coord.y-0.5)*ScreenSize.w+0.5;
 #endif
 	float4 crap = TextureLens.Sample(SamplerLens,ccoord);
-	if ( simple ) mud += dirtmixs*RenderTarget32.Sample(Sampler,coord);
+	if ( simple ) mud += dirtmixs*RenderTarget32.Sample(Sampler2,coord);
 	else
 	{
-		mud += dirtmix1*RenderTarget1024.Sample(Sampler,coord);
-		mud += dirtmix2*RenderTarget512.Sample(Sampler,coord);
-		mud += dirtmix3*RenderTarget256.Sample(Sampler,coord);
-		mud += dirtmix4*RenderTarget128.Sample(Sampler,coord);
-		mud += dirtmix5*RenderTarget64.Sample(Sampler,coord);
-		mud += dirtmix6*RenderTarget32.Sample(Sampler,coord);
+		mud += dirtmix1*RenderTarget1024.Sample(Sampler2,coord);
+		mud += dirtmix2*RenderTarget512.Sample(Sampler2,coord);
+		mud += dirtmix3*RenderTarget256.Sample(Sampler2,coord);
+		mud += dirtmix4*RenderTarget128.Sample(Sampler2,coord);
+		mud += dirtmix5*RenderTarget64.Sample(Sampler2,coord);
+		mud += dirtmix6*RenderTarget32.Sample(Sampler2,coord);
 		mud.rgb /= 6.0;
 	}
 	mud.rgb = clamp(mud.rgb,0.0,32768.0);
