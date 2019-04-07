@@ -111,7 +111,6 @@ float4 PS_EdgePlusSSAOPrepass( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	float4 res = tex2D(SamplerColor,coord);
 	if ( sharpenable ) res.rgb = Sharpen(res.rgb,coord);
 	if ( edgevenable ) res.rgb = EdgeView(res.rgb,coord);
-#ifdef MARIENB_SSAO
 	/* get occlusion using single-step Ray Marching with 64 samples */
 	float ssaofadepow = tod_ind(ssaofadepow);
 	float ssaofademult = tod_ind(ssaofademult);
@@ -138,9 +137,9 @@ float4 PS_EdgePlusSSAOPrepass( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	float sdepth, so, delta;
 	float sclamp = ssaoclamp/100000.0;
 	float sclampmin = ssaoclampmin/100000.0;
-	if ( ssaoquarter ) [unroll] for ( i=0; i<16; i++ )
+	[unroll] for ( i=0; i<16; i++ )
 	{
-		sample = reflect(ssao_samples_lq[i],rnormal);
+		sample = reflect(ssao_samples[i],rnormal);
 		sample *= sign(dot(normal,sample));
 		so = ldepth-sample.z*bof.x;
 		sdepth = depthlinear(coord+bof*sample.xy/ldepth);
@@ -149,23 +148,11 @@ float4 PS_EdgePlusSSAOPrepass( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 		if ( (delta > sclampmin) && (delta < sclamp) )
 			occ += 1.0-delta;
 	}
-	else [unroll] for ( i=0; i<64; i++ )
-	{
-		sample = reflect(ssao_samples_hq[i],rnormal);
-		sample *= sign(dot(normal,sample));
-		so = ldepth-sample.z*bof.x;
-		sdepth = depthlinear(coord+bof*sample.xy/ldepth);
-		delta = saturate(so-sdepth);
-		delta *= 1.0-smoothstep(0.0,sclamp,delta);
-		if ( (delta > sclampmin) && (delta < sclamp) )
-			occ += 1.0-delta;
-	}
-	float uocc = saturate(occ/(ssaoquarter?16.0:64.0));
+	float uocc = saturate(occ/16.0);
 	float fade = 1.0-depth;
 	uocc *= saturate(pow(max(0,fade),ssaofadepow)*ssaofademult);
 	uocc = saturate(pow(max(0,uocc),ssaopow)*ssaomult);
 	res.a = saturate(1.0-(uocc*ssaoblend));
-#endif
 	return res;
 }
 /*
@@ -204,7 +191,7 @@ float2 DistantHeat( float2 coord )
 	ofs *= pow(length(ofs),heatpow);
 	if ( !heatalways ) ofs *= todpow
 #ifndef FALLOUT
-		*weatherfactor(WT_HOT)
+		*weatherfactor(WT_HOT)+(1.0-weatherfactor(WT_COLD))
 #endif
 		;
 	odep = tex2D(SamplerDepth,coord+ofs*heatstrength*distfade*0.01).x;
@@ -237,7 +224,6 @@ float4 PS_Distortion( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 		tex2D(SamplerColor,coord+ofs).a);
 	return res;
 }
-#ifdef MARIENB_SSAO
 /*
    The blur passes use bilateral filtering to mostly preserve borders.
    An additional factor using difference of normals was tested, but the
@@ -255,16 +241,7 @@ float4 PS_SSAOBlurH( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	res.a = 0.0;
 	int i;
 	isd = tex2D(SamplerDepth,coord).x;
-	if ( ssaohalfblur ) [unroll] for ( i=-7; i<=7; i++ )
-	{
-		sd = tex2D(SamplerDepth,coord+float2(i,0)*bof).x;
-		ds = 1.0/pow(1.0+abs(isd-sd),ssaobfact);
-		sw = ds;
-		sw *= gauss8[abs(i)];
-		tw += sw;
-		res.a += sw*tex2D(SamplerColor,coord+float2(i,0)*bof).a;
-	}
-	else [unroll] for ( i=-15; i<=15; i++ )
+	[unroll] for ( i=-15; i<=15; i++ )
 	{
 		sd = tex2D(SamplerDepth,coord+float2(i,0)*bof).x;
 		ds = 1.0/pow(1.0+abs(isd-sd),ssaobfact);
@@ -292,16 +269,7 @@ float4 PS_SSAOBlurV( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	res.a = 0.0;
 	int i;
 	isd = tex2D(SamplerDepth,coord).x;
-	if ( ssaohalfblur ) [unroll] for ( i=-7; i<=7; i++ )
-	{
-		sd = tex2D(SamplerDepth,coord+float2(0,i)*bof).x;
-		ds = 1.0/pow(1.0+abs(isd-sd),ssaobfact);
-		sw = ds;
-		sw *= gauss8[abs(i)];
-		tw += sw;
-		res.a += sw*tex2D(SamplerColor,coord+float2(0,i)*bof).a;
-	}
-	else [unroll] for ( i=-15; i<=15; i++ )
+	[unroll] for ( i=-15; i<=15; i++ )
 	{
 		sd = tex2D(SamplerDepth,coord+float2(0,i)*bof).x;
 		ds = 1.0/pow(1.0+abs(isd-sd),ssaobfact);
@@ -315,7 +283,6 @@ float4 PS_SSAOBlurV( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	res *= res.a;
 	return res;
 }
-#endif
 /* Focus */
 float4 PS_ReadFocus( VS_OUTPUT_POST IN ) : COLOR
 {
@@ -416,11 +383,7 @@ float4 PS_DoFPrepass( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	res.a = dfc;
 	return res;
 }
-/*
-   This method skips blurring areas that are perfectly in focus. The
-   performance gain is negligible in most cases, though.
-*/
-/* gather blur pass */
+/* gather blur pass  */
 float4 PS_DoFGather( VS_OUTPUT_POST IN, float2 vPos : VPOS) : COLOR
 {
 	float2 coord = IN.txcoord.xy;
@@ -432,26 +395,113 @@ float4 PS_DoFGather( VS_OUTPUT_POST IN, float2 vPos : VPOS) : COLOR
 	if ( (fixedx > 0) && (fixedy > 0) ) bresl = float2(fixedx,fixedy);
 	else bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
 	float2 bof = 1.0/bresl;
+	/*
+	   Skip blurring areas that are perfectly in focus. The performance
+	   gain is negligible in most cases, though.
+	*/
 	if ( dfc <= dofminblur ) return tex2D(SamplerColor,coord);
 	float4 res = float4(0,0,0,0);
 	float dep = tex2D(SamplerDepth,coord).x;
-	float sd, ds, sw, tw = 0;
+	float ds, sw, tw = 0;
 	float2 bsz = bof*dofpradius*dfc;
 	float4 sc;
 	[unroll] for ( int i=0; i<32; i++ )
 	{
-		sc = tex2Dlod(SamplerColor,float4(coord.x
-			+poisson32[i].x*bsz.x,coord.y+poisson32[i].y
-			*bsz.y,0.0,dfc*4.0));
+		sc = float4(tex2D(SamplerColor,coord+poisson32[i]*bsz*(1
+			+dofpcha*0.1)).r,tex2D(SamplerColor,coord+poisson32[i]
+			*bsz).g,tex2D(SamplerColor,coord+poisson32[i]*bsz*(1
+			-dofpcha*0.1)).b,tex2D(SamplerColor,coord+poisson32[i]
+			*bsz).a);
 		ds = tex2D(SamplerDepth,coord+poisson32[i]*bsz).x;
-		sd = tex2D(SamplerColor,coord+poisson32[i]*bsz).a;
-		sw = (ds>dep)?1.0:sd;
+		sw = (ds>dep)?1.0:sc.a;
 		tw += sw;
 		res += sc*sw;
 	}
 	res /= tw;
 	res.a = 1.0;
 	return res;
+}
+/* "bokeh" blur pass */
+float4 PS_DoFBorkeh( VS_OUTPUT_POST IN, float2 vPos : VPOS) : COLOR
+{
+	float2 coord = IN.txcoord.xy;
+	if ( dofdisable ) return tex2D(SamplerColor,coord);
+	float dfc = tex2D(SamplerColor,coord).a;
+	if ( dofdebug ) return tex2D(SamplerDepth,coord).x;
+	if ( dfcdebug ) return dfc;
+	float2 bresl;
+	if ( (fixedx > 0) && (fixedy > 0) ) bresl = float2(fixedx,fixedy);
+	else bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
+	float2 bof = 1.0/bresl;
+	float4 res = tex2D(SamplerColor,coord);
+	res.a = 0.0;
+	/*
+	   Skip blurring areas that are perfectly in focus. The performance
+	   gain is negligible in most cases, though.
+	*/
+	if ( dfc <= dofminblur ) return res;
+	float dep = tex2D(SamplerDepth,coord).x;
+	float sr = dofpradius*dfc;
+	float w = max(0,(1/(sr*sr+1))*luminance(res.rgb+0.01));
+	res *= w;
+	float tw = w;
+	float2 bsz = bof*sr;
+	float4 pc;
+	float sc, ds;
+	[unroll] for ( int i=0; i<32; i++ )
+	{
+		pc = float4(tex2D(SamplerColor,coord+poisson32[i]*bsz*(1
+			+dofpcha*0.1)).r,tex2D(SamplerColor,coord+poisson32[i]
+			*bsz).g,tex2D(SamplerColor,coord+poisson32[i]*bsz*(1
+			-dofpcha*0.1)).b,tex2D(SamplerColor,coord+poisson32[i]
+			*bsz).a);
+		ds = tex2D(SamplerDepth,coord+poisson32[i]*bsz).x;
+		sc = abs(pc.a*dofpradius);
+		if ( sr < 0.0 ) sc = max(abs(sr),sc);
+		w = (1.0/(pow(sc,2)+1))*luminance(pc.rgb+0.01);
+		w *= saturate(1-smoothstep(sc,sc*1.1,length(poisson32[i]*bsz)
+			*abs(sr)));
+		w *= (ds>dep)?1.0:sc;
+		res += pc*w;
+		tw += w;
+	}
+	res /= tw;
+	res.a = dfc;
+	return res;
+}
+float4 PS_DoFPostBlur( VS_OUTPUT_POST IN, float2 vPos : VPOS) : COLOR
+{
+	float2 coord = IN.txcoord.xy;
+	if ( dofdisable ) return tex2D(SamplerColor,coord);
+	float dfc = tex2D(SamplerColor,coord).a;
+	if ( dofdebug ) return tex2D(SamplerDepth,coord).x;
+	if ( dfcdebug ) return dfc;
+	float2 bresl;
+	if ( (fixedx > 0) && (fixedy > 0) ) bresl = float2(fixedx,fixedy);
+	else bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
+	float2 bof = 1.0/bresl;
+	float2 ofs[16] =
+	{
+		float2(1.0,1.0), float2(-1.0,-1.0),
+		float2(-1.0,1.0), float2(1.0,-1.0),
+		
+		float2(1.0,0.0), float2(-1.0,0.0),
+		float2(0.0,1.0), float2(0.0,-1.0),
+		
+		float2(1.41,0.0), float2(-1.41,0.0),
+		float2(0.0,1.41), float2(0.0,-1.41),
+		
+		float2(1.41,1.41), float2(-1.41,-1.41),
+		float2(-1.41,1.41), float2(1.41,-1.41)
+	};
+	float4 res = tex2D(SamplerColor,coord);
+	int i;
+	[unroll] for ( i=0; i<16; i++ )
+		res += tex2D(SamplerColor,coord+ofs[i]*bof*dfc);
+	res /= 17.0;
+	res.a = 1.0;
+	return res;
+	
 }
 /* Screen frost shader. Not very realistic either, but looks fine too. */
 float2 ScreenFrost( float2 coord )
@@ -606,7 +656,6 @@ technique PostProcess2
 		SRGBWRITEENABLE = FALSE;
 	}
 }
-#ifdef MARIENB_SSAO
 technique PostProcess3
 {
 	pass p0
@@ -692,8 +741,76 @@ technique PostProcess7
 		SRGBWRITEENABLE = FALSE;
 	}
 }
-#else
-technique PostProcess3
+
+technique PostProcessB <string UIName="Bokeh (WIP)";>
+{
+	pass p0
+	{
+		VertexShader = compile vs_3_0 VS_Pass();
+		PixelShader = compile ps_3_0 PS_EdgePlusSSAOPrepass();
+		DitherEnable = FALSE;
+		ZEnable = FALSE;
+		CullMode = NONE;
+		ALPHATESTENABLE = FALSE;
+		SEPARATEALPHABLENDENABLE = FALSE;
+		AlphaBlendEnable = FALSE;
+		StencilEnable = FALSE;
+		FogEnable = FALSE;
+		SRGBWRITEENABLE = FALSE;
+	}
+}
+technique PostProcessB2
+{
+	pass p0
+	{
+		VertexShader = compile vs_3_0 VS_Pass();
+		PixelShader = compile ps_3_0 PS_Distortion();
+		DitherEnable = FALSE;
+		ZEnable = FALSE;
+		CullMode = NONE;
+		ALPHATESTENABLE = FALSE;
+		SEPARATEALPHABLENDENABLE = FALSE;
+		AlphaBlendEnable = FALSE;
+		StencilEnable = FALSE;
+		FogEnable = FALSE;
+		SRGBWRITEENABLE = FALSE;
+	}
+}
+technique PostProcessB3
+{
+	pass p0
+	{
+		VertexShader = compile vs_3_0 VS_Pass();
+		PixelShader = compile ps_3_0 PS_SSAOBlurH();
+		DitherEnable = FALSE;
+		ZEnable = FALSE;
+		CullMode = NONE;
+		ALPHATESTENABLE = FALSE;
+		SEPARATEALPHABLENDENABLE = FALSE;
+		AlphaBlendEnable = FALSE;
+		StencilEnable = FALSE;
+		FogEnable = FALSE;
+		SRGBWRITEENABLE = FALSE;
+	}
+}
+technique PostProcessB4
+{
+	pass p0
+	{
+		VertexShader = compile vs_3_0 VS_Pass();
+		PixelShader = compile ps_3_0 PS_SSAOBlurV();
+		DitherEnable = FALSE;
+		ZEnable = FALSE;
+		CullMode = NONE;
+		ALPHATESTENABLE = FALSE;
+		SEPARATEALPHABLENDENABLE = FALSE;
+		AlphaBlendEnable = FALSE;
+		StencilEnable = FALSE;
+		FogEnable = FALSE;
+		SRGBWRITEENABLE = FALSE;
+	}
+}
+technique PostProcessB5
 {
 	pass p0
 	{
@@ -710,12 +827,12 @@ technique PostProcess3
 		SRGBWRITEENABLE = FALSE;
 	}
 }
-technique PostProcess4
+technique PostProcessB6
 {
 	pass p0
 	{
 		VertexShader = compile vs_3_0 VS_Pass();
-		PixelShader = compile ps_3_0 PS_DoFGather();
+		PixelShader = compile ps_3_0 PS_DoFBorkeh();
 		DitherEnable = FALSE;
 		ZEnable = FALSE;
 		CullMode = NONE;
@@ -727,7 +844,24 @@ technique PostProcess4
 		SRGBWRITEENABLE = FALSE;
 	}
 }
-technique PostProcess5
+technique PostProcessB7
+{
+	pass p0
+	{
+		VertexShader = compile vs_3_0 VS_Pass();
+		PixelShader = compile ps_3_0 PS_DoFPostBlur();
+		DitherEnable = FALSE;
+		ZEnable = FALSE;
+		CullMode = NONE;
+		ALPHATESTENABLE = FALSE;
+		SEPARATEALPHABLENDENABLE = FALSE;
+		AlphaBlendEnable = FALSE;
+		StencilEnable = FALSE;
+		FogEnable = FALSE;
+		SRGBWRITEENABLE = FALSE;
+	}
+}
+technique PostProcessB8
 {
 	pass p0
 	{
@@ -744,4 +878,3 @@ technique PostProcess5
 		SRGBWRITEENABLE = FALSE;
 	}
 }
-#endif

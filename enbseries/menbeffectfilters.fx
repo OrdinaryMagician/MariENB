@@ -436,11 +436,6 @@ float4 PS_Mari( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	if ( aenable ) res.rgb = Adaptation(res.rgb);
 	if ( tmapenable ) res.rgb = Tonemap(res.rgb);
 	if ( bloomdebug	) res.rgb *= 0;
-	float3 bcol = tex2D(_s3,coord).rgb*EBloomAmount;
-	if ( bloomlighten )
-		res.rgb = float3(max(res.r,bcol.r),max(res.g,bcol.g),
-			max(res.b,bcol.b));
-	else res.rgb += bcol;
 	if ( vgradeenable ) res.rgb = GradingGame(res.rgb);
 	if ( gradeenable1 ) res.rgb = GradingRGB(res.rgb);
 	if ( colorizeafterhsv )
@@ -453,6 +448,11 @@ float4 PS_Mari( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 		if ( gradeenable2 ) res.rgb = GradingColorize(res.rgb);
 		if ( gradeenable3 ) res.rgb = GradingHSV(res.rgb);
 	}
+	float3 bcol = tex2D(_s3,coord).rgb*EBloomAmount;
+	if ( bloomlighten )
+		res.rgb = float3(max(res.r,bcol.r),max(res.g,bcol.g),
+			max(res.b,bcol.b));
+	else res.rgb += bcol;
 	if ( lutenable ) res.rgb = GradingLUT(res.rgb);
 	if ( palenable ) res.rgb = GradingPal(res.rgb);
 	if ( ne ) res.rgb = FilmGrain(res.rgb,coord);

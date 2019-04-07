@@ -632,10 +632,15 @@ bool doffixedonly
 > = {false};
 float dofpradius
 <
-	string UIName = "DOF Gather Blur Radius";
+	string UIName = "DOF Blur Radius";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {6.0};
+float dofpcha
+<
+	string UIName = "DOF Blur Chromatic Aberration";
+	string UIWidget = "Spinner";
+> = {0.0};
 #ifndef FALLOUT
 bool dofrelfov
 <
@@ -787,7 +792,6 @@ float edgevradius
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
-#ifdef MARIENB_SSAO
 /* ssao filter */
 string str_ssao = "Ray Marching SSAO";
 bool ssaoenable
@@ -906,17 +910,6 @@ bool ssaodebug
 	string UIName = "Debug SSAO";
 	string UIWidget = "Checkbox";
 > = {false};
-bool ssaoquarter
-<
-	string UIName = "SSAO Use Less Samples";
-	string UIWidget = "Checkbox";
-> = {true};
-bool ssaohalfblur
-<
-	string UIName = "SSAO Blur Use Less Samples";
-	string UIWidget = "Checkbox";
-> = {true};
-#endif
 /* luma sharpen because of reasons */
 string str_sharp = "Luma Sharpen";
 bool sharpenable

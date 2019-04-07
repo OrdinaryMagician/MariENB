@@ -156,13 +156,13 @@ Darkend
 
 Vigilant
 
-56A0C	zzzCHMonoFogWeather		-
-56A0D	zzzCHMonoClearWeather		-
-62484	zzzCOCursedWeather		-
-67BB2	zzzCHMolagWeatherNoCore		-
-701D2	zzzCHMolagWeather		-
-2C603B	zzzCHOldForestStormRain		-
-2DA92C	zzzCHWhaleGraveyardStormSnow	-
+56A0C	zzzCHMonoFogWeather		TEMPERATE
+56A0D	zzzCHMonoClearWeather		TEMPERATE
+62484	zzzCOCursedWeather		COLD
+67BB2	zzzCHMolagWeatherNoCore		HOT
+701D2	zzzCHMolagWeather		HOT
+2C603B	zzzCHOldForestStormRain		COLD
+2DA92C	zzzCHWhaleGraveyardStormSnow	COLD
 
 Enderal
 
