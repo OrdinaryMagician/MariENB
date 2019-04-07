@@ -1,6 +1,6 @@
 /*
 	menbbloomsettings.fx : MariENB bloom user-tweakable variables.
-	(C)2013-2016 Marisa Kirisame, UnSX Team.
+	(C)2013-2017 Marisa Kirisame, UnSX Team.
 	Part of MariENB, the personal ENB of Marisa.
 	Released under the GNU GPLv3 (or later).
 */
@@ -416,59 +416,3 @@ float bloommix6
 	string UIName = "Bloom Base Blend";
 	string UIWidget = "Spinner";
 > = {0.0};
-string str_bloomdirt = "Lens Dirt";
-bool dirtenable
-<
-	string UIName = "Enable Lens Dirt";
-	string UIWidget = "Checkbox";
-> = {false};
-float dirtmix1
-<
-	string UIName = "Dirt Pass 1 Blend";
-	string UIWidget = "Spinner";
-> = {0.0};
-float dirtmix2
-<
-	string UIName = "Dirt Pass 2 Blend";
-	string UIWidget = "Spinner";
-> = {0.1};
-float dirtmix3
-<
-	string UIName = "Dirt Pass 3 Blend";
-	string UIWidget = "Spinner";
-> = {1.2};
-float dirtmix4
-<
-	string UIName = "Dirt Pass 4 Blend";
-	string UIWidget = "Spinner";
-> = {0.5};
-float dirtmix7
-<
-	string UIName = "Dirt Pass 7 Blend";
-	string UIWidget = "Spinner";
-> = {1.0};
-float dirtmix8
-<
-	string UIName = "Dirt Pass 8 Blend";
-	string UIWidget = "Spinner";
-> = {3.0};
-float dirtmix5
-<
-	string UIName = "Dirt Prepass Blend";
-	string UIWidget = "Spinner";
-> = {0.0};
-float dirtmix6
-<
-	string UIName = "Dirt Base Blend";
-	string UIWidget = "Spinner";
-> = {0.0};
-float ldirtpow
-<
-	string UIName = "Dirt Contrast";
-	string UIWidget = "Spinner";
-> = {1.25};
-float ldirtfactor
-<
-	string UIName = "Dirt Factor";
-	string UIWidget = "Spinner";
-> = {1.5};

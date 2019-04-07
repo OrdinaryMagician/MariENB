@@ -1,6 +1,6 @@
 /*
 	menbprepasssettings.fx : MariENB prepass user-tweakable variables.
-	(C)2013-2016 Marisa Kirisame, UnSX Team.
+	(C)2013-2017 Marisa Kirisame, UnSX Team.
 	Part of MariENB, the personal ENB of Marisa.
 	Released under the GNU GPLv3 (or later).
 */
@@ -240,20 +240,26 @@ bool frostalways
 	string UIWidget = "Checkbox";
 > = {false};
 string str_focus = "Focusing Parameters";
-/* circle (triangle, actually) average focus */
-bool focuscircle
+/*
+   focus modes:
+   -1 : manual
+    0 : center spot
+    1 : center + triangle
+    2 : 8x8 grid average
+    TODO
+    3 : 8x8 grid average of 8 closest points
+    4 : 8x8 grid average of 8 farthest points
+*/
+int focuscircle
 <
-	string UIName = "Enable Focus Triangle";
+	string UIName = "Focus Mode";
 	string UIWidget = "Checkbox";
-> = {true};
+	int UIMin = -1;
+	int UIMax = 2;
+> = {1};
 bool focusdisplay
 <
 	string UIName = "Display Focus Points";
-	string UIWidget = "Checkbox";
-> = {false};
-bool focusmanual
-<
-	string UIName = "Enable Manual Focus";
 	string UIWidget = "Checkbox";
 > = {false};
 float focusmanualvalue
@@ -375,7 +381,7 @@ float dofmult_id
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {500.0};
-/* dof power (falloff, kinda) */
+/* dof power (the higher it is, the wider the focused area gets) */
 float dofpow_n
 <
 	string UIName = "DOF Contrast Night";
@@ -400,7 +406,7 @@ float dofpow_id
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {4.0};
-/* dof bump (to emulate tilt shift I guess, I brought it back) */
+/* dof bump (negative shift increases the area in complete focus) */
 float dofbump_n
 <
 	string UIName = "DOF Shift Night";
@@ -613,29 +619,126 @@ bool doffixedcut
 	string UIName = "DOF Fixed Use Cutoff";
 	string UIWidget = "Checkbox";
 > = {true};
+/* fixed dof for foggy weathers */
+bool doffogenable
+<
+	string UIName = "Enable DOF Fog";
+	string UIWidget = "Checkbox";
+> = {true};
+float doffogmult_n
+<
+	string UIName = "DOF Fog Intensity Night";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {2.0};
+float doffogmult_d
+<
+	string UIName = "DOF Fog Intensity Day";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {2.0};
+float doffogmult_in
+<
+	string UIName = "DOF Fog Intensity Interior Night";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {2.0};
+float doffogmult_id
+<
+	string UIName = "DOF Fog Intensity Interior Day";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {2.0};
+float doffogpow_n
+<
+	string UIName = "DOF Fog Contrast Night";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1000.0};
+float doffogpow_d
+<
+	string UIName = "DOF Fog Contrast Day";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1000.0};
+float doffogpow_in
+<
+	string UIName = "DOF Fog Contrast Interior Night";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1000.0};
+float doffogpow_id
+<
+	string UIName = "DOF Fog Contrast Interior Day";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1000.0};
+float doffogbump_n
+<
+	string UIName = "DOF Fog Shift Night";
+	string UIWidget = "Spinner";
+> = {0.0};
+float doffogbump_d
+<
+	string UIName = "DOF Fog Shift Day";
+	string UIWidget = "Spinner";
+> = {0.0};
+float doffogbump_in
+<
+	string UIName = "DOF Fog Shift Interior Night";
+	string UIWidget = "Spinner";
+> = {0.0};
+float doffogbump_id
+<
+	string UIName = "DOF Fog Shift Interior Day";
+	string UIWidget = "Spinner";
+> = {0.0};
+float doffogblend_n
+<
+	string UIName = "DOF Fog Blend Night";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {0.0};
+float doffogblend_d
+<
+	string UIName = "DOF Fog Blend Day";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {0.0};
+float doffogblend_in
+<
+	string UIName = "DOF Fog Blend Interior Night";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {0.0};
+float doffogblend_id
+<
+	string UIName = "DOF Fog Blend Interior Day";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {0.0};
 /* disable depth of field */
 bool dofdisable
 <
 	string UIName = "Disable DOF";
 	string UIWidget = "Checkbox";
 > = {false};
-float dofbfact
+bool doffixedonly
 <
-	string UIName = "DOF Bilateral Factor";
-	string UIWidget = "Spinner";
-> = {20.0};
-float dofbradius
+	string UIName = "Use Only Fixed DOF";
+	string UIWidget = "Checkbox";
+> = {false};
+float dofpradius
 <
 	string UIName = "DOF Blur Radius";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
-> = {1.0};
-float dofpradius
-<
-	string UIName = "DOF Gather Blur Radius";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
 > = {6.0};
+float dofpcha
+<
+	string UIName = "DOF Blur Chromatic Aberration";
+	string UIWidget = "Spinner";
+> = {0.0};
 #ifndef FALLOUT
 bool dofrelfov
 <
@@ -670,6 +773,31 @@ float relfovfactor_id
 	string UIWidget = "Spinner";
 > = {2.0};
 #endif
+/* tilting */
+float doftiltxcenter
+<
+	string UIName = "Focus Plane Horizontal Tilt Center";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {0.5};
+float doftiltycenter
+<
+	string UIName = "Focus Plane Vertical Tilt Center";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {0.5};
+float doftiltx
+<
+	string UIName = "Focus Plane Horizontal Tilt";
+	string UIWidget = "Spinner";
+> = {0.0};
+float doftilty
+<
+	string UIName = "Focus Plane Vertical Tilt";
+	string UIWidget = "Spinner";
+> = {0.0};
 /* cheap performance option */
 float dofminblur
 <
@@ -880,16 +1008,6 @@ bool ssaodebug
 	string UIName = "Debug SSAO";
 	string UIWidget = "Checkbox";
 > = {false};
-bool ssaoquarter
-<
-	string UIName = "SSAO Use Less Samples";
-	string UIWidget = "Checkbox";
-> = {true};
-bool ssaohalfblur
-<
-	string UIName = "SSAO Blur Use Less Samples";
-	string UIWidget = "Checkbox";
-> = {true};
 /* luma sharpen because of reasons */
 string str_sharp = "Luma Sharpen";
 bool sharpenable

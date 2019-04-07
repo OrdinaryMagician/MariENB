@@ -1,6 +1,6 @@
 /*
 	menbbloominternals.fx : MariENB bloom internal variables.
-	(C)2013-2016 Marisa Kirisame, UnSX Team.
+	(C)2013-2017 Marisa Kirisame, UnSX Team.
 	Part of MariENB, the personal ENB of Marisa.
 	Released under the GNU GPLv3 (or later).
 */
@@ -19,7 +19,7 @@ static const float gauss8[8] =
 	0.055335, 0.033562, 0.018216, 0.008847
 };
 /* radius: 40, std dev: 15 */
-static const float gauss40[40] =
+/*static const float gauss40[40] =
 {
 	0.026823, 0.026763, 0.026585, 0.026291,
 	0.025886, 0.025373, 0.024760, 0.024055,
@@ -31,9 +31,9 @@ static const float gauss40[40] =
 	0.004697, 0.004139, 0.003630, 0.003170,
 	0.002756, 0.002385, 0.002055, 0.001763,
 	0.001506, 0.001280, 0.001084, 0.000913
-};
+};*/
 /* radius: 80, std dev: 30 */
-/*static const float gauss80[80] =
+static const float gauss80[80] =
 {
 	0.013406, 0.013398, 0.013376, 0.013339, 0.013287, 0.013221,
 	0.013140, 0.013046, 0.012938, 0.012816, 0.012681, 0.012534,
@@ -49,7 +49,7 @@ static const float gauss40[40] =
 	0.001192, 0.001107, 0.001027, 0.000952, 0.000881, 0.000815,
 	0.000753, 0.000694, 0.000640, 0.000589, 0.000542, 0.000497,
 	0.000456, 0.000418
-};*/
+};
 /* standard stuff */
 float4 ScreenSize;
 float4 TempParameters;
@@ -65,14 +65,6 @@ texture2D texBloom5;
 texture2D texBloom6;
 texture2D texBloom7;
 texture2D texBloom8;
-texture2D texLens
-<
-#ifdef LENSDIRT_DDS
-	string ResourceName = "menblens.dds";
-#else
-	string ResourceName = "menblens.png";
-#endif
->;
 sampler2D SamplerBloom1 = sampler_state
 {
 	Texture = <texBloom1>;
@@ -256,18 +248,6 @@ sampler2D SamplerBloomC7 = sampler_state
 sampler2D SamplerBloomC8 = sampler_state
 {
 	Texture = <texBloom8>;
-	MinFilter = LINEAR;
-	MagFilter = LINEAR;
-	MipFilter = NONE;
-	AddressU = Clamp;
-	AddressV = Clamp;
-	SRGBTexture = FALSE;
-	MaxMipLevel = 0;
-	MipMapLodBias = 0;
-};
-sampler2D SamplerLens = sampler_state
-{
-	Texture = <texLens>;
 	MinFilter = LINEAR;
 	MagFilter = LINEAR;
 	MipFilter = NONE;

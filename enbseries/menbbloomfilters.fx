@@ -1,6 +1,6 @@
 /*
 	menbbloomfilters.fx : MariENB bloom shader routines.
-	(C)2013-2016 Marisa Kirisame, UnSX Team.
+	(C)2013-2017 Marisa Kirisame, UnSX Team.
 	Part of MariENB, the personal ENB of Marisa.
 	Released under the GNU GPLv3 (or later).
 */
@@ -60,10 +60,11 @@ float4 PS_BloomTexture1(VS_OUTPUT_POST In) : COLOR
 	float4 res = float4(0,0,0,0);
 	int i;
 	float sum = 0;
+	float inc = TempParameters.z*bloomradiusx;
 	float2 pp;
 	[unroll] for ( i=-7; i<=7; i++ )
 	{
-		pp = coord+float2(i,0)*TempParameters.z*bloomradiusx;
+		pp = coord+float2(i,0)*inc;
 		res += gauss8[abs(i)]*tex2D(SamplerBloom1,pp);
 		sum += ((pp.x>=0)&&(pp.x<1))?gauss8[abs(i)]:0;
 	}
@@ -78,10 +79,11 @@ float4 PS_BloomTexture2(VS_OUTPUT_POST In) : COLOR
 	float4 res = float4(0,0,0,0), base = tex2D(SamplerBloom5,coord);
 	int i;
 	float sum = 0;
+	float inc = TempParameters.z*bloomradiusy;
 	float2 pp;
 	[unroll] for ( i=-7; i<=7; i++ )
 	{
-		pp = coord+float2(0,i)*TempParameters.z*bloomradiusy;
+		pp = coord+float2(0,i)*inc;
 		res += gauss8[abs(i)]*tex2D(SamplerBloom1,pp);
 		sum += ((pp.y>=0)&&(pp.y<1))?gauss8[abs(i)]:0;
 	}
@@ -93,7 +95,7 @@ float4 PS_BloomTexture2(VS_OUTPUT_POST In) : COLOR
 	float3 blu_id = float3(blu_id_r,blu_id_g,blu_id_b);
 	float3 blu = tod_ind(blu);
 	float bsi = tod_ind(bsi);
-	float lm = max(0,luminance(res.rgb)-luminance(base.rgb))*bsi;
+	float lm = clamp(0,1,luminance(res.rgb)-luminance(base.rgb))*bsi;
 	lm = lm/(1.0+lm);
 	lm *= 1.0-saturate((TempParameters.w-1.0)*bslp);
 	blu = saturate(blu+(TempParameters.w-1.0)*bsbp);
@@ -123,12 +125,13 @@ float4 PS_AnamPass(VS_OUTPUT_POST In) : COLOR
 	float4 res = float4(0,0,0,0), base = tex2D(SamplerBloom5,coord);
 	int i;
 	float sum = 0;
+	float inc = TempParameters.z*bloomradiusx*flen;
 	float2 pp;
-	[unroll] for ( i=-39; i<=39; i++ )
+	[unroll] for ( i=-79; i<=79; i++ )
 	{
-		pp = coord+float2(i,0)*TempParameters.z*bloomradiusx*flen;
-		res += gauss40[abs(i)]*tex2D(SamplerBloom1,pp);
-		sum += ((pp.x>=0)&&(pp.x<1))?gauss40[abs(i)]:0;
+		pp = coord+float2(i,0)*inc;
+		res += gauss80[abs(i)]*tex2D(SamplerBloom1,pp);
+		sum += ((pp.x>=0)&&(pp.x<1))?gauss80[abs(i)]:0;
 	}
 	res *= 1.0/sum;
 	/* blue shift */
@@ -138,7 +141,7 @@ float4 PS_AnamPass(VS_OUTPUT_POST In) : COLOR
 	float3 flu_id = float3(flu_id_r,flu_id_g,flu_id_b);
 	float3 flu = tod_ind(flu);
 	float fsi = tod_ind(fsi);
-	float lm = max(0,luminance(res.rgb)-luminance(base.rgb))*fsi;
+	float lm = clamp(0,1,luminance(res.rgb)-luminance(base.rgb))*fsi;
 	lm = lm/(1.0+lm);
 	float fbl = tod_ind(fbl);
 	float fpw = tod_ind(fpw);
@@ -164,34 +167,6 @@ float4 PS_BloomPostPass(VS_OUTPUT_POST In) : COLOR
 	res.rgb = clamp(res.rgb,0,32768);
 	res.a = 1.0;
 	return res;
-}
-/* crappy lens filter, useful when playing characters with glasses */
-float4 PS_LensDirtPass(VS_OUTPUT_POST In) : COLOR
-{
-	float4 mud = float4(0,0,0,0);
-	if ( !dirtenable ) return mud;
-	float2 coord = In.txcoord0.xy;
-	float2 ccoord = coord;
-#ifdef ASPECT_LENSDIRT
-	ccoord.y = (coord.y-0.5)*ScreenSize.w+0.5;
-#endif
-	float4 crap = tex2D(SamplerLens,ccoord);
-	mud += dirtmix1*tex2D(SamplerBloomC1,coord); // P1
-	mud += dirtmix2*tex2D(SamplerBloomC2,coord); // P2
-	mud += dirtmix3*tex2D(SamplerBloomC3,coord); // P3
-	mud += dirtmix4*tex2D(SamplerBloomC4,coord); // P4
-	mud += dirtmix5*tex2D(SamplerBloomC5,coord); // Prepass
-	mud += dirtmix6*tex2D(SamplerBloomC6,coord); // Base
-	mud += dirtmix7*tex2D(SamplerBloomC7,coord); // P5
-	mud += dirtmix8*tex2D(SamplerBloomC8,coord); // P6
-	mud.rgb /= 6.0;
-	mud.rgb = clamp(mud.rgb,0,32768);
-	float mudmax = luminance(mud.rgb);
-	float mudn = max(mudmax/(1.0+mudmax),0.0);
-	mudn = pow(mudn,max(ldirtpow-crap.a,0.0));
-	mud.rgb *= mudn*ldirtfactor*crap.rgb;
-	mud.a = 1.0;
-	return mud;
 }
 /* techniques */
 technique BloomPrePass
@@ -259,12 +234,5 @@ technique BloomPostPass
 		SEPARATEALPHABLENDENABLE = FALSE;
 		FogEnable = FALSE;
 		SRGBWRITEENABLE = FALSE;
-	}
-	pass p1
-	{
-		AlphaBlendEnable = true;
-		SrcBlend = One;
-		DestBlend = One;
-		PixelShader = compile ps_3_0 PS_LensDirtPass();
 	}
 }

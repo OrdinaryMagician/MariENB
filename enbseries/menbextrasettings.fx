@@ -1,6 +1,6 @@
 /*
 	menbextrasettings.fx : MariENB extra user-tweakable variables.
-	(C)2013-2016 Marisa Kirisame, UnSX Team.
+	(C)2013-2017 Marisa Kirisame, UnSX Team.
 	Part of MariENB, the personal ENB of Marisa.
 	Released under the GNU GPLv3 (or later).
 */
@@ -29,40 +29,21 @@ float bresy
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.5};
-/* zooming factors (<=0 for stretch) */
-float sresx
-<
-	string UIName = "Zoom Factor X";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.0};
-float sresy
-<
-	string UIName = "Zoom Factor Y";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.0};
 /*
    palette type:
-    -2 : Standard VGA 256-color palette
     -1 : disable
      0 : CGA (320x200 4-color, or 640x200 monochrome)
      1 : EGA (320x200, 16 colors)
      2 : RGB2 (64-color quarter VGA palette, used in AOS)
-     3 : RGB323 (8-bit RGB, I don't think this was a real thing)
-     4 : VGA (256 colors, standard palette)
-     5 : Doom (256 colors, does not cover a lot)
-     6 : Quake I (256 colors, covers even less)
-     7 : RGB4 (4bpc, I also don't think this was ever used in real hardware)
-     8 : RGB565 (ol' 16-bit "true color")
-     9 : RGB6 (typical screens incapable of 8bpc)
+     3 : VGA (256 colors)
+     4 : RGB565 (ol' 16-bit "true color")
 */
 int paltype
 <
 	string UIName = "Palette Type";
 	string UIWidget = "Spinner";
 	int UIMin = -1;
-	int UIMax = 9;
+	int UIMax = 4;
 > = {1};
 /*
    CGA palette to use:
@@ -94,21 +75,45 @@ int egapal
 	int UIMax = 1;
 > = {0};
 /*
+    VGA palette to use:
+     0 : Standard VGA
+     1 : Amulets & Armor
+     2 : Blood
+     3 : Doom
+     4 : Duke Nukem 3D
+     5 : Hacx 2.0
+     6 : Heretic
+     7 : Hexen
+     8 : Hexen 2
+     9 : Quake
+     10 : Quake 2
+     11 : Rise of the Triad
+     12 : Shadow Warrior
+     13 : Strife
+     14 : Wolfenstein 3D
+     TODO Project .Blank palette (when the design is finished)
+*/
+int vgapal
+<
+	string UIName = "VGA Palette";
+	string UIWidget = "Spinner";
+	int UIMin = 0;
+	int UIMax = 14;
+> = {0};
+/*
    Dithering mode:
     -1 : No dithering, just raw banding
      0 : 2x2 checkerboard dithering, looks like ass
      1 : 2x2 ordered dithering
-     2 : 3x3 ordered dithering
-     3 : 4x4 ordered dithering
-     4 : 8x8 ordered dithering
+     2 : 8x8 ordered dithering
 */
 int dither
 <
 	string UIName = "Dithering Pattern";
 	string UIWidget = "Spinner";
 	int UIMin = -1;
-	int UIMax = 4;
-> = {4};
+	int UIMax = 2;
+> = {2};
 /* gamma modifier for base color, lower values raise midtones and viceversa */
 float bgamma
 <
@@ -135,25 +140,7 @@ float bdmult
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.25};
-/* ASCII art filter */
-string str_ascii = "Luma ASCII Art Filter";
-bool asciienable
-<
-	string UIName = "Enable ASCII";
-	string UIWidget = "Checkbox";
-> = {false};
-bool asciimono
-<
-	string UIName = "ASCII Monochrome";
-	string UIWidget = "Checkbox";
-> = {true};
-float asciiblend
-<
-	string UIName = "ASCII Blend";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-	float UIMax = 1.0;
-> = {0.0};
+/* Depth-cutting chroma key */
 string str_mask = "Depth Chroma Key";
 bool maskenable
 <
@@ -188,63 +175,30 @@ float maskd
 	float UIMin = 0.0;
 	float UIMax = 1.0;
 > = {0.5};
-string str_dot = "RGBI Dot Matrix";
-bool dotenable
+/* tilting */
+float masktiltxcenter
 <
-	string UIName = "Enable Dot Matrix";
-	string UIWidget = "Checkbox";
-> = {false};
-int dotsize
-<
-	string UIName = "Dot Size";
-	string UIWidget = "Spinner";
-	int UIMin = 1;
-> = {1};
-float dotblend
-<
-	string UIName = "Dot Blend";
+	string UIName = "Chroma Key Depth Horizontal Tilt Center";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 	float UIMax = 1.0;
-> = {0.4};
-float dotmult
+> = {0.5};
+float masktiltycenter
 <
-	string UIName = "Dot Intensity";
+	string UIName = "Chroma Key Depth Vertical Tilt Center";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
-> = {1.0};
-float dotpow
+	float UIMax = 1.0;
+> = {0.5};
+float masktiltx
 <
-	string UIName = "Dot Contrast";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-string str_curve = "Lens Curvature";
-bool curveenable
-<
-	string UIName = "Enable Curvature";
-	string UIWidget = "Checkbox";
-> = {false};
-float chromaab
-<
-	string UIName = "Curve Chromatic Aberration";
+	string UIName = "Chroma Key Depth Horizontal Tilt";
 	string UIWidget = "Spinner";
 > = {0.0};
-float lenszoom
+float masktilty
 <
-	string UIName = "Curve Zooming";
+	string UIName = "Chroma Key Depth Vertical Tilt";
 	string UIWidget = "Spinner";
-> = {50.0};
-float lensdist
-<
-	string UIName = "Curve Distortion";
-	string UIWidget = "Spinner";
-> = {0.0};
-float curvesoft
-<
-	string UIName = "Curve Sampling Soften";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
 > = {0.0};
 /* BlurSharpShift, some people are obsessed with this nonsense */
 string str_bss = "BlurSharpShift";
@@ -287,3 +241,22 @@ float bssshiftradius
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {0.75};
+/* very cinematic black bars */
+string str_box = "Black Bars";
+bool boxenable
+<
+	string UIName = "Enable Black Bars";
+	string UIWidget = "Checkbox";
+> = {false};
+float boxh
+<
+	string UIName = "Box Horizontal Ratio";
+	string UIWidget = "Spinner";
+	float UIMin = 1.0;
+> = {2.39};
+float boxv
+<
+	string UIName = "Box Vertical Ratio";
+	string UIWidget = "Spinner";
+	float UIMin = 1.0;
+> = {1.0};
