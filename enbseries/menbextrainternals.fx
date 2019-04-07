@@ -10,8 +10,8 @@
 */
 static const float checkers[4] =
 {
-	1,0,
-	0,1
+	1.0,0.0,
+	0.0,1.0
 };
 #define d(x) x/4.0
 static const float ordered2[4] =

@@ -14,6 +14,8 @@ VS_OUTPUT_POST VS_Pass( VS_INPUT_POST IN )
 /* prepass */
 float4 ReducePrepass( in float4 color, in float2 coord )
 {
+	float3 bgamma = float3(bgammar,bgammag,bgammab);
+	float3 bsaturation = float3(bsaturationr,bsaturationg,bsaturationb);
 	color.rgb = pow(max(color.rgb,0.0),bgamma);
 	float4 dac;
 	dac.a = (color.r+color.g+color.b)/3.0;
@@ -226,7 +228,17 @@ float4 PS_Grain( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 			:(1.0-2.0*(1.0-res.b)*(1.0-((0.5+(nt.b*ni)))));
 	}
 	else if ( nb == 3 )
-		res.rgb *= 1.0+(nt*ni);
+	{
+		float bn = 1.0-saturate((res.r+res.g+res.b)/3.0);
+		bn = pow(bn,bnp);
+		float3 nn = saturate(nt*bn);
+		res.r = (res.r>0.5)?(2.0*res.r*(0.5+(nn.r*ni)))
+			:(1.0-2.0*(1.0-res.r)*(1.0-((0.5+(nn.r*ni)))));
+		res.g = (res.g>0.5)?(2.0*res.g*(0.5+(nn.g*ni)))
+			:(1.0-2.0*(1.0-res.g)*(1.0-((0.5+(nn.g*ni)))));
+		res.b = (res.b>0.5)?(2.0*res.b*(0.5+(nn.b*ni)))
+			:(1.0-2.0*(1.0-res.b)*(1.0-((0.5+(nn.b*ni)))));
+	}
 	else
 		res.rgb = lerp(res.rgb,nt,ni);
 	return res;

@@ -4,7 +4,7 @@
 	Part of MariENB, the personal ENB of Marisa.
 	Released under the WTFPL.
 */
-/* fixed resolution */
+/* fixed resolution, keeps blur filters at a consistent internal resolution */
 int fixedx
 <
 	string UIName = "_FixedResolutionX";
@@ -17,13 +17,13 @@ int fixedy
 	string UIWidget = "Spinner";
 	int UIMin = 0;
 > = {0};
-/* circle average focus */
+/* circle (triangle, actually) average focus */
 bool focuscircle
 <
 	string UIName = "FocusCircleEnable";
 	string UIWidget = "Checkbox";
 > = {false};
-/* radius of the outmost circle */
+/* radius of the focus point triangle */
 float focusradius_n
 <
 	string UIName = "FocusCircleRadiusNight";
@@ -87,179 +87,210 @@ float focusmax_id
 	string UIWidget = "Spinner";
 > = {1.0};
 /* dof filter */
-/* depth multiplier */
+/* dof multiplier (makes unfocused depths more blurry) */
 float dofmult_n
 <
 	string UIName = "DoFMultNight";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.0};
 float dofmult_d
 <
 	string UIName = "DoFMultDay";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.0};
 float dofmult_in
 <
 	string UIName = "DoFMultInteriorNight";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.0};
 float dofmult_id
 <
 	string UIName = "DoFMultInteriorDay";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.0};
-/* depth power */
+/* dof power (falloff, kinda) */
 float dofpow_n
 <
 	string UIName = "DoFPowNight";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.0};
 float dofpow_d
 <
 	string UIName = "DoFPowDay";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.0};
 float dofpow_in
 <
 	string UIName = "DoFPowInteriorNight";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.0};
 float dofpow_id
 <
 	string UIName = "DoFPowInteriorDay";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.0};
-/* fixed depth multiplier */
+/* fixed focused depth factors */
 float doffixedfocusmult_n
 <
 	string UIName = "DoFFixedFocusedMultNight";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.0};
 float doffixedfocusmult_d
 <
 	string UIName = "DoFFixedFocusedMultDay";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.0};
 float doffixedfocusmult_in
 <
 	string UIName = "DoFFixedFocusedMultInteriorNight";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.0};
 float doffixedfocusmult_id
 <
 	string UIName = "DoFFixedFocusedMultInteriorDay";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.0};
-/* fixed depth power */
 float doffixedfocuspow_n
 <
 	string UIName = "DoFFixedFocusedPowNight";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.0};
 float doffixedfocuspow_d
 <
 	string UIName = "DoFFixedFocusedPowDay";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.0};
 float doffixedfocuspow_in
 <
 	string UIName = "DoFFixedFocusedPowInteriorNight";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.0};
 float doffixedfocuspow_id
 <
 	string UIName = "DoFFixedFocusedPowInteriorDay";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.0};
-/* fixed depth blending */
 float doffixedfocusblend_n
 <
 	string UIName = "DoFFixedFocusedBlendNight";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {0.0};
 float doffixedfocusblend_d
 <
 	string UIName = "DoFFixedFocusedBlendDay";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {0.0};
 float doffixedfocusblend_in
 <
 	string UIName = "DoFFixedFocusedBlendInteriorNight";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {0.0};
 float doffixedfocusblend_id
 <
 	string UIName = "DoFFixedFocusedBlendInteriorDay";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {0.0};
+/* fixed unfocused depth factors */
 float doffixedunfocusmult_n
 <
 	string UIName = "DoFFixedUnfocusedMultNight";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.0};
 float doffixedunfocusmult_d
 <
 	string UIName = "DoFFixedUnfocusedMultDay";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.0};
 float doffixedunfocusmult_in
 <
 	string UIName = "DoFFixedUnfocusedMultInteriorNight";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.0};
 float doffixedunfocusmult_id
 <
 	string UIName = "DoFFixedUnfocusedMultInteriorDay";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.0};
-/* fixed depth power */
 float doffixedunfocuspow_n
 <
 	string UIName = "DoFFixedUnfocusedPowNight";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.0};
 float doffixedunfocuspow_d
 <
 	string UIName = "DoFFixedUnfocusedPowDay";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.0};
 float doffixedunfocuspow_in
 <
 	string UIName = "DoFFixedUnfocusedPowInteriorNight";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.0};
 float doffixedunfocuspow_id
 <
 	string UIName = "DoFFixedUnfocusedPowInteriorDay";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.0};
-/* fixed depth blending */
 float doffixedunfocusblend_n
 <
 	string UIName = "DoFFixedUnfocusedBlendNight";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {0.0};
 float doffixedunfocusblend_d
 <
 	string UIName = "DoFFixedUnfocusedBlendDay";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {0.0};
 float doffixedunfocusblend_in
 <
 	string UIName = "DoFFixedUnfocusedBlendInteriorNight";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {0.0};
 float doffixedunfocusblend_id
 <
 	string UIName = "DoFFixedUnfocusedBlendInteriorDay";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {0.0};
-/* display dof factors per pixel */
-bool dofdebug
+/* display dof factors per pixel, or just the whole depth buffer */
+int dofdebug
 <
 	string UIName = "DoFDebug";
 	string UIWidget = "Checkbox";
-> = {false};
+	int UIMin = 0;
+	int UIMax = 2;
+> = 0;
 /* two-pass blur, makes you shortsighted */
 bool doftwopass
 <
@@ -278,7 +309,7 @@ bool dofsmooth
 	string UIName = "DoFSmoothing";
 	string UIWidget = "Checkbox";
 > = {true};
-/* enable depth of field sky cutoff (keeps sky sharp, but may look awful) */
+/* enable depth of field sky cutoff (keeps sky sharp, but may look weird) */
 bool dofcutoff
 <
 	string UIName = "DoFCutoff";
@@ -301,21 +332,25 @@ float edgefadepow
 <
 	string UIName = "EdgeFadePower";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.6};
 float edgefademult
 <
 	string UIName = "EdgeFadeMultiplier";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {16.0};
 float edgepow
 <
 	string UIName = "EdgePower";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.5};
 float edgemult
 <
 	string UIName = "EdgeMultiplier";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {32.0};
 /* ssao filter */
 bool ssaoenable
@@ -330,26 +365,6 @@ int ssaodebug
 	int UIMin = 0;
 	int UIMax = 2;
 > = 0;
-float ssaonoff1
-<
-	string UIName = "SSAONormalOffset1";
-	string UIWidget = "Spinner";
-> = {0.0};
-float ssaonoff2
-<
-	string UIName = "SSAONormalOffset2";
-	string UIWidget = "Spinner";
-> = {0.1};
-float ssaonoff3
-<
-	string UIName = "SSAONormalOffset3";
-	string UIWidget = "Spinner";
-> = {0.1};
-float ssaonoff4
-<
-	string UIName = "SSAONormalOffset4";
-	string UIWidget = "Spinner";
-> = {0.0};
 float ssaoradius
 <
 	string UIName = "SSAORadius";
@@ -364,16 +379,19 @@ float ssaofadepow
 <
 	string UIName = "SSAOFadePower";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.5};
 float ssaofademult
 <
 	string UIName = "SSAOFadeMultiplier";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {15.0};
 float ssaomult
 <
 	string UIName = "SSAOMultiplier";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.0};
 float ssaopow
 <

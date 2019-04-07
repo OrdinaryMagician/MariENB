@@ -4,7 +4,7 @@
 	Part of MariENB, the personal ENB of Marisa.
 	Released under the WTFPL.
 */
-/* fixed resolution */
+/* fixed resolution, keeps blur filters at a consistent internal resolution */
 int fixedx
 <
 	string UIName = "_FixedResolutionX";
@@ -23,42 +23,50 @@ float dkradius_n
 <
 	string UIName = "DarkRadiusNight";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {0.40};
 float dkradius_d
 <
 	string UIName = "DarkRadiusDay";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {0.29};
 float dkradius_in
 <
 	string UIName = "DarkRadiusInteriorNight";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {0.50};
 float dkradius_id
 <
 	string UIName = "DarkRadiusInteriorDay";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {0.39};
 /* falloff of darkening */
 float dkcurve_n
 <
 	string UIName = "DarkCurveNight";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.70};
 float dkcurve_d
 <
 	string UIName = "DarkCurveDay";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {2.30};
 float dkcurve_in
 <
 	string UIName = "DarkCurveInteriorNight";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.35};
 float dkcurve_id
 <
 	string UIName = "DarkCurveInteriorDay";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.67};
 /* bump of darkening */
 float dkbump_n
@@ -81,7 +89,7 @@ float dkbump_id
 	string UIName = "DarkBumpInteriorDay";
 	string UIWidget = "Spinner";
 > = {0.61};
-/* Adaptation */
+/* "adaptation" factors */
 float amin_n
 <
 	string UIName = "AdaptationMinNight";
@@ -122,7 +130,7 @@ float amax_id
 	string UIName = "AdaptationMaxInteriorDay";
 	string UIWidget = "Spinner";
 > = {0.91};
-/* Shine/bloom compensation */
+/* overshine/bloom compensation */
 /* compensation factor */
 float compfactor_n
 <
@@ -144,28 +152,32 @@ float compfactor_id
 	string UIName = "CompensateFactorInteriorDay";
 	string UIWidget = "Spinner";
 > = {0.39};
-/* compensation power */
+/* compensation power (contrast) */
 float comppow_n
 <
 	string UIName = "CompensatePowerNight";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.08};
 float comppow_d
 <
 	string UIName = "CompensatePowerDay";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.11};
 float comppow_in
 <
 	string UIName = "CompensatePowerInteriorNight";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.05};
 float comppow_id
 <
 	string UIName = "CompensatePowerInteriorDay";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.14};
-/* compensation saturation */
+/* compensation saturation (higher values desaturate highlights) */
 float compsat_n
 <
 	string UIName = "CompensateSaturationNight";
@@ -187,7 +199,7 @@ float compsat_id
 	string UIWidget = "Spinner";
 > = {0.74};
 /* Color grading */
-/* miscellaneous color grading parameters */
+/* color component multipliers */
 float grademul_r_n
 <
 	string UIName = "GradingMulRNight";
@@ -248,66 +260,80 @@ float grademul_b_id
 	string UIName = "GradingMulBInteriorDay";
 	string UIWidget = "Spinner";
 > = {1.41};
+/* color component contrasts */
 float gradepow_r_n
 <
 	string UIName = "GradingPowRNight";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.02};
 float gradepow_g_n
 <
 	string UIName = "GradingPowGNight";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.06};
 float gradepow_b_n
 <
 	string UIName = "GradingPowBNight";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.03};
 float gradepow_r_d
 <
 	string UIName = "GradingPowRDay";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.09};
 float gradepow_g_d
 <
 	string UIName = "GradingPowGDay";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.08};
 float gradepow_b_d
 <
 	string UIName = "GradingPowBDay";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.05};
 float gradepow_r_in
 <
 	string UIName = "GradingPowRInteriorNight";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.08};
 float gradepow_g_in
 <
 	string UIName = "GradingPowGInteriorNight";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.11};
 float gradepow_b_in
 <
 	string UIName = "GradingPowBInteriorNight";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.06};
 float gradepow_r_id
 <
 	string UIName = "GradingPowRInteriorDay";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.05};
 float gradepow_g_id
 <
 	string UIName = "GradingPowGInteriorDay";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.04};
 float gradepow_b_id
 <
 	string UIName = "GradingPowBInteriorDay";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.04};
+/* colorization factors */
 float gradecol_r_n
 <
 	string UIName = "GradingColRNight";
@@ -368,6 +394,7 @@ float gradecol_b_id
 	string UIName = "GradingColBInteriorDay";
 	string UIWidget = "Spinner";
 > = {-0.85};
+/* blend factor for colorization (negative values are quite fancy) */
 float gradecolfact_n
 <
 	string UIName = "GradingColFactorNight";
@@ -394,8 +421,10 @@ float boxv
 <
 	string UIName = "BoxVertical";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
 > = {0.90};
-/* softening */
+/* softening (0 = disable) */
 float boxb
 <
 	string UIName = "BoxSoften";
@@ -407,7 +436,7 @@ float boxa
 	string UIName = "BoxAlpha";
 	string UIWidget = "Spinner";
 > = {12.00};
-/* soften bloom texture */
+/* soften bloom texture (remove blocky artifacts from downscaled bloom) */
 bool softbloom
 <
 	string UIName = "BloomSoften";

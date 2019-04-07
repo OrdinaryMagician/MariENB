@@ -4,7 +4,7 @@
 	Part of MariENB, the personal ENB of Marisa.
 	Released under the WTFPL.
 */
-/* fixed resolution */
+/* fixed resolution, keeps blur filters at a consistent internal resolution */
 int fixedx
 <
 	string UIName = "_FixedResolutionX";
@@ -22,42 +22,50 @@ float bloomintensity_n
 <
 	string UIName = "BloomIntensityNight";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {0.25};
 float bloomintensity_d
 <
 	string UIName = "BloomIntensityDay";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {0.25};
 float bloomintensity_in
 <
 	string UIName = "BloomIntensityInteriorNight";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {0.25};
 float bloomintensity_id
 <
 	string UIName = "BloomIntensityInteriorDay";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {0.25};
-/* bloom power */
+/* bloom power (contrast) */
 float bloompower_n
 <
 	string UIName = "BloomPowerNight";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.4};
 float bloompower_d
 <
 	string UIName = "BloomPowerDay";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.4};
 float bloompower_in
 <
 	string UIName = "BloomPowerInteriorNight";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.4};
 float bloompower_id
 <
 	string UIName = "BloomPowerInteriorDay";
 	string UIWidget = "Spinner";
+	float UIMin = 0.0;
 > = {1.4};
 /* bloom saturation */
 float bloomsaturation_n
@@ -80,7 +88,7 @@ float bloomsaturation_id
 	string UIName = "BloomSaturationInteriorDay";
 	string UIWidget = "Spinner";
 > = {0.3};
-/* bloom offset */
+/* bloom offset (negative values keep dark areas from muddying up) */
 float bloombump_n
 <
 	string UIName = "BloomBumpNight";

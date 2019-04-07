@@ -92,8 +92,9 @@ float4 PS_Edge( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 /* Crappy SSAO */
 float3 pseudonormal( float dep, float2 coord )
 {
-	float2 ofs1 = float2(ssaonoff1*0.01,ssaonoff2*0.01);
-	float2 ofs2 = float2(ssaonoff3*0.01,ssaonoff4*0.01);
+	float2 bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
+	float2 ofs1 = float2(0,1.0/bresl.y);
+	float2 ofs2 = float2(1.0/bresl.x,0);
 	float dep1 = tex2D(SamplerDepth,coord+ofs1).x;
 	float dep2 = tex2D(SamplerDepth,coord+ofs2).x;
 	float3 p1 = float3(ofs1,dep1-dep);
@@ -118,16 +119,16 @@ float4 PS_SSAO( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	float2 nc = coord*(bresl/256.0);
 	float2 bof = float2(1.0/bresl.x,1.0/bresl.y)*ssaoradius;
 	float3 rnormal = tex2D(SamplerNoise3,nc).xyz*2.0-1.0;
-	normal = normal+rnormal*ssaonoise;
+	normal = normalize(normal+rnormal*ssaonoise);
 	float occ = 0.0;
 	int i;
 	float ldepth = depthlinear(coord);
 	for ( i=0; i<16; i++ )
 	{
 		float3 sample = reflect(ssao_samples[i],normal);
-		float sampledepth = depthlinear(coord+i*sample.xy*bof);
+		float sampledepth = depthlinear(coord+sample.xy*bof);
 		float diff = sampledepth-ldepth;
-		if ( sampledepth > ldepth )
+		if ( ldepth < sampledepth )
 			occ += 1.0/(1.0+pow(diff,2));
 	}
 	float uocc = saturate(1.0-occ/16.0);
@@ -335,8 +336,10 @@ float4 PS_DoF( VS_OUTPUT_POST IN, float2 vPos : VPOS, uniform int p ) : COLOR
 	res += gauss5[0][2]*tex2D(SamplerColor,coord+float2(0,2)*bof*dfc);
 	res += gauss5[1][2]*tex2D(SamplerColor,coord+float2(1,2)*bof*dfc);
 	res += gauss5[2][2]*tex2D(SamplerColor,coord+float2(2,2)*bof*dfc);
-	if ( dofdebug )
+	if ( dofdebug == 1 )
 		return dfc;
+	else if ( dofdebug == 2 )
+		return tex2D(SamplerDepth,coord);
 	return res;
 }
 technique ReadFocus
