@@ -1,98 +1,445 @@
 /*
-	Pseudo-CRT emulation shader (and some other stuff).
-	(C)2013 Marisa Kirisame, UnSX Team
-	Some parts cobbled together from original effect.txt by Boris, and
-	random algorithms taken from the internet.
-	Released under the WTFPL.
+	effect.txt : MariENB additional filters.
+	(C)2013 Marisa Kirisame, UnSX Team.
+	Part of MariENB, the personal ENB of Marisa.
+	Released under the MIT License.
 */
-
-/*
-   The original code for some sections (mainly the curvature one) made me wish
-   I could choke the original authors through standard TCP/IP.
-*/
-
-/* PS: HLSL is disgusting. I prefer GLSL, or even pure C software shaders. */
-
-/* Borders are blurred */
-#define EBORDERBLUR
-/* border shine blur sampling range */
-float blursamp = 1.5;
+/* FXAA */
+bool fxaaenable
+<
+	string UIName = "EnableFXAA";
+	string UIWidget = "Checkbox";
+> = {false};
+float fxaaspanmax
+<
+	string UIName = "FXAASpanMax";
+	string UIWidget = "Checkbox";
+> = {4.0};
+float fxaareducemul
+<
+	string UIName = "FXAAReduceMul";
+	string UIWidget = "Checkbox";
+> = {16.0};
+float fxaareducemin
+<
+	string UIName = "FXAAReduceMin";
+	string UIWidget = "Checkbox";
+> = {128.0};
+/* border blurring */
+bool bbenable
+<
+	string UIName = "BlurEnable";
+	string UIWidget = "Checkbox";
+> = {true};
+/* border blur sampling range */
+float bbsamp
+<
+	string UIName = "BlurSample";
+	string UIWidget = "Spinner";
+> = {1.0};
+/* border blur level */
+int bblevel
+<
+	string UIName = "BlurLevel";
+	string UIWidget = "Spinner";
+> = {1};
 /* blend power of blur */
-float blurpow = 28.0;
+float bbpow
+<
+	string UIName = "BlurPower";
+	string UIWidget = "Spinner";
+> = {15.46};
 /* falloff curve of blur towards center of screen */
-float blurcurve = 2.2;
+float bbcurve
+<
+	string UIName = "BlurCurve";
+	string UIWidget = "Spinner";
+> = {1.2};
 /* blur falloff radius */
-float blurradius = 0.56;
-
-/* Crossblur modified from Uboa Engine */
-#define ECROSSBLUR
-/* crossblur sampling range */
-float cblursamp = 0.3;
-
+float bbradius
+<
+	string UIName = "BlurRadius";
+	string UIWidget = "Spinner";
+> = {0.69};
+/* border darkening */
+bool dkenable
+<
+	string UIName = "DarkEnable";
+	string UIWidget = "Checkbox";
+> = {true};
+/* radius of darkening (relative to screen width) */
+float dkradius
+<
+	string UIName = "DarkRadius";
+	string UIWidget = "Spinner";
+> = {0.37};
+/* falloff of darkening */
+float dkcurve
+<
+	string UIName = "DarkCurve";
+	string UIWidget = "Spinner";
+> = {1.94};
+/* bump of darkening */
+float dkbump
+<
+	string UIName = "DarkBump";
+	string UIWidget = "Spinner";
+> = {0.79};
+/* shine/bloom compensation */
+bool compenable
+<
+	string UIName = "EnableCompensate";
+	string UIWidget = "Checkbox";
+> = {true};
+/* compensation factor */
+float compfactor
+<
+	string UIName = "CompensateFactor";
+	string UIWidget = "Spinner";
+> = {0.19};
+/* compensation power */
+float comppow
+<
+	string UIName = "CompensatePower";
+	string UIWidget = "Spinner";
+> = {1.05};
+/* compensation saturation */
+float compsat
+<
+	string UIName = "CompensateSaturation";
+	string UIWidget = "Spinner";
+> = {0.3};
+/* brightness bump for compensation */
+float compbump
+<
+	string UIName = "CompensateBump";
+	string UIWidget = "Spinner";
+> = {0.0};
+bool gradeenable
+<
+	string UIName = "EnableGrading";
+	string UIWidget = "Checkbox";
+> = {true};
+/* miscellaneous color grading parameters */
+float gradeadd_r
+<
+	string UIName = "GradingAddR";
+	string UIWidget = "Spinner";
+> = {0.0};
+float gradeadd_g
+<
+	string UIName = "GradingAddG";
+	string UIWidget = "Spinner";
+> = {0.0};
+float gradeadd_b
+<
+	string UIName = "GradingAddB";
+	string UIWidget = "Spinner";
+> = {0.0};
+float grademul_r
+<
+	string UIName = "GradingMulR";
+	string UIWidget = "Spinner";
+> = {1.02};
+float grademul_g
+<
+	string UIName = "GradingMulG";
+	string UIWidget = "Spinner";
+> = {1.08};
+float grademul_b
+<
+	string UIName = "GradingMulB";
+	string UIWidget = "Spinner";
+> = {1.04};
+float gradepow_r
+<
+	string UIName = "GradingPowR";
+	string UIWidget = "Spinner";
+> = {1.07};
+float gradepow_g
+<
+	string UIName = "GradingPowG";
+	string UIWidget = "Spinner";
+> = {1.12};
+float gradepow_b
+<
+	string UIName = "GradingPowB";
+	string UIWidget = "Spinner";
+> = {1.08};
+float gradecol_r
+<
+	string UIName = "GradingColR";
+	string UIWidget = "Spinner";
+> = {0.04};
+float gradecol_g
+<
+	string UIName = "GradingColG";
+	string UIWidget = "Spinner";
+> = {0.07};
+float gradecol_b
+<
+	string UIName = "GradingColB";
+	string UIWidget = "Spinner";
+> = {0.59};
+float gradecolfact
+<
+	string UIName = "GradingColFactor";
+	string UIWidget = "Spinner";
+> = {-0.24};
 /* Soft grain */
-#define EGRAIN
+bool ne
+<
+	string UIName = "EnableSoftGrain";
+	string UIWidget = "Checkbox";
+> = {true};
 /* soft grain speed */
-float nf = 0.02;
+float nf
+<
+	string UIName = "SoftGrainSpeed";
+	string UIWidget = "Spinner";
+> = {2.68};
 /* soft grain intensity */
-float ni = 0.01;
+float ni
+<
+	string UIName = "SoftGrainIntensity";
+	string UIWidget = "Spinner";
+> = {0.04};
 /* soft grain saturation */
-float ns = 0.15;
-
+float ns
+<
+	string UIName = "SoftGrainSaturation";
+	string UIWidget = "Spinner";
+> = {0.09};
+/* Two-pass noise */
+bool np
+<
+	string UIName = "SoftGrainTwopass";
+	string UIWidget = "Checkbox";
+> = {true};
+/* grain blend function: 0 normal, 1 add, 2 overlay, 3 multiply */
+int nb
+<
+	string UIName = "SoftGrainBlendfunc";
+	string UIWidget = "Spinner";
+> = {1};
+/* grain deviation */
+float nk
+<
+	string UIName = "SoftGrainDeviation";
+	string UIWidget = "Spinner";
+> = {0.05};
+/* grain magnification */
+float nm1
+<
+	string UIName = "SoftGrainMagnification1";
+	string UIWidget = "Spinner";
+> = {1.25};
+float nm2
+<
+	string UIName = "SoftGrainMagnification2";
+	string UIWidget = "Spinner";
+> = {0.64};
+float nm3
+<
+	string UIName = "SoftGrainMagnification3";
+	string UIWidget = "Spinner";
+> = {0.35};
+/* grain magnification pass 1 */
+float nm11
+<
+	string UIName = "SoftGrainMagnification11";
+	string UIWidget = "Spinner";
+> = {2.05};
+float nm12
+<
+	string UIName = "SoftGrainMagnification12";
+	string UIWidget = "Spinner";
+> = {3.11};
+float nm13
+<
+	string UIName = "SoftGrainMagnification13";
+	string UIWidget = "Spinner";
+> = {2.22};
+/* grain magnification pass 2 */
+float nm21
+<
+	string UIName = "SoftGrainMagnification21";
+	string UIWidget = "Spinner";
+> = {4.25};
+float nm22
+<
+	string UIName = "SoftGrainMagnification22";
+	string UIWidget = "Spinner";
+> = {0.42};
+float nm23
+<
+	string UIName = "SoftGrainMagnification23";
+	string UIWidget = "Spinner";
+> = {6.29};
+/* grain power */
+float nj
+<
+	string UIName = "SoftGrainPower";
+	string UIWidget = "Spinner";
+> = {2.93};
 /* Block graphics filter with palette reduction */
-#define EBLOCKGFX
+bool benable
+<
+	string UIName = "EnableBlockGFX";
+	string UIWidget = "Checkbox";
+> = {false};
 /* emulated resolution for block graphics (0 or less for real resolution) */
-float2 bres = float2(320,200);
+float bresw
+<
+	string UIName = "BlockGFXResolutionW";
+	string UIWidget = "Spinner";
+> = {1.0};
+float bresh
+<
+	string UIName = "BlockGFXResolutionH";
+	string UIWidget = "Spinner";
+> = {1.0};
 /* do not scale */
-bool bnoscale = false;
+bool bnoscale
+<
+	string UIName = "BlockGFXNoScale";
+	string UIWidget = "Checkbox";
+> = {false};
 /* perform aspect ratio correction on emulated screen (ignored if no scale) */
-bool bratio = true;
+bool bratio
+<
+	string UIName = "BlockGFXAspect";
+	string UIWidget = "Checkbox";
+> = {false};
 /* extra border factor (negative values for overscan) */
-float bborderf = 0.05;
-/*
-   palette type for block graphics:
-    0: 64-color AOS
-    1: 6bpc
-    2: CGA
-    3: 16-bit RGB565
-   other values disable palette reduction
-*/
-int paltype = 0;
-/* Use AOS CGA colors rather than standard CGA */
-#define AOSCGA
-
-/* Cheap dot matrix filter */
-#define EDOTMATRIX
-/* blend factor for dot matrix */
-float dotblend = 0.4;
-/* subpixel size in pixels */
-int dotsize = 1;
-
+float bborderf
+<
+	string UIName = "BlockGFXBorder";
+	string UIWidget = "Spinner";
+> = {0.00};
+/* palette type for block graphics */
+int bpaltype
+<
+	string UIName = "BlockGFXpalette";
+	string UIWidget = "Spinner";
+> = {5};
+/* CGA subpalette */
+int bcganum
+<
+	string UIName = "BlockGFXcgamode";
+	string UIWidget = "Spinner";
+> = {0};
 /* Dirty screen effect (static noise) */
-#define EDIRT
+bool dirtenable
+<
+	string UIName = "EnableDirt";
+	string UIWidget = "Checkbox";
+> = {true};
 /* dirt amount */
-float dirtfactor = 0.08;
-
+float dirtcfactor
+<
+	string UIName = "DirtCoordFactor";
+	string UIWidget = "Spinner";
+> = {0.09};
+float dirtlfactor
+<
+	string UIName = "DirtLuminanceFactor";
+	string UIWidget = "Spinner";
+> = {0.0};
+float dirtmc
+<
+	string UIName = "DirtCoordMagnification";
+	string UIWidget = "Spinner";
+> = {3.04};
+float dirtml
+<
+	string UIName = "DirtLuminanceMagnification";
+	string UIWidget = "Spinner";
+> = {1.0};
+/* Letterbox */
+bool boxe
+<
+	string UIName = "EnableBox";
+	string UIWidget = "Checkbox";
+> = {true};
+/* horizontal factor */
+float boxh
+<
+	string UIName = "BoxHorizontal";
+	string UIWidget = "Spinner";
+> = {1.5};
+/* vertical factor */
+float boxv
+<
+	string UIName = "BoxVertical";
+	string UIWidget = "Spinner";
+> = {1.0};
+/* softening */
+float boxb
+<
+	string UIName = "BoxSoften";
+	string UIWidget = "Spinner";
+> = {0.02};
+/* box alpha */
+float boxa
+<
+	string UIName = "BoxAlpha";
+	string UIWidget = "Spinner";
+> = {6.07};
 /* Use CRT curvature shader */
-#define ECRT
+bool crtenable
+<
+	string UIName = "EnableCurvature";
+	string UIWidget = "Checkbox";
+> = {false};
 /* chromatic aberration on CRT: fancy effect that isn't really realistic */
-float chromaab = 0.015;
+float chromaab
+<
+	string UIName = "CurveChromaticAberration";
+	string UIWidget = "Spinner";
+> = {0.93};
 /* curvature lens zoom (0.5 = none) */
-float lenszoom = 0.53;
+float lenszoom
+<
+	string UIName = "CurveZoom";
+	string UIWidget = "Spinner";
+> = {50.0};
 /* curvature lens distortion */
-float lensdist = 0.1;
-/* not sure what this does */
-float lensdistc = 0.1;
-
-/*
-   +------------------------------+
-   |User-tweakable stuff ends here|
-   +------------------------------+
-*/
-
+float lensdist
+<
+	string UIName = "CurveLens";
+	string UIWidget = "Spinner";
+> = {0.0};
+/* curvature CUBIC lens distortion */
+float lensdistc
+<
+	string UIName = "CurveLensCubic";
+	string UIWidget = "Spinner";
+> = {0.0};
 /* do not touch this! */
 #define E_SHADER_3_0
-
-/* standard stuff */
+/* texture sizes */
+#define NOISERES 256.0
+/* gaussian blur matrices */
+const float2x2 gauss3 =
+{
+	0.16,0.12,
+	0.12,0.09
+};
+const float3x3 gauss5 =
+{
+	0.0865051903114,0.0692041522491,0.0346020761246,
+	0.0692041522491,0.0553633217993,0.0276816609,
+	0.0346020761246,0.0276816609,0.01384083045
+};
+const float4x4 gauss7 =
+{
+	0.0632507440209,0.0527089533508,0.0301194019147,0.011294775718,
+	0.0527089533508,0.0439241277923,0.0250995015956,0.00941231309835,
+	0.0301194019147,0.0250995015956,0.01434257234,0.00537846462763,
+	0.011294775718,0.00941231309835,0.00537846462763,0.00201692423536
+};
+/* standard stuff (not all used) */
 float tempF1;
 float tempF2;
 float tempF3;
@@ -103,12 +450,15 @@ float tempF7;
 float tempF8;
 float tempF9;
 float tempF0;
-float4 Timer;
 float4 ScreenSize;
-
-/* samplers and textures */
+float ENightDayFactor;
+float EInteriorFactor;
+float4 Timer;
+float FieldOfView;
+/* samplers and textures (some not yet used) */
 texture2D texColor;
-texture texNoise;
+texture2D texDepth;
+texture2D texPalette;
 sampler2D SamplerColor = sampler_state
 {
 	Texture	= <texColor>;
@@ -121,10 +471,46 @@ sampler2D SamplerColor = sampler_state
 	MaxMipLevel = 0;
 	MipMapLodBias = 0;
 };
-sampler2D SamplerNoise = sampler_state
+sampler2D SamplerDepth = sampler_state
 {
-	Texture = <texNoise>;
-	MinFilter = POINT;
+	Texture = <texDepth>;
+	MinFilter = LINEAR;
+	MagFilter = LINEAR;
+	MipFilter = NONE;
+	AddressU = Clamp;
+	AddressV = Clamp;
+	SRGBTexture = FALSE;
+	MaxMipLevel = 0;
+	MipMapLodBias = 0;
+};
+sampler2D SamplerPalette = sampler_state
+{
+	Texture = <texPalette>;
+	MinFilter = LINEAR;
+	MagFilter = LINEAR;
+	MipFilter = NONE;
+	AddressU = Clamp;
+	AddressV = Clamp;
+	SRGBTexture = FALSE;
+	MaxMipLevel = 0;
+	MipMapLodBias = 0;
+};
+texture2D texNoise1
+<
+	string ResourceName = "menbnoise1.png";
+>;
+texture2D texNoise2
+<
+	string ResourceName = "menbnoise2.png";
+>;
+texture2D texNoise3
+<
+	string ResourceName = "menbnoise3.png";
+>;
+sampler2D SamplerNoise1 = sampler_state
+{
+	Texture = <texNoise1>;
+	MinFilter = LINEAR;
 	MagFilter = POINT;
 	MipFilter = NONE;
 	AddressU = Wrap;
@@ -133,7 +519,30 @@ sampler2D SamplerNoise = sampler_state
 	MaxMipLevel = 0;
 	MipMapLodBias = 0;
 };
-
+sampler2D SamplerNoise2 = sampler_state
+{
+	Texture = <texNoise2>;
+	MinFilter = LINEAR;
+	MagFilter = POINT;
+	MipFilter = NONE;
+	AddressU = Wrap;
+	AddressV = Wrap;
+	SRGBTexture = FALSE;
+	MaxMipLevel = 0;
+	MipMapLodBias = 0;
+};
+sampler2D SamplerNoise3 = sampler_state
+{
+	Texture = <texNoise3>;
+	MinFilter = LINEAR;
+	MagFilter = LINEAR;
+	MipFilter = NONE;
+	AddressU = Wrap;
+	AddressV = Wrap;
+	SRGBTexture = FALSE;
+	MaxMipLevel = 0;
+	MipMapLodBias = 0;
+};
 /* whatever */
 struct VS_OUTPUT_POST
 {
@@ -145,9 +554,7 @@ struct VS_INPUT_POST
 	float3 pos : POSITION;
 	float2 txcoord : TEXCOORD0;
 };
-
 /* Shader routines */
-
 VS_OUTPUT_POST VS_Process(VS_INPUT_POST IN)
 {
 	VS_OUTPUT_POST OUT;
@@ -156,181 +563,412 @@ VS_OUTPUT_POST VS_Process(VS_INPUT_POST IN)
 	OUT.txcoord.xy = IN.txcoord.xy;
 	return OUT;
 }
-
-float4 PS_ProcessBlur(VS_OUTPUT_POST IN, float2 vPos : VPOS) : COLOR
+float4 PS_Process(VS_OUTPUT_POST IN, float2 vPos : VPOS) : COLOR
 {
-	float4 coord = float4(IN.txcoord.x,IN.txcoord.y,0,0);
-	float4 res = tex2Dlod(SamplerColor,coord);
-#ifdef EBORDERBLUR
-	float4 origcolor = res;
-	float4 tcol = float4(0,0,0,0);
-	float2 bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
-	float4 bof = float4(1.0/bresl.x,1.0/bresl.y,0,0)*blursamp;
-	int i, j;
-	for ( i=-2; i<3; i++ )
-		for( j=-2; j<3; j++ )
-			tcol += tex2Dlod(SamplerColor,
-				coord+float4(i,j,0,0)*bof);
-	tcol *= 0.04;
-	float2 uv = (IN.txcoord.xy-0.5)*blurradius;
-	float vig = pow(saturate(dot(uv.xy,uv.xy)),blurcurve);
-	res.xyz = lerp(origcolor.xyz,tcol.xyz,vig*blurpow);
-#endif
+	float2 coord = float2(IN.txcoord.x,IN.txcoord.y);
+	float4 res = tex2D(SamplerColor,coord);
 	return res;
 }
-
-float4 PS_ProcessDirt(VS_OUTPUT_POST IN, float2 vPos : VPOS) : COLOR
+float4 PS_ProcessPass1(VS_OUTPUT_POST IN, float2 vPos : VPOS) : COLOR
 {
-	float4 coord = float4(IN.txcoord.x,IN.txcoord.y,0,0);
-	float4 res = tex2Dlod(SamplerColor,coord);
-#ifdef EDIRT
-	float gray = (res.r+res.g+res.b)/3.0;
-	float4 ncol = tex2Dlod(SamplerNoise, coord*16+gray);
-	res = lerp(res,(ncol.r+1)*res,dirtfactor*saturate(1-gray*0.5));
-#endif
+	float2 coord = float2(IN.txcoord.x,IN.txcoord.y);
+	float4 res = tex2D(SamplerColor,coord);
+	if ( fxaaenable )
+	{
+		float fxaareducemul_ = 1.0/max(abs(fxaareducemul),1.0);
+		float fxaareducemin_ = 1.0/max(abs(fxaareducemin),1.0);
+		float2 bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
+		float2 bof = float2(1.0/bresl.x,1.0/bresl.y);
+		float3 rgbNW = tex2D(SamplerColor,coord+float2(-1,-1)*bof).rgb;
+		float3 rgbNE = tex2D(SamplerColor,coord+float2(1,-1)*bof).rgb;
+		float3 rgbSW = tex2D(SamplerColor,coord+float2(-1,1)*bof).rgb;
+		float3 rgbSE = tex2D(SamplerColor,coord+float2(1,1)*bof).rgb;
+		float3 rgbM = tex2D(SamplerColor,coord).rgb;
+		float3 luma = float3(0.299,0.587,0.114);
+		float lumaNW = dot(rgbNW,luma);
+		float lumaNE = dot(rgbNE,luma);
+		float lumaSW = dot(rgbSW,luma);
+		float lumaSE = dot(rgbSE,luma);
+		float lumaM = dot(rgbM,luma);
+		float lumaMin = min(lumaM,min(min(lumaNW,lumaNE),min(lumaSW,lumaSE)));
+		float lumaMax = max(lumaM,max(max(lumaNW,lumaNE),max(lumaSW,lumaSE)));
+		float2 dir = float2(-((lumaNW+lumaNE)-(lumaSW+lumaSE)),((lumaNW+lumaSW)
+			-(lumaNE+lumaSE)));
+		float dirReduce = max((lumaNW+lumaNE+lumaSW+lumaSE)*(0.25
+			*fxaareducemul_),fxaareducemin_);
+		float rcpDirMin = 1.0/(min(abs(dir.x),abs(dir.y))+dirReduce);
+		dir = min(float2(fxaaspanmax,fxaaspanmax),max(float2(-fxaaspanmax,
+			-fxaaspanmax),dir*rcpDirMin))/bresl;
+		float3 rgbA = (1.0/2.0)*(tex2D(SamplerColor,coord+dir*(1.0/3.0-0.5))
+			.rgb+tex2D(SamplerColor,coord+dir*(2.0/3.0-0.5)).rgb);
+		float3 rgbB = rgbA*(1.0/2.0)+(1.0/4.0)*(tex2D(SamplerColor,coord+dir
+			*(0.0/3.0-0.5)).rgb+tex2D(SamplerColor,coord+dir*(3.0/3.0
+			-0.5)).rgb);
+		float lumaB = dot(rgbB,luma);
+		if ( (lumaB < lumaMin) || (lumaB > lumaMax) )
+			res.rgb = rgbA;
+		else
+			res.rgb = rgbB;
+	}
 	return res;
 }
-
-float4 PS_ProcessCurve(VS_OUTPUT_POST IN, float2 vPos : VPOS) : COLOR
+float4 PS_ProcessPass2(VS_OUTPUT_POST IN, float2 vPos : VPOS) : COLOR
 {
-	float4 coord = float4(IN.txcoord.x,IN.txcoord.y,0,0);
-	float4 res = tex2Dlod(SamplerColor,coord);
-#ifdef ECRT
-	float4 tcol = res;
-	float3 eta = float3(1+chromaab*0.9,1+chromaab*0.6,1+chromaab*0.3);
-	float2 center = float2(coord.x-0.5,coord.y-0.5);
-	float zfact = 1.0/lenszoom;
-	float r2 = center.x*center.x+center.y*center.y;
-	float f = 0;
-	if( lensdistc == 0.0)
-		f = 1+r2*lensdist;
-	else
-		f = 1+r2*(lensdist+lensdistc*sqrt(r2));
-	float x = f*zfact*center.x+0.5;
-	float y = f*zfact*center.y+0.5;
-	float2 rcoord = (f*eta.r)*zfact*(center.xy*0.5)+0.5;
-	float2 gcoord = (f*eta.g)*zfact*(center.xy*0.5)+0.5;
-	float2 bcoord = (f*eta.b)*zfact*(center.xy*0.5)+0.5;
-	float4 idist = float4(tex2D(SamplerColor,rcoord).r,
-		tex2D(SamplerColor,gcoord).g,
-		tex2D(SamplerColor,bcoord).b,
-		tex2D(SamplerColor,float2(x,y)).a);
-	/* clamp (currently hard, will add softening later */
-	float clampval = 0.01;
-	if ( rcoord.x < clampval || rcoord.x >= 1-clampval
-		|| rcoord.y < clampval || rcoord.y >= 1-clampval )
-		idist.r *= 0;
-	if ( gcoord.x < clampval || gcoord.x >= 1-clampval
-		|| gcoord.y < clampval || gcoord.y >= 1-clampval )
-		idist.g *= 0;
-	if ( bcoord.x < clampval || bcoord.x >= 1-clampval
-		|| bcoord.y < clampval || bcoord.y >= 1-clampval )
-		idist.b *= 0;
-
-	res.rgb = idist.rgb;
-#endif
+	float2 coord = float2(IN.txcoord.x,IN.txcoord.y);
+	float4 res = tex2D(SamplerColor,coord);
+	if ( bbenable )
+	{
+		float4 origcolor = res;
+		float4 tcol = float4(0,0,0,0);
+		float2 bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
+		float2 bof = float2(1.0/bresl.x,1.0/bresl.y)*bbsamp;
+		int i, j;
+		if ( bblevel == 1 )
+		{
+			for ( i=-2; i<=2; i++ )
+				for ( j=-2; j<=2; j++ )
+					tcol += gauss5[abs(i)][abs(j)]
+						*tex2D(SamplerColor,coord+float2(i,j)*bof);
+		}
+		else if ( bblevel == 2 )
+		{
+			for ( i=-3; i<=3; i++ )
+				for ( j=-3; j<=3; j++ )
+					tcol += gauss7[abs(i)][abs(j)]
+						*tex2D(SamplerColor,coord+float2(i,j)*bof);
+		}
+		else
+		{
+			for ( i=-1; i<=1; i++ )
+				for ( j=-1; j<=1; j++ )
+					tcol += gauss3[abs(i)][abs(j)]
+						*tex2D(SamplerColor,coord+float2(i,j)*bof);
+		}
+		float2 uv = (coord.xy-0.5)*bbradius;
+		float vig = clamp(pow(saturate(dot(uv.xy,uv.xy)),bbcurve),0.0,1.0);
+		res.rgb = lerp(origcolor.rgb,tcol.rgb,clamp(vig*bbpow,0.0,1.0));
+	}
+	if ( dkenable )
+	{
+		float2 bresl = float2(1.0,ScreenSize.w);
+		float2 bof = bresl*dkradius;
+		float val = 0.0;
+		if ( coord.x < bof.x )
+			val = lerp(val,1,1.0-coord.x/bof.x);
+		if ( coord.y < bof.y )
+			val = lerp(val,1,1.0-coord.y/bof.y);
+		if ( 1.0-coord.x < bof.x )
+			val = lerp(val,1,1.0-(1.0-coord.x)/bof.x);
+		if ( 1.0-coord.y < bof.y )
+			val = lerp(val,1,1.0-(1.0-coord.y)/bof.y);
+		val = clamp(val*dkbump,0,1);
+		res.rgb = lerp(res.rgb,float3(0,0,0),pow(val,dkcurve));
+	}
+	if ( ne )
+	{
+		float ts = Timer.x*nf;
+		ts *= 1000.0;
+		float2 tcs = coord;
+		float2 s1 = tcs+float2(0,ts);
+		float2 s2 = tcs+float2(ts,0);
+		float2 s3 = tcs+float2(ts,ts);
+		float n1, n2, n3;
+		float2 nr = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w)/NOISERES;
+		if ( np )
+		{
+			n1 = tex2D(SamplerNoise2,s1*nm11*nr).r;
+			n2 = tex2D(SamplerNoise2,s2*nm12*nr).g;
+			n3 = tex2D(SamplerNoise2,s3*nm13*nr).b;
+			s1 = tcs+float2(ts+n1*nk,n2*nk);
+			s2 = tcs+float2(n2,ts+n3*nk);
+			s3 = tcs+float2(ts+n3*nk,ts+n1*nk);
+			n1 = tex2D(SamplerNoise2,s1*nm21*nr).r;
+			n2 = tex2D(SamplerNoise2,s2*nm22*nr).g;
+			n3 = tex2D(SamplerNoise2,s3*nm23*nr).b;
+		}
+		else
+		{
+			n1 = tex2D(SamplerNoise3,s1*nm1*nr).r;
+			n2 = tex2D(SamplerNoise3,s2*nm2*nr).g;
+			n3 = tex2D(SamplerNoise3,s3*nm3*nr).b;
+		}
+		float n4 = (n1+n2+n3)/3;
+		float3 ng = float3(n4,n4,n4);
+		float3 nc = float3(n1,n2,n3);
+		float3 nt = pow(clamp(lerp(ng,nc,ns),0.0,1.0),nj);
+		if ( nb == 1 )
+			res.rgb += nt*ni;
+		else if ( nb == 2 )
+		{
+			res.r = (res.r<0.5)?(2.0*res.r*(0.5+(nt.r*ni)))
+				:(1.0-2.0*(1.0-res.r)*(1.0-((0.5+(nt.r*ni)))));
+			res.g = (res.g<0.5)?(2.0*res.g*(0.5+(nt.g*ni)))
+				:(1.0-2.0*(1.0-res.g)*(1.0-((0.5+(nt.g*ni)))));
+			res.b = (res.b<0.5)?(2.0*res.b*(0.5+(nt.b*ni)))
+				:(1.0-2.0*(1.0-res.b)*(1.0-((0.5+(nt.b*ni)))));
+		}
+		else if ( nb == 3 )
+			res.rgb *= 1.0+(nt*ni);
+		else
+			res.rgb = lerp(res.rgb,nt,ni);
+	}
+	if ( compenable )
+	{
+		float4 ovr = pow(saturate(res+compbump),comppow);
+		float ovrs = (ovr.r+ovr.g+ovr.b)/3.0;
+		ovr = ovr*compsat+ovrs*(1.0-compsat);
+		res.rgb -= ovr.rgb*compfactor;
+	}
+	if ( gradeenable )
+	{
+		float3 gradeadd = float3(gradeadd_r,gradeadd_g,gradeadd_b);
+		float3 grademul = float3(grademul_r,grademul_g,grademul_b);
+		float3 gradepow = float3(gradepow_r,gradepow_g,gradepow_b);
+		float3 gradecol = float3(gradecol_r,gradecol_g,gradecol_b);
+		res.rgb = saturate(res.rgb+gradeadd);
+		res.rgb = saturate(res.rgb*grademul);
+		res.rgb = saturate(pow(res.rgb,gradepow));
+		float tonev = (res.r+res.g+res.b)/3.0;
+		float3 tonecolor = gradecol*tonev;
+		res.rgb = res.rgb*(1.0-gradecolfact)+tonecolor*gradecolfact;
+	}
+	if ( dirtenable )
+	{
+		float2 r = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w)/NOISERES;
+		float4 ncolc = tex2D(SamplerNoise1,coord*dirtmc*r);
+		float2 ds = float2(res.r+res.g,res.g+res.b)/2.0;
+		float4 ncoll = tex2D(SamplerNoise1,ds*dirtml);
+		res = lerp(res,(ncolc.r+1)*res,
+			dirtcfactor*saturate(1-(ds.x+ds.y)*0.25));
+		res = lerp(res,(ncoll.r+1)*res,
+			dirtlfactor*saturate(1-(ds.x+ds.y)*0.25));
+	}
+	if ( boxe )
+	{
+		float boxf = pow(clamp(boxh-abs(2.0*coord.x-1.0),0.0,1.0),boxb)
+			*pow(clamp(boxv-abs(2.0*coord.y-1.0),0.0,1.0),boxb);
+		res.rgb = lerp(res.rgb*(1.0-boxa),res.rgb,boxf);
+	}
 	return res;
 }
-
-float4 PS_ProcessCrossblur( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
+float4 PS_ProcessPass3(VS_OUTPUT_POST IN, float2 vPos : VPOS) : COLOR
 {
-	float4 coord = float4(IN.txcoord.x,IN.txcoord.y,0,0);
-	float4 res = tex2Dlod(SamplerColor,coord);
-#ifdef ECROSSBLUR
-	float2 bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
-	float4 bof = float4(1.0/bresl.x,1.0/bresl.y,0,0)*cblursamp;
-	float factor[4] = {0.3,0.2,0.1,0.05};
-	int i, j;
-	res *= 0;
-	/* I'm going to hell for this ugly staircase code */
-	for ( i=-3; i<4; i++ )
-		for ( j=-3; j<4; j++ )
-			res += factor[abs(i)]*factor[abs(j)]
-				*tex2Dlod(SamplerColor,
-					coord+float4(i,j,0,0)*bof);
-#endif
-	return res;
-}
-
-float4 PS_ProcessBlock( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
-{
-	float4 coord = float4(IN.txcoord.x,IN.txcoord.y,0,0);
-	float4 res = tex2Dlod(SamplerColor,coord);
-#ifdef EBLOCKGFX
-	float4 rresl = float4(ScreenSize.x,ScreenSize.x*ScreenSize.w,1,1);
-	float4 bresl;
-	if ( bres.x <= 0 || bres.y <= 0 )
+	float2 coord = float2(IN.txcoord.x,IN.txcoord.y);
+	float4 res = tex2D(SamplerColor,coord);
+	if ( !benable )
+		return res;
+	float2 rresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
+	float2 bresl = float2(1,1);
+	float2 dresl;
+	if ( bresw <= 0 || bresh <= 0 )
 		bresl = rresl;
 	else
-		bresl = float4(bres.x,bres.y,1,1);
-	float4 ncoord = floor(coord*bresl)/bresl;
-	float4 rratio = rresl/bresl;
+	{
+		if ( bresw <= 1.0 )
+			bresl.x = rresl.x*bresw;
+		else
+			bresl.x = bresw;
+		if ( bresh <= 1.0 )
+			bresl.y = rresl.y*bresh;
+		else
+			bresl.y = bresh;
+	}
+	float2 rratio = rresl/bresl;
+	float2 ncoord = coord;
 	if ( !bnoscale )
 	{
 		if ( bratio )
 			rratio /= min(rratio.x,rratio.y);
 		else
 			rratio /= rratio;
+		rratio *= 1+bborderf;
+		dresl = bresl*rratio;
+		ncoord = ((coord-float2(0.5,0.5))*rratio)+float2(0.5,0.5);
+		ncoord = floor(ncoord*bresl)/bresl;
 	}
-	rratio *= 1+bborderf;
-	ncoord = ((ncoord-float4(0.5,0.5,0,0))*rratio)+float4(0.5,0.5,0,0);
-	float4 tcol = tex2Dlod(SamplerColor,ncoord);
+	else
+	{
+		rratio = float2(1.0,1.0);
+		dresl = rresl;
+	}
+	if ( bresw <= 0 || bresh <= 0 )
+		ncoord = coord;
+	float4 tcol = tex2D(SamplerColor,ncoord);
 	/* clamp */
 	if ( ncoord.x < 0 || ncoord.x >= 1 || ncoord.y < 0 || ncoord.y >= 1 )
 		tcol *= 0;
-	/* 64-color (4bpc) AOS EGA region */
-	if ( paltype == 0 )
+	if ( bpaltype == 0 )
 	{
-		/* dither */
-		bool evx = (coord.x*bresl.x)%2 < 1;
-		bool evy = (coord.y*bresl.y)%2 < 1;
-		if ( evx != evy )
-			tcol = tcol+float4(1,1,1,0)*0.01;
+		float4 dac;
+		if ( bcganum == 0 )
+		{
+			/* brighten shadows */
+			tcol.rgb = pow(tcol.rgb,0.35);
+			/* dither */
+			bool evx = (coord.x*dresl.x)%2 < 1;
+			bool evy = (coord.y*dresl.y)%2 < 1;
+			tcol -= 0.1;
+			if ( evx != evy )
+				tcol += 0.25;
+			/* oversaturate components */
+			dac.a = (tcol.r+tcol.g+tcol.b)/3.0;
+			dac.r = dac.a+(tcol.r-dac.a)*5.0;
+			dac.g = dac.a+(tcol.g-dac.a)*5.0;
+			dac.b = dac.a+(tcol.b-dac.a)*5.0;
+		}
+		else if ( bcganum%2 == 0 )
+		{
+			/* brighten shadows */
+			tcol.rgb = pow(tcol.rgb,0.4);
+			/* dither */
+			bool evx = (coord.x*dresl.x)%2 < 1;
+			bool evy = (coord.y*dresl.y)%2 < 1;
+			tcol -= 0.1;
+			if ( evx != evy )
+				tcol += 0.225;
+			/* oversaturate components */
+			dac.a = (tcol.r+tcol.g+tcol.b)/3.0;
+			dac.r = dac.a+(tcol.r-dac.a)*4.5;
+			dac.g = dac.a+(tcol.g-dac.a)*4.5;
+			dac.b = dac.a+(tcol.b-dac.a)*4.5;
+		}
 		else
-			tcol = tcol-float4(1,1,1,0)*0.01;
-		/* truncate */
-		res.rgb = trunc(tcol.rgb*16.0)/16.0;
-		/* additional brightness bump */
-		res = res+float4(1,1,1,0)*0.02;
+		{
+			/* brighten shadows */
+			tcol.rgb = pow(tcol.rgb,0.45);
+			/* dither */
+			bool evx = (coord.x*dresl.x)%2 < 1;
+			bool evy = (coord.y*dresl.y)%2 < 1;
+			tcol -= 0.1;
+			if ( evx != evy )
+				tcol += 0.2;
+			/* oversaturate components */
+			dac.a = (tcol.r+tcol.g+tcol.b)/3.0;
+			dac.r = dac.a+(tcol.r-dac.a)*4.0;
+			dac.g = dac.a+(tcol.g-dac.a)*4.0;
+			dac.b = dac.a+(tcol.b-dac.a)*4.0;
+		}
+		/* color lookup */
+		float3 cgapal[4] =
+		{
+			float3(0.000,0.000,0.000),
+			float3(1.000,1.000,1.000),
+			float3(0.000,0.000,0.000),
+			float3(0.000,0.000,0.000),
+		};
+		if ( bcganum == 1 )
+		{
+			cgapal[1] = float3(0.000,0.666,0.666);
+			cgapal[2] = float3(0.666,0.000,0.666);
+			cgapal[3] = float3(0.666,0.666,0.666);
+		}
+		else if ( bcganum == 2 )
+		{
+			cgapal[1] = float3(0.333,1.000,1.000);
+			cgapal[2] = float3(1.000,0.333,1.000);
+			cgapal[3] = float3(1.000,1.000,1.000);
+		}
+		else if ( bcganum == 3 )
+		{
+			cgapal[1] = float3(0.000,0.666,0.000);
+			cgapal[2] = float3(0.666,0.000,0.000);
+			cgapal[3] = float3(0.666,0.333,0.000);
+		}
+		else if ( bcganum == 4 )
+		{
+			cgapal[1] = float3(0.333,1.000,0.333);
+			cgapal[2] = float3(1.000,0.333,0.333);
+			cgapal[3] = float3(0.333,1.000,0.333);
+		}
+		else if ( bcganum == 5 )
+		{
+			cgapal[1] = float3(0.000,0.666,0.666);
+			cgapal[2] = float3(0.666,0.000,0.000);
+			cgapal[3] = float3(0.666,0.666,0.666);
+		}
+		else if ( bcganum == 6 )
+		{
+			cgapal[1] = float3(0.333,1.000,1.000);
+			cgapal[2] = float3(1.000,0.333,0.333);
+			cgapal[3] = float3(1.000,1.000,1.000);
+		}
+		float dist = 2.0;
+		int idx = 0;
+		for ( int i=0; i<4; i++ )
+		{
+			if ( distance(dac.rgb,cgapal[i]) < dist )
+			{
+				idx = i;
+				dist = distance(dac.rgb,cgapal[i]);
+			}
+		}
+		res.rgb = cgapal[idx];
 	}
-	/* 6bpc */
-	else if ( paltype == 1 )
-	{
-		/* dither */
-		bool evx = (coord.x*bresl.x)%2 < 1;
-		bool evy = (coord.y*bresl.y)%2 < 1;
-		if ( evx != evy )
-			tcol = tcol+float4(1,1,1,0)*0.01;
-		else
-			tcol = tcol-float4(1,1,1,0)*0.01;
-		/* truncate */
-		res.rgb = trunc(tcol.rgb*64.0)/64.0;
-		/* additional brightness bump */
-		res = res+float4(1,1,1,0)*0.02;
-	}
-	/* CGA palette */
-	else if ( paltype == 2 )
+	else if ( bpaltype == 1 )
 	{
 		float4 dac;
 		/* brighten shadows */
 		tcol.rgb = pow(tcol.rgb,0.5);
 		/* dither */
-		bool evx = (coord.x*bresl.x)%2 < 1;
-		bool evy = (coord.y*bresl.y)%2 < 1;
+		bool evx = (coord.x*dresl.x)%2 < 1;
+		bool evy = (coord.y*dresl.y)%2 < 1;
+		tcol -= 0.04;
 		if ( evx != evy )
-			tcol = tcol+float4(1,1,1,0)*0.01;
-		else
-			tcol = tcol-float4(1,1,1,0)*0.01;
-		/* additional brightness bump */
-		tcol = tcol-float4(1,1,1,0)*0.01;
+			tcol += 0.08;
+		/* oversaturate components */
+		dac.a = (tcol.r+tcol.g+tcol.b)/3.0;
+		dac.r = dac.a+(tcol.r-dac.a)*3.0;
+		dac.g = dac.a+(tcol.g-dac.a)*3.0;
+		dac.b = dac.a+(tcol.b-dac.a)*3.0;
+		float3 egapal[16] =
+		{
+			float3(0.000,0.000,0.000),
+			float3(0.666,0.000,0.000),
+			float3(0.000,0.666,0.000),
+			float3(0.666,0.333,0.000),
+			float3(0.000,0.000,0.666),
+			float3(0.666,0.000,0.666),
+			float3(0.000,0.666,0.666),
+			float3(0.666,0.666,0.666),
+			float3(0.333,0.333,0.333),
+			float3(1.000,0.333,0.333),
+			float3(0.333,1.000,0.333),
+			float3(1.000,1.000,0.333),
+			float3(0.333,0.333,1.000),
+			float3(1.000,0.333,1.000),
+			float3(0.333,1.000,1.000),
+			float3(1.000,1.000,1.000),
+		};
+		float dist = 2.0;
+		int idx = 0;
+		for ( int i=0; i<16; i++ )
+		{
+			if ( distance(dac.rgb,egapal[i]) < dist )
+			{
+				idx = i;
+				dist = distance(dac.rgb,egapal[i]);
+			}
+		}
+		res.rgb = egapal[idx];
+	}
+	else if ( bpaltype == 2 )
+	{
+		float4 dac;
+		/* brighten shadows */
+		tcol.rgb = pow(tcol.rgb,0.5);
+		/* dither */
+		bool evx = (coord.x*dresl.x)%2 < 1;
+		bool evy = (coord.y*dresl.y)%2 < 1;
+		tcol -= 0.04;
+		if ( evx != evy )
+			tcol += 0.08;
 		/* oversaturate components */
 		dac.a = (tcol.r+tcol.g+tcol.b)/3.0;
 		dac.r = dac.a+(tcol.r-dac.a)*3.0;
 		dac.g = dac.a+(tcol.g-dac.a)*3.0;
 		dac.b = dac.a+(tcol.b-dac.a)*3.0;
 		/* color lookup */
-	#ifdef AOSCGA
-		float3 cgapal[16] =
+		float3 egapal[16] =
 		{
 			float3(0.000000,0.000000,0.000000),
 			float3(0.500000,0.000000,0.000000),
@@ -349,129 +987,133 @@ float4 PS_ProcessBlock( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 			float3(0.281250,0.875000,1.000000),
 			float3(1.000000,1.000000,1.000000),
 		};
-	#else
-		float3 cgapal[16] =
-		{
-			float3(0.000,0.000,0.000),
-			float3(0.333,0.000,0.000),
-			float3(0.000,0.333,0.000),
-			float3(0.333,0.333,0.000),
-			float3(0.000,0.000,0.333),
-			float3(0.333,0.000,0.333),
-			float3(0.000,0.333,0.333),
-			float3(0.666,0.666,0.666),
-			float3(0.333,0.333,0.333),
-			float3(1.000,0.333,0.333),
-			float3(0.333,1.000,0.333),
-			float3(1.000,1.000,0.333),
-			float3(0.333,0.333,1.000),
-			float3(1.000,0.333,1.000),
-			float3(0.333,1.000,1.000),
-			float3(1.000,1.000,1.000),
-		};
-	#endif
 		float dist = 2.0;
 		int idx = 0;
 		for ( int i=0; i<16; i++ )
 		{
-			if ( distance(dac.rgb,cgapal[i]) < dist )
+			if ( distance(dac.rgb,egapal[i]) < dist )
 			{
 				idx = i;
-				dist = distance(dac.rgb,cgapal[i]);
+				dist = distance(dac.rgb,egapal[i]);
 			}
 		}
-		res.rgb = cgapal[idx];
-		/* additional brightness bump */
-		res = res+float4(1,1,1,0)*0.02;
+		res.rgb = egapal[idx];
 	}
-	/* RGB565 */
-	else if ( paltype == 3 )
+	else if ( bpaltype == 3 )
+	{
+		float4 dac;
+		/* brighten shadows */
+		tcol.rgb = pow(tcol.rgb,0.5);
+		/* dither */
+		bool evx = (coord.x*dresl.x)%2 < 1;
+		bool evy = (coord.y*dresl.y)%2 < 1;
+		tcol.rgb += 0.02;
+		if ( evx != evy )
+			tcol.rgb += 0.04;
+		/* oversaturate components */
+		dac.a = (tcol.r+tcol.g+tcol.b)/3.0;
+		dac.r = dac.a+(tcol.r-dac.a)*2.5;
+		dac.g = dac.a+(tcol.g-dac.a)*2.5;
+		dac.b = dac.a+(tcol.b-dac.a)*2.5;
+		/* truncate */
+		res.rgb = trunc(dac.rgb*4.0)/4.0;
+	}
+	else if ( bpaltype == 4 )
+	{
+		float4 dac;
+		/* brighten shadows */
+		tcol.rgb = pow(tcol.rgb,0.7);
+		/* dither */
+		bool evx = (coord.x*dresl.x)%2 < 1;
+		bool evy = (coord.y*dresl.y)%2 < 1;
+		tcol.rgb += 0.01;
+		if ( evx != evy )
+			tcol.rgb += 0.02;
+		/* oversaturate components */
+		dac.a = (tcol.r+tcol.g+tcol.b)/3.0;
+		dac.r = dac.a+(tcol.r-dac.a)*1.5;
+		dac.g = dac.a+(tcol.g-dac.a)*1.5;
+		dac.b = dac.a+(tcol.b-dac.a)*1.5;
+		/* truncate */
+		res.r = trunc(dac.r*8.0)/8.0;
+		res.g = trunc(dac.g*4.0)/4.0;
+		res.b = trunc(dac.b*8.0)/8.0;
+	}
+	else if ( bpaltype == 5 )
 	{
 		/* dither */
-		bool evx = (coord.x*bresl.x)%2 < 1;
-		bool evy = (coord.y*bresl.y)%2 < 1;
+		bool evx = (coord.x*dresl.x)%2 < 1;
+		bool evy = (coord.y*dresl.y)%2 < 1;
+		tcol.rgb += 0.01;
 		if ( evx != evy )
-			tcol = tcol+float4(1,1,1,0)*0.01;
-		else
-			tcol = tcol-float4(1,1,1,0)*0.01;
+			tcol.rgb += 0.02;
+		/* truncate */
+		res.rgb = trunc(tcol.rgb*16.0)/16.0;
+	}
+	else if ( bpaltype == 6 )
+	{
+		/* dither */
+		bool evx = (coord.x*dresl.x)%2 < 1;
+		bool evy = (coord.y*dresl.y)%2 < 1;
+		if ( evx == evy )
+			tcol.rgb -= 0.002;
 		/* truncate */
 		res.r = trunc(tcol.r*32.0)/32.0;
 		res.g = trunc(tcol.g*64.0)/64.0;
 		res.b = trunc(tcol.b*32.0)/32.0;
-		/* additional brightness bump */
-		res = res+float4(1,1,1,0)*0.02;
 	}
-#endif
-	return res;
-}
-
-float4 PS_ProcessDotmatrix( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
-{
-	float4 coord = float4(IN.txcoord.x,IN.txcoord.y,0,0);
-	float4 res = tex2Dlod(SamplerColor,coord);
-#ifdef EDOTMATRIX
-	/* number of dots */
-	float4 bresl = float4(ScreenSize.x,ScreenSize.x*ScreenSize.w,1,1);
-	bresl.xy *= 1.0/dotsize;
-	/* RGBI dot luminance values */
-	float4 dac = float4(res.r*0.5,res.g*0.5,res.b*0.5,
-		(res.r+res.g+res.b)/6.0);
-	float3 tcol;
-	/* 2x2 matrix */
-	if ( ((coord.x*bresl.x)%2 < 1) && ((coord.y*bresl.y)%2 < 1) )
-		tcol.rgb = float3(dac.r,0,0);
-	else if ( ((coord.x*bresl.x)%2 >= 0) && ((coord.y*bresl.y)%2 < 1) )
-		tcol.rgb = float3(0,dac.g,0);
-	else if ( ((coord.x*bresl.x)%2 < 1) && ((coord.y*bresl.y)%2 >= 0) )
-		tcol.rgb = float3(0,0,dac.b);
+	else if ( bpaltype == 7 )
+	{
+		/* dither */
+		bool evx = (coord.x*dresl.x)%2 < 1;
+		bool evy = (coord.y*dresl.y)%2 < 1;
+		if ( evx == evy )
+			tcol.rgb -= 0.001;
+		/* truncate */
+		res.rgb = trunc(tcol.rgb*64.0)/64.0;
+	}
 	else
-		tcol.rgb = float3(dac.a,dac.a,dac.a);
-	/* blend in */
-	res.rgb = res.rgb*(1-dotblend)+tcol.rgb*dotblend;
-	/* screen boundary */
-	float2 bfact = float2(0.0,0.0);
-	float2 bounds = float2(bfact.x/bresl.x,bfact.y/bresl.y);
-	if ( (coord.x < bounds.x) || (coord.x > 1-bounds.x)
-		|| (coord.y < bounds.y) || (coord.y > 1-bounds.y) )
-		res *= 0;
-#endif
+		return tcol;
 	return res;
 }
-
-/* pseudorandom number generator */
-float random( in float2 uv )
+float4 PS_ProcessPass4(VS_OUTPUT_POST IN, float2 vPos : VPOS) : COLOR
 {
-	float2 n = frac(sin(dot(uv,float2(12.9898,78.233)*2.0))*43758.5453);
-	return abs(n.x+n.y)*0.5;
-}
-
-float4 PS_ProcessGrain( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
-{
-	float4 coord = float4(IN.txcoord.x,IN.txcoord.y,0,0);
-	float4 res = tex2Dlod(SamplerColor,coord);
-#ifdef EGRAIN
-	float ts = Timer.x*nf;
-	float2 tcs = coord.xy;
-	float2 s1 = tcs+float2(0,ts);
-	float2 s2 = tcs+float2(ts,0);
-	float2 s3 = tcs+float2(ts,ts);
-	float n1 = random(s1);
-	float n2 = random(s2);
-	float n3 = random(s3);
-	float n4 = (n1+n2+n3)/3;
-	float3 ng = float3(n4,n4,n4);
-	float3 nc = float3(n1,n2,n3);
-	res.rgb += lerp(ng,nc,ns)*ni-0.5*ni;
-#endif
+	float2 coord = float2(IN.txcoord.x,IN.txcoord.y);
+	float4 res = tex2D(SamplerColor,coord);
+	if ( crtenable )
+	{
+		float4 tcol = res;
+		float3 eta = float3(1+chromaab*0.09,1+chromaab*0.06,1+chromaab*0.03);
+		float2 center = float2(coord.x-0.5,coord.y-0.5);
+		float zfact = 100.0/lenszoom;
+		float r2 = center.x*center.x+center.y*center.y;
+		float f = 0;
+		if( lensdistc == 0.0)
+			f = 1+r2*lensdist*0.1;
+		else
+			f = 1+r2*(lensdist*0.1+lensdistc*0.1*sqrt(r2));
+		float x = f*zfact*center.x+0.5;
+		float y = f*zfact*center.y+0.5;
+		float2 rcoord = (f*eta.r)*zfact*(center.xy*0.5)+0.5;
+		float2 gcoord = (f*eta.g)*zfact*(center.xy*0.5)+0.5;
+		float2 bcoord = (f*eta.b)*zfact*(center.xy*0.5)+0.5;
+		float4 idist = float4(tex2D(SamplerColor,rcoord).r,
+			tex2D(SamplerColor,gcoord).g,
+			tex2D(SamplerColor,bcoord).b,
+			tex2D(SamplerColor,float2(x,y)).a);
+		res.rgb = idist.rgb;
+	}
 	return res;
 }
-
 technique PostProcess
 {
 	pass P0
 	{
 		VertexShader = compile vs_3_0 VS_Process();
-		PixelShader = compile ps_3_0 PS_ProcessBlur();
+		PixelShader = compile ps_3_0 PS_ProcessPass1();
+		AlphaBlendEnable = TRUE;
+		SrcBlend = ONE;
+		DestBlend = ONE;
 		DitherEnable = FALSE;
 		ZEnable = FALSE;
 		CullMode = NONE;
@@ -483,13 +1125,15 @@ technique PostProcess
 		SRGBWRITEENABLE = FALSE;
 	}
 }
-
 technique PostProcess2
 {
 	pass P0
 	{
 		VertexShader = compile vs_3_0 VS_Process();
-		PixelShader = compile ps_3_0 PS_ProcessCrossblur();
+		PixelShader = compile ps_3_0 PS_ProcessPass2();
+		AlphaBlendEnable = TRUE;
+		SrcBlend = ONE;
+		DestBlend = ONE;
 		DitherEnable = FALSE;
 		ZEnable = FALSE;
 		CullMode = NONE;
@@ -501,13 +1145,15 @@ technique PostProcess2
 		SRGBWRITEENABLE = FALSE;
 	}
 }
-
 technique PostProcess3
 {
 	pass P0
 	{
 		VertexShader = compile vs_3_0 VS_Process();
-		PixelShader = compile ps_3_0 PS_ProcessGrain();
+		PixelShader = compile ps_3_0 PS_ProcessPass3();
+		AlphaBlendEnable = TRUE;
+		SrcBlend = ONE;
+		DestBlend = ONE;
 		DitherEnable = FALSE;
 		ZEnable = FALSE;
 		CullMode = NONE;
@@ -519,67 +1165,15 @@ technique PostProcess3
 		SRGBWRITEENABLE = FALSE;
 	}
 }
-
 technique PostProcess4
 {
 	pass P0
 	{
 		VertexShader = compile vs_3_0 VS_Process();
-		PixelShader = compile ps_3_0 PS_ProcessBlock();
-		DitherEnable = FALSE;
-		ZEnable = FALSE;
-		CullMode = NONE;
-		ALPHATESTENABLE = FALSE;
-		SEPARATEALPHABLENDENABLE = FALSE;
-		AlphaBlendEnable = FALSE;
-		StencilEnable = FALSE;
-		FogEnable = FALSE;
-		SRGBWRITEENABLE = FALSE;
-	}
-}
-
-technique PostProcess5
-{
-	pass P0
-	{
-		VertexShader = compile vs_3_0 VS_Process();
-		PixelShader = compile ps_3_0 PS_ProcessDotmatrix();
-		DitherEnable = FALSE;
-		ZEnable = FALSE;
-		CullMode = NONE;
-		ALPHATESTENABLE = FALSE;
-		SEPARATEALPHABLENDENABLE = FALSE;
-		AlphaBlendEnable = FALSE;
-		StencilEnable = FALSE;
-		FogEnable = FALSE;
-		SRGBWRITEENABLE = FALSE;
-	}
-}
-
-technique PostProcess6
-{
-	pass P0
-	{
-		VertexShader = compile vs_3_0 VS_Process();
-		PixelShader = compile ps_3_0 PS_ProcessDirt();
-		DitherEnable = FALSE;
-		ZEnable = FALSE;
-		CullMode = NONE;
-		ALPHATESTENABLE = FALSE;
-		SEPARATEALPHABLENDENABLE = FALSE;
-		AlphaBlendEnable = FALSE;
-		StencilEnable = FALSE;
-		FogEnable = FALSE;
-		SRGBWRITEENABLE = FALSE;
-	}
-}
-
-technique PostProcess7
-{
-	pass P0
-	{
-		VertexShader = compile vs_3_0 VS_Process();
-		PixelShader = compile ps_3_0 PS_ProcessCurve();
+		PixelShader = compile ps_3_0 PS_ProcessPass4();
+		AlphaBlendEnable = TRUE;
+		SrcBlend = ONE;
+		DestBlend = ONE;
 		DitherEnable = FALSE;
 		ZEnable = FALSE;
 		CullMode = NONE;
