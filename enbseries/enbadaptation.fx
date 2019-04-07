@@ -16,6 +16,7 @@ SamplerState Sampler0
 	Filter = MIN_MAG_MIP_POINT;
 	AddressU = Clamp;
 	AddressV = Clamp;
+	MaxLOD = 0;
 };
 
 struct VS_INPUT_POST
