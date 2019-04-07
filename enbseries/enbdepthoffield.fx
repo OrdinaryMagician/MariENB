@@ -783,117 +783,6 @@ bool foglimbo
 	string UIName = "Limbo Mode";
 	string UIWidget = "Checkbox";
 > = {false};
-/* ssao filter */
-string str_ssao = "Ray Marching SSAO";
-bool ssaoenable
-<
-	string UIName = "Enable SSAO";
-	string UIWidget = "Checkbox";
-> = {false};
-float ssaoradius
-<
-	string UIName = "SSAO Radius";
-	string UIWidget = "Spinner";
-> = {1.0};
-int ssaonoise
-<
-	string UIName = "SSAO Noise";
-	string UIWidget = "Spinner";
-	int UIMin = 0;
-	int UIMax = 1;
-> = {1};
-float ssaofadepow_n
-<
-	string UIName = "SSAO Fade Contrast Night";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.05};
-float ssaofadepow_d
-<
-	string UIName = "SSAO Fade Contrast Day";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.05};
-float ssaofadepow_i
-<
-	string UIName = "SSAO Fade Contrast Interior";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.05};
-float ssaofademult_n
-<
-	string UIName = "SSAO Fade Intensity Night";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float ssaofademult_d
-<
-	string UIName = "SSAO Fade Intensity Day";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float ssaofademult_i
-<
-	string UIName = "SSAO Fade Intensity Interior";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float ssaomult
-<
-	string UIName = "SSAO Intensity";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.5};
-float ssaopow
-<
-	string UIName = "SSAO Contrast";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.5};
-float ssaobump
-<
-	string UIName = "SSAO Shift";
-	string UIWidget = "Spinner";
-> = {0.0};
-float ssaoblend
-<
-	string UIName = "SSAO Blending";
-	string UIWidget = "Spinner";
-> = {1.0};
-bool ssaobenable
-<
-	string UIName = "SSAO Blur";
-	string UIWidget = "Checkbox";
-> = {true};
-float ssaobfact
-<
-	string UIName = "SSAO Bilateral Factor";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1000.0};
-float ssaoclamp
-<
-	string UIName = "SSAO Range";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-float ssaoclampmin
-<
-	string UIName = "SSAO Range Min";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {0.0};
-float ssaobradius
-<
-	string UIName = "SSAO Blur Radius";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
-bool ssaodebug
-<
-	string UIName = "Debug SSAO";
-	string UIWidget = "Checkbox";
-> = {false};
 /* depth-based colour grading suite */
 string str_grade = "Depth Color Grading Suite";
 float dgradedfoc
@@ -1155,42 +1044,6 @@ static const float gauss16[16] =
 	0.033109, 0.031485, 0.029764, 0.027971,
 	0.026131, 0.024268, 0.022405, 0.020563
 };
-/* SSAO samples */
-static const float3 ssao_samples[64] = 
-{
-	float3(-0.0051, 0.0021, 0.0146),float3(-0.0197,-0.0213,-0.0116),
-	float3( 0.0005,-0.0432,-0.0182),float3(-0.0011,-0.0586,-0.0217),
-	float3(-0.0549, 0.0461, 0.0309),float3(-0.0448,-0.0764,-0.0306),
-	float3(-0.0366, 0.0758,-0.0699),float3(-0.0770,-0.0707,-0.0686),
-	float3( 0.1181,-0.0340,-0.0683),float3(-0.0647, 0.0356, 0.1377),
-	float3(-0.1167, 0.1262, 0.0024),float3(-0.1353,-0.0861, 0.0971),
-	float3(-0.0096, 0.0936, 0.1800),float3( 0.1311,-0.1013,-0.1429),
-	float3(-0.1186,-0.0653, 0.1913),float3( 0.1641, 0.0260, 0.1868),
-	float3(-0.1225,-0.2319, 0.0424),float3( 0.1036,-0.2000, 0.1684),
-	float3( 0.1656, 0.2022,-0.1408),float3(-0.1809,-0.1673, 0.1922),
-	float3(-0.2485,-0.1236, 0.1750),float3( 0.1030,-0.0550, 0.3233),
-	float3(-0.0405, 0.3068, 0.1827),float3(-0.0576, 0.1632, 0.3327),
-	float3( 0.0392, 0.3583,-0.1505),float3( 0.0082, 0.2865, 0.2879),
-	float3( 0.0055,-0.2835, 0.3124),float3(-0.2733, 0.1991,-0.2776),
-	float3( 0.2667, 0.1127,-0.3486),float3(-0.3326, 0.2740,-0.1844),
-	float3( 0.2887,-0.3838, 0.0630),float3( 0.1088, 0.1546, 0.4629),
-	float3( 0.0977,-0.3565, 0.3595),float3(-0.4204, 0.0855, 0.3133),
-	float3(-0.2237,-0.4932, 0.0759),float3( 0.4245, 0.3169,-0.1891),
-	float3( 0.0084,-0.5682, 0.1062),float3(-0.1489,-0.5296,-0.2235),
-	float3( 0.0014,-0.4153,-0.4460),float3( 0.0300,-0.4392, 0.4437),
-	float3( 0.2627, 0.4518, 0.3704),float3(-0.4945, 0.3659, 0.2285),
-	float3(-0.2550,-0.5311, 0.3230),float3(-0.4477, 0.0828,-0.5151),
-	float3( 0.4682, 0.4531,-0.2644),float3(-0.1235,-0.0366, 0.7071),
-	float3( 0.3545, 0.4559, 0.4536),float3(-0.1037,-0.2199,-0.7095),
-	float3( 0.4269, 0.5299,-0.3510),float3( 0.7051,-0.1468,-0.3027),
-	float3( 0.4590,-0.5669,-0.3208),float3( 0.2330, 0.1264, 0.7680),
-	float3(-0.3954, 0.5619,-0.4622),float3( 0.5977,-0.5110, 0.3059),
-	float3(-0.5800,-0.6306, 0.0672),float3(-0.2211,-0.0332,-0.8460),
-	float3(-0.3808,-0.2238,-0.7734),float3(-0.5616, 0.6858,-0.1887),
-	float3(-0.2995, 0.5165,-0.7024),float3( 0.5042,-0.0537, 0.7885),
-	float3(-0.6477,-0.3691, 0.5938),float3(-0.3969, 0.8815, 0.0620),
-	float3(-0.4300,-0.8814,-0.0852),float3(-0.1683, 0.9379, 0.3033)
-};
 /* For low quality DOF */
 static const float2 poisson32[32] =
 {
@@ -1310,107 +1163,6 @@ float depthlinear( float2 coord )
 {
 	float z = TextureDepth.SampleLevel(Sampler1,coord,0).x;
 	return (2*zNear)/(zFar+zNear-z*(zFar-zNear));
-}
-
-/*
-   Thank you Boris for not providing access to a normal buffer. Guesswork using
-   the depth buffer results in imprecise normals that aren't smoothed. Plus
-   there is no way to get the normal data from textures either. Also, three
-   texture fetches are needed instead of one (great!)
-*/
-float3 pseudonormal( float dep, float2 coord )
-{
-	float2 bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
-	float2 ofs1 = float2(0,1.0/bresl.y);
-	float2 ofs2 = float2(1.0/bresl.x,0);
-	float dep1 = TextureDepth.SampleLevel(Sampler1,coord+ofs1,0).x;
-	float dep2 = TextureDepth.SampleLevel(Sampler1,coord+ofs2,0).x;
-	float3 p1 = float3(ofs1,dep1-dep);
-	float3 p2 = float3(ofs2,dep2-dep);
-	float3 normal = cross(p1,p2);
-	normal.z = -normal.z;
-	return normalize(normal);
-}
-
-/* SSAO Prepass */
-float4 PS_SSAOPre( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
-{
-	float2 coord = IN.txcoord.xy;
-	/* get occlusion using single-step Ray Marching with 64 samples */
-	float ssaofadepow = tod_ind(ssaofadepow);
-	float ssaofademult = tod_ind(ssaofademult);
-	if ( !ssaoenable ) return 0.0;
-	float depth = TextureDepth.Sample(Sampler1,coord).x;
-	float ldepth = depthlinear(coord);
-	if ( depth >= cutoff*0.000001 ) return 1.0;
-	float2 bresl;
-	if ( (fixed.x > 0) && (fixed.y > 0) ) bresl = fixed;
-	else bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
-	float3 normal = pseudonormal(depth,coord);
-	float2 nc = coord*(bresl/256.0);
-	float2 bof = float2(1.0/bresl.x,1.0/bresl.y)*ssaoradius;
-	float2 nc2 = TextureNoise3.SampleLevel(Sampler2,nc+48000.0*Timer.x
-		*ssaonoise,0).xy;
-	float3 rnormal = TextureNoise3.SampleLevel(Sampler2,nc2,0).xyz*2.0-1.0;
-	rnormal = normalize(rnormal);
-	float occ = 0.0;
-	int i;
-	float3 sample;
-	float sdepth, so, delta;
-	float sclamp = ssaoclamp/100000.0;
-	float sclampmin = ssaoclampmin/100000.0;
-	[unroll] for ( i=0; i<64; i++ )
-	{
-		sample = reflect(ssao_samples[i],rnormal);
-		sample *= sign(dot(normal,sample));
-		so = ldepth-sample.z*bof.x;
-		sdepth = depthlinear(coord+bof*sample.xy/ldepth);
-		delta = saturate(so-sdepth);
-		delta *= 1.0-smoothstep(0.0,sclamp,delta);
-		if ( (delta > sclampmin) && (delta < sclamp) )
-			occ += 1.0-delta;
-	}
-	float uocc = saturate(occ/64.0);
-	float fade = 1.0-depth;
-	uocc *= saturate(pow(max(0,fade),ssaofadepow)*ssaofademult);
-	uocc = saturate(pow(max(0,uocc),ssaopow)*ssaomult+ssaobump);
-	return saturate(1.0-(uocc*ssaoblend));
-}
-/*
-   The blur pass uses bilateral filtering to mostly preserve borders.
-   An additional factor using difference of normals was tested, but the
-   performance decrease was too much, so it's gone forever.
-*/
-float4 PS_SSAOBlur( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
-{
-	float2 coord = IN.txcoord.xy;
-	float4 res = TextureColor.Sample(Sampler1,coord);
-	float mud = RenderTargetR16F.Sample(Sampler1,coord).x;
-	if ( !ssaoenable ) return res;
-	if ( !ssaobenable )
-	{
-		if ( ssaodebug ) return saturate(mud);
-		return res*mud;
-	}
-	float2 bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
-	float2 bof = (1.0/bresl)*ssaobradius;
-	float isd, sd, ds, sw, tw = 0;
-	mud = 0.0;
-	int i, j;
-	isd = TextureDepth.Sample(Sampler1,coord).x;
-	[unroll] for ( j=-7; j<=7; j++ ) [unroll] for ( i=-7; i<=7; i++ )
-	{
-		sd = TextureDepth.Sample(Sampler1,coord+float2(i,j)*bof).x;
-		ds = 1.0/pow(1.0+abs(isd-sd),ssaobfact);
-		sw = ds;
-		sw *= gauss8[abs(i)]*gauss8[abs(j)];
-		tw += sw;
-		mud += sw*RenderTargetR16F.Sample(Sampler1,coord+float2(i,j)
-			*bof).x;
-	}
-	mud /= tw;
-	if ( ssaodebug ) return saturate(mud);
-	return res*mud;
 }
 
 /* precalculate DOF factors */
@@ -2026,15 +1778,7 @@ technique11 Prepass1
 		SetPixelShader(CompileShader(ps_5_0,PS_DepthGrade()));
 	}
 }
-technique11 Prepass2 <string RenderTarget="RenderTargetR16F";>
-{
-	pass p0
-	{
-		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
-		SetPixelShader(CompileShader(ps_5_0,PS_SSAOPre()));
-	}
-}
-technique11 Prepass3
+technique11 Prepass2
 {
 	pass p0
 	{
@@ -2042,15 +1786,7 @@ technique11 Prepass3
 		SetPixelShader(CompileShader(ps_5_0,PS_Distortion()));
 	}
 }
-technique11 Prepass4
-{
-	pass p0
-	{
-		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
-		SetPixelShader(CompileShader(ps_5_0,PS_SSAOBlur()));
-	}
-}
-technique11 Prepass5 <string RenderTarget="RenderTargetR32F";>
+technique11 Prepass3 <string RenderTarget="RenderTargetR32F";>
 {
 	pass p0
 	{
@@ -2058,7 +1794,7 @@ technique11 Prepass5 <string RenderTarget="RenderTargetR32F";>
 		SetPixelShader(CompileShader(ps_5_0,PS_DoFPrepass()));
 	}
 }
-technique11 Prepass6
+technique11 Prepass4
 {
 	pass p0
 	{
@@ -2066,7 +1802,7 @@ technique11 Prepass6
 		SetPixelShader(CompileShader(ps_5_0,PS_DoFBlur()));
 	}
 }
-technique11 Prepass7
+technique11 Prepass5
 {
 	pass p0
 	{
@@ -2074,7 +1810,7 @@ technique11 Prepass7
 		SetPixelShader(CompileShader(ps_5_0,PS_DoFPostBlur()));
 	}
 }
-technique11 Prepass8
+technique11 Prepass6
 {
 	pass p0
 	{
@@ -2099,15 +1835,7 @@ technique11 PrepassB1
 		SetPixelShader(CompileShader(ps_5_0,PS_DepthGrade()));
 	}
 }
-technique11 PrepassB2 <string RenderTarget="RenderTargetR16F";>
-{
-	pass p0
-	{
-		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
-		SetPixelShader(CompileShader(ps_5_0,PS_SSAOPre()));
-	}
-}
-technique11 PrepassB3
+technique11 PrepassB2
 {
 	pass p0
 	{
@@ -2115,15 +1843,7 @@ technique11 PrepassB3
 		SetPixelShader(CompileShader(ps_5_0,PS_Distortion()));
 	}
 }
-technique11 PrepassB4
-{
-	pass p0
-	{
-		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
-		SetPixelShader(CompileShader(ps_5_0,PS_SSAOBlur()));
-	}
-}
-technique11 PrepassB5 <string RenderTarget="RenderTargetR32F";>
+technique11 PrepassB3 <string RenderTarget="RenderTargetR32F";>
 {
 	pass p0
 	{
@@ -2131,7 +1851,7 @@ technique11 PrepassB5 <string RenderTarget="RenderTargetR32F";>
 		SetPixelShader(CompileShader(ps_5_0,PS_DoFPrepass()));
 	}
 }
-technique11 PrepassB6
+technique11 PrepassB4
 {
 	pass p0
 	{
@@ -2139,7 +1859,7 @@ technique11 PrepassB6
 		SetPixelShader(CompileShader(ps_5_0,PS_DoFBorkeh()));
 	}
 }
-technique11 PrepassB7
+technique11 PrepassB5
 {
 	pass p0
 	{
@@ -2147,7 +1867,7 @@ technique11 PrepassB7
 		SetPixelShader(CompileShader(ps_5_0,PS_DoFPostBlur()));
 	}
 }
-technique11 PrepassB8
+technique11 PrepassB6
 {
 	pass p0
 	{

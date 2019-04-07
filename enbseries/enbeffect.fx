@@ -1022,7 +1022,7 @@ float2 ScreenFrost( float2 coord )
 	/*ofs *= max(0.0,coldfactor-warmfactor);*/
 	float dist = distance(coord,float2(0.5,0.5))*2.0;
 	ofs *= clamp(pow(dist,frostrpow)*frostrmult+frostrbump,0.0,1.0);
-	return ofs;
+	return coord+ofs;
 }
 
 /* Old MariENB 0.x screen dirt filter, updated */
@@ -1049,6 +1049,7 @@ float4 PS_Draw( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	if ( frostenable )
 	{
 		float2 ofs = ScreenFrost(coord);
+		ofs -= coord;
 		float2 ofr, ofg, ofb;
 		ofr = ofs*(1.0-distcha*0.01);
 		ofg = ofs;
@@ -1075,7 +1076,7 @@ float4 PS_Draw( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 			1.0)*frostblend;
 		float todpow = max(0.0,todx_ind(frostfactor));
 		dist *= todpow;
-		/* Weathers not implemented in FO4 ENB as of 0.316 */
+		/* Weathers not implemented in FO4 ENB as of 0.291 */
 		/*dist *= max(0.0,coldfactor-warmfactor);*/
 		res.rgb *= 1.0+bmp*dist;
 	}
