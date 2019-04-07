@@ -249,12 +249,12 @@ float4 PS_SSAOBlurH( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	res.a = 0.0;
 	int i;
 	isd = tex2D(SamplerDepth,coord).x;
-	[unroll] for ( i=-31; i<=31; i++ )
+	[unroll] for ( i=-15; i<=15; i++ )
 	{
 		sd = tex2D(SamplerDepth,coord+float2(i,0)*bof).x;
 		ds = abs(isd-sd)*ssaobfact+0.5;
 		sw = 1.0/(ds+1.0);
-		sw *= gauss32[abs(i)];
+		sw *= gauss16[abs(i)];
 		tw += sw;
 		res.a += sw*tex2D(SamplerColor,coord+float2(i,0)*bof).a;
 	}
@@ -277,12 +277,12 @@ float4 PS_SSAOBlurV( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
 	res.a = 0.0;
 	int i;
 	isd = tex2D(SamplerDepth,coord).x;
-	[unroll] for ( i=-31; i<=31; i++ )
+	[unroll] for ( i=-15; i<=15; i++ )
 	{
 		sd = tex2D(SamplerDepth,coord+float2(0,i)*bof).x;
 		ds = abs(isd-sd)*ssaobfact+0.5;
 		sw = 1.0/(ds+1.0);
-		sw *= gauss32[abs(i)];
+		sw *= gauss16[abs(i)];
 		tw += sw;
 		res.a += sw*tex2D(SamplerColor,coord+float2(0,i)*bof).a;
 	}
