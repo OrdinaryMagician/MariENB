@@ -1,9 +1,11 @@
 /*
 	menbglobaldefs.fx : MariENB3 global shared code.
-	(C)2016 Marisa Kirisame, UnSX Team.
+	(C)2016-2017 Marisa Kirisame, UnSX Team.
 	Part of MariENB3, the personal ENB of Marisa for Fallout 4.
 	Released under the GNU GPLv3 (or later).
 */
+/* are we running on skyrim special edition or on fallout 4? */
+//#define SKYRIMSE
 /* time of day and interior interpolation */
 #define ndfact clamp(0.5+(TimeOfDay1.z+(TimeOfDay1.y+TimeOfDay1.w)*0.5)*0.5\
 	-(TimeOfDay2.y+(TimeOfDay1.x+TimeOfDay2.x)*0.5)*0.5,0.0,1.0)

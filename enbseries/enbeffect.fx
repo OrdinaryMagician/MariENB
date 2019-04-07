@@ -1,6 +1,6 @@
 /*
 	enbeffect.fx : MariENB3 base shader.
-	(C)2016 Marisa Kirisame, UnSX Team.
+	(C)2016-2017 Marisa Kirisame, UnSX Team.
 	Part of MariENB3, the personal ENB of Marisa for Fallout 4.
 	Released under the GNU GPLv3 (or later).
 */
@@ -348,7 +348,8 @@ bool colorizeafterhsv
 <
 	string UIName = "Colorize After HSV";
 	string UIWidget = "Checkbox";
-> = {true};/* LUT grading */
+> = {true};
+/* LUT grading */
 string str_lut = "RGB Lookup Table Grading";
 bool lutenable
 <
@@ -379,6 +380,20 @@ int clut
 	int UIMax = 63;
 > = {1};
 #endif
+/* technicolor shader */
+string str_tech = "Technicolor";
+bool techenable
+<
+	string UIName = "Enable Technicolor";
+	string UIWidget = "Checkbox";
+> = {false};
+float techblend
+<
+	string UIName = "Technicolor Blend";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {1.0};
 string str_dither = "Dithering";
 bool dodither
 <
@@ -458,7 +473,11 @@ float EInteriorFactor;
 float4 TimeOfDay1;
 float4 TimeOfDay2;
 
+#ifdef SKYRIMSE
+float4 Params01[7];
+#else
 float4 Params01[6];
+#endif
 float4 ENBParams01;
 Texture2D TextureColor;
 Texture2D TextureBloom;
@@ -645,6 +664,16 @@ float3 GradingLUT( float3 res )
 	float lutblend = tod_ind(lutblend);
 	return lerp(res,tcol,lutblend);
 }
+/* I think this Technicolor implementation is correct... maybe */
+float3 Technicolor( float3 res )
+{
+	res = clamp(res,0.0,1.0);
+	float red = 1.0-(res.r-(res.g+res.b)*0.5);
+	float green = 1.0-(res.g-(res.r+res.b)*0.5);
+	float blue = 1.0-(res.b-(res.r+res.g)*0.5);
+	float3 tint = float3(green*blue,red*blue,red*green)*res;
+	return lerp(res,res+0.5*(tint-res),techblend);
+}
 /* post-pass dithering, something apparently only my ENB does */
 float3 Dither( float3 res, float2 coord )
 {
@@ -716,7 +745,24 @@ float3 FilmGrain( float3 res, float2 coord )
 
 float4 PS_Draw( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 {
+	float2 coord = IN.txcoord0.xy;
 	float4 res;
+#ifdef SKYRIMSE
+	res = TextureColor.Sample(Sampler0,coord)
+		+TextureBloom.Sample(Sampler1,coord)*ENBParams01.x;
+	/* Luckily I could sort of interpret some of the vanilla grading */
+	float val = luminance(res.rgb);
+	float adapt = TextureAdaptation.Sample(Sampler1,coord).x;
+	float4 tint;
+	res -= val;
+	res = Params01[3].x*res+val;
+	tint = Params01[4]*val-res;
+	res = Params01[4].w*tint+res;
+	res = Params01[3].w*res-adapt;
+	res = Params01[3].z*res+adapt;
+	if ( bloomdebug	) res = TextureBloom.Sample(Sampler1,coord)
+		*ENBParams01.x;
+#else
 	float4 color;
 	color = TextureColor.Sample(Sampler0,IN.txcoord0.xy);
 	float4 r0, r1, r2, r3;
@@ -754,10 +800,10 @@ float4 PS_Draw( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	color.xyz = pow(color.xyz,1.0/2.2);
 	res.xyz = max(0,color.xyz);
 	res.w = 1.0;
-	/* Insert MariENB filters here */
-	float2 coord = IN.txcoord0.xy;
 	if ( bloomdebug	) res = TextureBloom.Sample(Sampler1,Params01[4].zw
 		*coord)*ENBParams01.x;
+#endif
+	/* Insert MariENB filters here */
 	if ( tmapenable ) res.rgb = Tonemap(res.rgb);
 	if ( gradeenable1 ) res.rgb = GradingRGB(res.rgb);
 	if ( colorizeafterhsv )
@@ -771,6 +817,7 @@ float4 PS_Draw( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 		if ( gradeenable3 ) res.rgb = GradingHSV(res.rgb);
 	}
 	if ( lutenable ) res.rgb = GradingLUT(res.rgb);
+	if ( techenable ) res.rgb = Technicolor(res.rgb);
 	if ( ne ) res.rgb = FilmGrain(res.rgb,coord);
 	if ( adaptdebug	) res.rgb = TextureAdaptation.Sample(Sampler1,coord).x;
 	if ( dodither ) res.rgb = Dither(res.rgb,coord);
@@ -785,6 +832,57 @@ float4 PS_DrawOriginal( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Targe
 	float4 color;
 	color = TextureColor.Sample(Sampler0,IN.txcoord0.xy);
 	float4 r0, r1, r2, r3;
+#ifdef SKYRIMSE
+	/*
+	   You won't believe how HARD Boris has mangled this code.
+	   After fixing the horrid code style and the unnecessary scientific
+	   notation on floats, it's still unreadable.
+	   It's also completely broken and results in a black screen.
+	*/
+	float2 scaleduv=Params01[6].xy*IN.txcoord0.xy;
+	scaleduv = max(scaleduv, 0.0);
+	scaleduv = min(scaleduv, Params01[6].zy);
+	r1.xy = scaleduv;
+	r0.xyz = color.xyz;
+	if ( Params01[0].x > 0.5 ) r1.xy = IN.txcoord0.xy;
+	r1.xyz = TextureBloom.Sample(Sampler1,r1.xy).xyz;
+	r2.xy = TextureAdaptation.Sample(Sampler1,IN.txcoord0.xy).xy;
+	r0.w = dot(float3(0.2125,0.7154,0.0721),r0.xyz);
+	r0.w = max(r0.w,0.00001);
+	r1.w = r2.y/r2.x;
+	r2.y = r0.w*r1.w;
+	if ( Params01[2].z >= 0.5 ) r2.z = 0xffffffff;
+	else r2.z = 0;
+	r3.xy = r1.w*r0.w+float2(-0.004,1.0);
+	r1.w = max(r3.x, 0.0);
+	r3.xz = r1.w*6.2+float2(0.5,1.7);
+	r2.w = r1.w*r3.x;
+	r1.w = r1.w*r3.z+0.06;
+	r1.w = r2.w/r1.w;
+	r1.w = pow(r1.w,2.2);
+	r1.w = r1.w*Params01[2].y;
+	r2.w = r2.y*Params01[2].y+1.0;
+	r2.y = r2.w*r2.y;
+	r2.y = r2.y/r3.y;
+	if (r2.z == 0) r1.w = r2.y;
+	else r1.w = r1.w;
+	r0.w = r1.w/r0.w;
+	r1.w = saturate(Params01[2].x-r1.w);
+	r1.xyz = r1*r1.w;
+	r0.xyz = r0*r0.w+r1;
+	r1.x = dot(r0.xyz,float3(0.2125,0.7154,0.0721));
+	r0.w = 1.0;
+	r0 = r0-r1.x;
+	r0 = Params01[3].x*r0+r1.x;
+	r1 = Params01[4]*r1.x-r0;
+	r0 = Params01[4].w*r1+r0;
+	r0 = Params01[3].w*r0-r2.x;
+	r0 = Params01[3].z*r0+r2.x;
+	r0.xyz = saturate(r0);
+	r1.xyz = pow(r1.xyz,Params01[6].w);
+	r1 = Params01[5]-r0;
+	res = Params01[5].w*r1+r0;
+#else
 	r0.xyz = color.xyz;
 	r1.xy = Params01[4].zw*IN.txcoord0.xy;
 	r1.xyz = TextureBloom.Sample(Sampler1,r1.xy).xyz;
@@ -808,7 +906,7 @@ float4 PS_DrawOriginal( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Targe
 	r1.x = r1.x*0.0408564-r3.y;
 	r1.xyz = r0.xyz/r1.x;
 	r0.x = dot(r1.xyz,float3(0.2125,0.7154,0.0721));
-	r1.xyz = r1.xyz-r0.x;
+	r1.xyz = r1.xyz-r0.x;      
 	r1.xyz = Params01[2].x*r1.xyz+r0.x;
 	r2.xyz = r0.x*Params01[3].xyz-r1.xyz;
 	r1.xyz = Params01[3].w*r2.xyz+r1.xyz;
@@ -816,6 +914,7 @@ float4 PS_DrawOriginal( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Targe
 	r0.xyz = Params01[2].z*r1.xyz+r0.w;
 	res.xyz = lerp(r0.xyz,Params01[5].xyz,Params01[5].w);
 	res.xyz = pow(max(0,res.xyz),1.0/2.2);
+#endif
 	res.w = 1.0;
 	return res;
 }

@@ -1,6 +1,6 @@
 /*
 	enbeffectpostpass.fx : MariENB3 extra shader.
-	(C)2016 Marisa Kirisame, UnSX Team.
+	(C)2016-2017 Marisa Kirisame, UnSX Team.
 	Part of MariENB3, the personal ENB of Marisa for Fallout 4.
 	Released under the GNU GPLv3 (or later).
 */

@@ -1,6 +1,6 @@
 /*
 	enbdepthoffield.fx : MariENB3 prepass shaders.
-	(C)2016 Marisa Kirisame, UnSX Team.
+	(C)2016-2017 Marisa Kirisame, UnSX Team.
 	Part of MariENB3, the personal ENB of Marisa for Fallout 4.
 	Released under the GNU GPLv3 (or later).
 */
@@ -565,23 +565,42 @@ bool dofdisable
 	string UIName = "Disable DOF";
 	string UIWidget = "Checkbox";
 > = {false};
-float dofbfact
-<
-	string UIName = "DOF Bilateral Factor";
-	string UIWidget = "Spinner";
-> = {20.0};
-float dofbradius
-<
-	string UIName = "DOF Bilateral Radius";
-	string UIWidget = "Spinner";
-	float UIMin = 0.0;
-> = {1.0};
 float dofpradius
 <
-	string UIName = "DOF Gather Blur Radius";
+	string UIName = "DOF Blur Radius";
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {6.0};
+float dofpcha
+<
+	string UIName = "DOF Blur Chromatic Aberration";
+	string UIWidget = "Spinner";
+> = {0.0};
+/* tilting */
+float doftiltxcenter
+<
+	string UIName = "Focus Plane Horizontal Tilt Center";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {0.5};
+float doftiltycenter
+<
+	string UIName = "Focus Plane Vertical Tilt Center";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {0.5};
+float doftiltx
+<
+	string UIName = "Focus Plane Horizontal Tilt";
+	string UIWidget = "Spinner";
+> = {0.0};
+float doftilty
+<
+	string UIName = "Focus Plane Vertical Tilt";
+	string UIWidget = "Spinner";
+> = {0.0};
 /* cheap performance option */
 float dofminblur
 <
@@ -768,16 +787,6 @@ bool ssaodebug
 	string UIName = "Debug SSAO";
 	string UIWidget = "Checkbox";
 > = {false};
-bool ssaoquarter
-<
-	string UIName = "SSAO Use Less Samples";
-	string UIWidget = "Checkbox";
-> = {true};
-bool ssaohalfblur
-<
-	string UIName = "SSAO Blur Use Less Samples";
-	string UIWidget = "Checkbox";
-> = {true};
 
 /* mathematical constants */
 static const float pi = 3.1415926535898;
@@ -795,12 +804,6 @@ static const float3x3 GY =
 	 0, 0, 0,
 	-1,-2,-1
 };
-/* radius: 8, std dev: 6 */
-static const float gauss8[8] =
-{
-	0.084247, 0.083085, 0.079694, 0.074348,
-	0.067460, 0.059533, 0.051099, 0.042657
-};
 /* radius: 16, std dev: 13 */
 static const float gauss16[16] =
 {
@@ -810,7 +813,7 @@ static const float gauss16[16] =
 	0.026131, 0.024268, 0.022405, 0.020563
 };
 /* SSAO samples */
-static const float3 ssao_samples_lq[16] = 
+static const float3 ssao_samples[16] = 
 {
 	float3( 0.0000,-0.0002, 0.0000),float3(-0.0004, 0.0013, 0.0014),
 	float3(-0.0030, 0.0048,-0.0034),float3( 0.0147, 0.0046,-0.0026),
@@ -820,41 +823,6 @@ static const float3 ssao_samples_lq[16] =
 	float3(-0.1054,-0.2072, 0.2271),float3(-0.0542, 0.3096, 0.2814),
 	float3( 0.0072,-0.3534, 0.4035),float3(-0.0024,-0.2385, 0.6260),
 	float3(-0.1940, 0.5722,-0.5602),float3(-0.0910,-0.7548,-0.6497)
-};
-static const float3 ssao_samples_hq[64] =
-{
-	float3( 0.0000,-0.0000,-0.0000),float3( 0.0000, 0.0000,-0.0000),
-	float3( 0.0001,-0.0000,-0.0000),float3( 0.0002, 0.0001,-0.0001),
-	float3(-0.0000,-0.0005, 0.0000),float3( 0.0004,-0.0004,-0.0006),
-	float3( 0.0005,-0.0011,-0.0004),float3(-0.0000, 0.0013,-0.0014),
-	float3( 0.0024, 0.0006, 0.0013),float3(-0.0017,-0.0017, 0.0030),
-	float3(-0.0037, 0.0033,-0.0011),float3( 0.0010, 0.0018,-0.0063),
-	float3( 0.0059, 0.0056,-0.0020),float3(-0.0009, 0.0083,-0.0063),
-	float3(-0.0110, 0.0065,-0.0016),float3( 0.0089, 0.0070,-0.0108),
-	float3(-0.0115,-0.0134,-0.0062),float3(-0.0121,-0.0172, 0.0071),
-	float3(-0.0066, 0.0246,-0.0060),float3( 0.0057,-0.0279, 0.0109),
-	float3(-0.0269,-0.0160,-0.0164),float3( 0.0402, 0.0045, 0.0034),
-	float3( 0.0248,-0.0045, 0.0390),float3( 0.0110,-0.0491,-0.0159),
-	float3(-0.0193,-0.0431, 0.0363),float3( 0.0441, 0.0271,-0.0426),
-	float3( 0.0385,-0.0428,-0.0482),float3(-0.0623,-0.0501, 0.0249),
-	float3( 0.0683,-0.0000, 0.0631),float3( 0.1008, 0.0180,-0.0114),
-	float3(-0.0156,-0.0713, 0.0871),float3(-0.0561,-0.0757, 0.0822),
-	float3( 0.0714, 0.0850,-0.0805),float3(-0.1320,-0.0042, 0.0711),
-	float3( 0.1553, 0.0486,-0.0167),float3(-0.1164,-0.0125,-0.1341),
-	float3( 0.1380,-0.1230,-0.0562),float3( 0.0868,-0.1897,-0.0175),
-	float3( 0.0749, 0.1495, 0.1525),float3(-0.2038,-0.1324,-0.0235),
-	float3( 0.0205, 0.1920, 0.1784),float3( 0.1637,-0.0964,-0.2092),
-	float3( 0.2875, 0.0966,-0.0020),float3( 0.0572,-0.0180,-0.3194),
-	float3(-0.3329, 0.0981,-0.0189),float3( 0.2627, 0.2092,-0.1585),
-	float3( 0.1783,-0.3359,-0.1108),float3( 0.2675, 0.2056,-0.2533),
-	float3(-0.1852, 0.3017,-0.2759),float3(-0.0944, 0.3532, 0.3061),
-	float3(-0.0022,-0.3744, 0.3404),float3(-0.0600,-0.4031,-0.3487),
-	float3(-0.2663, 0.4915, 0.1004),float3(-0.2442, 0.4253, 0.3468),
-	float3( 0.2583, 0.1321,-0.5645),float3(-0.0219, 0.4516, 0.4943),
-	float3(-0.5503, 0.2597,-0.3590),float3( 0.2239,-0.5571,-0.4398),
-	float3(-0.7210,-0.1982, 0.2339),float3( 0.7948,-0.1848, 0.1145),
-	float3(-0.7190, 0.1767, 0.4489),float3(-0.5617, 0.5845,-0.4116),
-	float3(-0.8919,-0.0384, 0.3360),float3(-0.0144, 0.9775,-0.2105)
 };
 /* For high quality DOF */
 static const float2 poisson32[32] =
@@ -1022,9 +990,9 @@ float4 PS_SSAOPre( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	float sdepth, so, delta;
 	float sclamp = ssaoclamp/100000.0;
 	float sclampmin = ssaoclampmin/100000.0;
-	if ( ssaoquarter ) [unroll] for ( i=0; i<16; i++ )
+	[unroll] for ( i=0; i<16; i++ )
 	{
-		sample = reflect(ssao_samples_lq[i],rnormal);
+		sample = reflect(ssao_samples[i],rnormal);
 		sample *= sign(dot(normal,sample));
 		so = ldepth-sample.z*bof.x;
 		sdepth = depthlinear(coord+bof*sample.xy/ldepth);
@@ -1033,18 +1001,7 @@ float4 PS_SSAOPre( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 		if ( (delta > sclampmin) && (delta < sclamp) )
 			occ += 1.0-delta;
 	}
-	else [unroll] for ( i=0; i<64; i++ )
-	{
-		sample = reflect(ssao_samples_hq[i],rnormal);
-		sample *= sign(dot(normal,sample));
-		so = ldepth-sample.z*bof.x;
-		sdepth = depthlinear(coord+bof*sample.xy/ldepth);
-		delta = saturate(so-sdepth);
-		delta *= 1.0-smoothstep(0.0,sclamp,delta);
-		if ( (delta > sclampmin) && (delta < sclamp) )
-			occ += 1.0-delta;
-	}
-	float uocc = saturate(occ/(ssaoquarter?16.0:64.0));
+	float uocc = saturate(occ/16.0);
 	float fade = 1.0-depth;
 	uocc *= saturate(pow(max(0,fade),ssaofadepow)*ssaofademult);
 	uocc = saturate(pow(max(0,uocc),ssaopow)*ssaomult);
@@ -1066,17 +1023,7 @@ float4 PS_SSAOBlurH( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	float res = 0.0;
 	int i;
 	isd = TextureDepth.Sample(Sampler1,coord).x;
-	if ( ssaohalfblur ) [unroll] for ( i=-7; i<=7; i++ )
-	{
-		sd = TextureDepth.Sample(Sampler1,coord+float2(i,0)*bof).x;
-		ds = 1.0/pow(1.0+abs(isd-sd),ssaobfact);
-		sw = ds;
-		sw *= gauss8[abs(i)];
-		tw += sw;
-		res += sw*TextureColor.Sample(Sampler1,coord+float2(i,0)
-			*bof).x;
-	}
-	else [unroll] for ( i=-15; i<=15; i++ )
+	[unroll] for ( i=-15; i<=15; i++ )
 	{
 		sd = TextureDepth.Sample(Sampler1,coord+float2(i,0)*bof).x;
 		ds = 1.0/pow(1.0+abs(isd-sd),ssaobfact);
@@ -1100,17 +1047,7 @@ float4 PS_SSAOBlurV( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	float res = 0.0;
 	int i;
 	isd = TextureDepth.Sample(Sampler1,coord).x;
-	if ( ssaohalfblur ) [unroll] for ( i=-7; i<=7; i++ )
-	{
-		sd = TextureDepth.Sample(Sampler1,coord+float2(0,i)*bof).x;
-		ds = 1.0/pow(1.0+abs(isd-sd),ssaobfact);
-		sw = ds;
-		sw *= gauss8[abs(i)];
-		tw += sw;
-		res += sw*TextureColor.Sample(Sampler1,coord+float2(0,i)
-			*bof).x;
-	}
-	else [unroll] for ( i=-15; i<=15; i++ )
+	[unroll] for ( i=-15; i<=15; i++ )
 	{
 		sd = TextureDepth.Sample(Sampler1,coord+float2(0,i)*bof).x;
 		ds = 1.0/pow(1.0+abs(isd-sd),ssaobfact);
@@ -1142,6 +1079,9 @@ float4 PS_DoFPrepass( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	float doffixedunfocusblend = tod_ind(doffixedunfocusblend);
 	float dep = TextureDepth.Sample(Sampler1,coord).x;
 	float foc = TextureFocus.Sample(Sampler1,coord).x;
+	/* cheap tilt */
+	foc = foc+0.01*doftiltx*(doftiltxcenter-coord.x)
+		+0.01*doftilty*(doftiltycenter-coord.y);
 	float dfc = abs(dep-foc);
 	float dff = abs(dep);
 	float dfu = dff;
@@ -1342,7 +1282,8 @@ float4 PS_ReadFocus( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 		mfocus[3] = 0.5*(mfocus[0]+mfocus[1]);
 	else mfocus[3] = cstep*(mfocus[0]+mfocus[1]+mfocus[2]);
 	if ( cfocus <= focuscenterdiscard ) cfocus = mfocus[3];
-	else cfocus = (1.0-focusmix)*cfocus+focusmix*mfocus[3];
+	else if ( (mfocus[3] > focuscenterdiscard) )
+		cfocus = (1.0-focusmix)*cfocus+focusmix*mfocus[3];
 	return cfocus;
 }
 
@@ -1374,8 +1315,14 @@ float4 PS_DoFBlur( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	float4 sc;
 	[unroll] for ( int i=0; i<32; i++ )
 	{
-		sc = TextureColor.SampleLevel(Sampler1,coord+poisson32[i]*bsz,
-			dfc*4.0);
+		sc = float4(TextureColor.SampleLevel(Sampler1,coord
+			+poisson32[i]*bsz*(1+dofpcha*0.1),dfc*4.0).r,
+			TextureColor.SampleLevel(Sampler1,coord
+			+poisson32[i]*bsz,dfc*4.0).g,
+			TextureColor.SampleLevel(Sampler1,coord
+			+poisson32[i]*bsz*(1-dofpcha*0.1),dfc*4.0).b,
+			TextureColor.SampleLevel(Sampler1,coord
+			+poisson32[i]*bsz,dfc*4.0).a);
 		ds = TextureDepth.SampleLevel(Sampler1,coord+poisson32[i]*bsz,
 			0).x;
 		sd = RenderTargetR32F.SampleLevel(Sampler1,coord+poisson32[i]
@@ -1386,64 +1333,88 @@ float4 PS_DoFBlur( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	}
 	res /= tw;
 	return res;
-	
 }
 
-/* simple gaussian / bilateral blur */
-float4 PS_DoFBlurH( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
+/* "bokeh" blur pass */
+float4 PS_DoFBorkeh( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 {
 	float2 coord = IN.txcoord.xy;
 	if ( dofdisable ) return TextureColor.Sample(Sampler1,coord);
 	float dfc = RenderTargetR32F.Sample(Sampler1,coord).x;
 	if ( dofdebug ) return TextureDepth.Sample(Sampler1,coord).x;
 	if ( dfcdebug ) return dfc;
-	float bresl = (fixed.x>0)?fixed.x:ScreenSize.x;
-	float bof = (1.0/bresl)*dofbradius;
-	float4 res = float4(0,0,0,0);
-	if ( dfc <= dofminblur ) return TextureColor.Sample(Sampler1,coord);
-	int i;
-	float isd, sd, ds, sw, tw = 0;
-	isd = dfc;
-	[unroll] for ( i=-7; i<=7; i++ )
+	float2 bresl;
+	if ( (fixed.x > 0) && (fixed.y > 0) ) bresl = fixed;
+	else bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
+	float2 bof = 1.0/bresl;
+	float4 res = TextureColor.Sample(Sampler1,coord);
+	/*
+	   Skip blurring areas that are perfectly in focus. The performance
+	   gain is negligible in most cases, though.
+	*/
+	if ( dfc <= dofminblur ) return res;
+	float dep = TextureDepth.Sample(Sampler1,coord).x;
+	float sr = dofpradius*dfc;
+	float w = max(0,(1/(sr*sr+1))*luminance(res.rgb+0.01));
+	res *= w;
+	float tw = w;
+	float2 bsz = bof*sr;
+	float4 pc;
+	float sc, ds;
+	[unroll] for ( int i=0; i<32; i++ )
 	{
-		sd = RenderTargetR32F.SampleLevel(Sampler1,coord+float2(i,0)
-			*bof*dfc,0).x;
-		ds = abs(isd-sd)*dofbfact+0.5;
-		sw = 1.0/(ds+1.0);
-		sw *= gauss8[abs(i)];
-		tw += sw;
-		res += sw*TextureColor.SampleLevel(Sampler1,coord+float2(i,0)
-			*bof*dfc,0);
+		pc = float4(TextureColor.SampleLevel(Sampler1,coord
+			+poisson32[i]*bsz*(1+dofpcha*0.1),dfc*4.0).r,
+			TextureColor.SampleLevel(Sampler1,coord
+			+poisson32[i]*bsz,dfc*4.0).g,
+			TextureColor.SampleLevel(Sampler1,coord
+			+poisson32[i]*bsz*(1-dofpcha*0.1),dfc*4.0).b,
+			TextureColor.SampleLevel(Sampler1,coord
+			+poisson32[i]*bsz,dfc*4.0).a);
+		ds = TextureDepth.SampleLevel(Sampler1,coord+poisson32[i]*bsz,
+			0).x;
+		sc = abs(pc.a*dofpradius);
+		if ( sr < 0.0 ) sc = max(abs(sr),sc);
+		w = (1.0/(pow(sc,2)+1))*luminance(pc.rgb+0.01);
+		w *= saturate(1-smoothstep(sc,sc*1.1,length(poisson32[i]*bsz)
+			*abs(sr)));
+		w *= (ds>dep)?1.0:sc;
+		res += pc*w;
+		tw += w;
 	}
 	res /= tw;
 	return res;
 }
-float4 PS_DoFBlurV( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
+float4 PS_DoFBorkehB( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 {
 	float2 coord = IN.txcoord.xy;
 	if ( dofdisable ) return TextureColor.Sample(Sampler1,coord);
 	float dfc = RenderTargetR32F.Sample(Sampler1,coord).x;
 	if ( dofdebug ) return TextureDepth.Sample(Sampler1,coord).x;
 	if ( dfcdebug ) return dfc;
-	float bresl = (fixed.y>0)?fixed.y:(ScreenSize.x*ScreenSize.w);
-	float bof = (1.0/bresl)*dofbradius;
-	float4 res = float4(0,0,0,0);
-	if ( dfc <= dofminblur ) return TextureColor.Sample(Sampler1,coord);
-	int i;
-	float isd, sd, ds, sw, tw = 0;
-	isd = dfc;
-	[unroll] for ( i=-7; i<=7; i++ )
+	float2 bresl;
+	if ( (fixed.x > 0) && (fixed.y > 0) ) bresl = fixed;
+	else bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
+	float2 bof = 1.0/bresl;
+	float2 ofs[16] =
 	{
-		sd = RenderTargetR32F.SampleLevel(Sampler1,coord+float2(0,i)
-			*bof*dfc,0).x;
-		ds = abs(isd-sd)*dofbfact+0.5;
-		sw = 1.0/(ds+1.0);
-		sw *= gauss8[abs(i)];
-		tw += sw;
-		res += sw*TextureColor.SampleLevel(Sampler1,coord+float2(0,i)
-			*bof*dfc,0);
-	}
-	res /= tw;
+		float2(1.0,1.0), float2(-1.0,-1.0),
+		float2(-1.0,1.0), float2(1.0,-1.0),
+		
+		float2(1.0,0.0), float2(-1.0,0.0),
+		float2(0.0,1.0), float2(0.0,-1.0),
+		
+		float2(1.41,0.0), float2(-1.41,0.0),
+		float2(0.0,1.41), float2(0.0,-1.41),
+		
+		float2(1.41,1.41), float2(-1.41,-1.41),
+		float2(-1.41,1.41), float2(1.41,-1.41)
+	};
+	float4 res = TextureColor.Sample(Sampler1,coord);
+	int i;
+	[unroll] for ( i=0; i<16; i++ )
+		res += TextureColor.Sample(Sampler1,coord+ofs[i]*bof*dfc);
+	res /= 17.0;
 	return res;
 }
 
@@ -1549,88 +1520,7 @@ technique11 Focus
 	}
 }
 
-technique11 PrepassNB <string UIName="MariENB Bilateral Blur DoF";>
-{
-	pass p0
-	{
-		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
-		SetPixelShader(CompileShader(ps_5_0,PS_SSAOPre()));
-	}
-}
-technique11 PrepassNB1
-{
-	pass p0
-	{
-		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
-		SetPixelShader(CompileShader(ps_5_0,PS_SSAOBlurH()));
-	}
-}
-technique11 PrepassNB2 <string RenderTarget="RenderTargetR16F";>
-{
-	pass p0
-	{
-		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
-		SetPixelShader(CompileShader(ps_5_0,PS_SSAOBlurV()));
-	}
-}
-technique11 PrepassNB3 <string RenderTarget="RenderTargetR32F";>
-{
-	pass p0
-	{
-		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
-		SetPixelShader(CompileShader(ps_5_0,PS_DoFPrepass()));
-	}
-}
-technique11 PrepassNB4
-{
-	pass p0
-	{
-		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
-		SetPixelShader(CompileShader(ps_5_0,PS_SSAOApply()));
-	}
-}
-technique11 PrepassNB5
-{
-	pass p0
-	{
-		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
-		SetPixelShader(CompileShader(ps_5_0,PS_Edge()));
-	}
-}
-technique11 PrepassNB6
-{
-	pass p0
-	{
-		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
-		SetPixelShader(CompileShader(ps_5_0,PS_Distortion()));
-	}
-}
-technique11 PrepassNB7
-{
-	pass p0
-	{
-		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
-		SetPixelShader(CompileShader(ps_5_0,PS_DoFBlurH()));
-	}
-}
-technique11 PrepassNB8
-{
-	pass p0
-	{
-		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
-		SetPixelShader(CompileShader(ps_5_0,PS_DoFBlurV()));
-	}
-}
-technique11 PrepassNB9
-{
-	pass p0
-	{
-		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
-		SetPixelShader(CompileShader(ps_5_0,PS_FrostPass()));
-	}
-}
-
-technique11 Prepass <string UIName="MariENB Gather Blur DoF";>
+technique11 Prepass <string UIName="MariENB";>
 {
 	pass p0
 	{
@@ -1702,3 +1592,85 @@ technique11 Prepass8
 		SetPixelShader(CompileShader(ps_5_0,PS_FrostPass()));
 	}
 }
+
+technique11 PrepassB <string UIName="MariENB (WIP Bokeh)";>
+{
+	pass p0
+	{
+		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
+		SetPixelShader(CompileShader(ps_5_0,PS_SSAOPre()));
+	}
+}
+technique11 PrepassB1
+{
+	pass p0
+	{
+		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
+		SetPixelShader(CompileShader(ps_5_0,PS_SSAOBlurH()));
+	}
+}
+technique11 PrepassB2 <string RenderTarget="RenderTargetR16F";>
+{
+	pass p0
+	{
+		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
+		SetPixelShader(CompileShader(ps_5_0,PS_SSAOBlurV()));
+	}
+}
+technique11 PrepassB3 <string RenderTarget="RenderTargetR32F";>
+{
+	pass p0
+	{
+		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
+		SetPixelShader(CompileShader(ps_5_0,PS_DoFPrepass()));
+	}
+}
+technique11 PrepassB4
+{
+	pass p0
+	{
+		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
+		SetPixelShader(CompileShader(ps_5_0,PS_SSAOApply()));
+	}
+}
+technique11 PrepassB5
+{
+	pass p0
+	{
+		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
+		SetPixelShader(CompileShader(ps_5_0,PS_Edge()));
+	}
+}
+technique11 PrepassB6
+{
+	pass p0
+	{
+		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
+		SetPixelShader(CompileShader(ps_5_0,PS_Distortion()));
+	}
+}
+technique11 PrepassB7
+{
+	pass p0
+	{
+		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
+		SetPixelShader(CompileShader(ps_5_0,PS_DoFBorkeh()));
+	}
+}
+technique11 PrepassB8
+{
+	pass p0
+	{
+		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
+		SetPixelShader(CompileShader(ps_5_0,PS_DoFBorkehB()));
+	}
+}
+technique11 PrepassB9
+{
+	pass p0
+	{
+		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
+		SetPixelShader(CompileShader(ps_5_0,PS_FrostPass()));
+	}
+}
+

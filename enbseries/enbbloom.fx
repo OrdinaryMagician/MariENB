@@ -1,6 +1,6 @@
 /*
 	enbbloom.fx : MariENB3 bloom shader.
-	(C)2016 Marisa Kirisame, UnSX Team.
+	(C)2016-2017 Marisa Kirisame, UnSX Team.
 	Part of MariENB3, the personal ENB of Marisa for Fallout 4.
 	Released under the GNU GPLv3 (or later).
 */
@@ -107,6 +107,13 @@ float bloomradiusy
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
+float bloomtheta
+<
+	string UIName = "Bloom Angle";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {0.0};
 /* bloom tint/blueshift parameters */
 float3 blu_n
 <
@@ -313,7 +320,17 @@ float dirtmixs
 	string UIName = "Dirt Single Pass Blend";
 	string UIWidget = "Spinner";
 > = {1.0};
+float dirtsaturation
+<
+	string UIName = "Dirt Saturation";
+	string UIWidget = "Spinner";
+> = {1.0};
 float ldirtpow
+<
+	string UIName = "Dirt Texture Contrast";
+	string UIWidget = "Spinner";
+> = {1.25};
+float dirtpow
 <
 	string UIName = "Dirt Contrast";
 	string UIWidget = "Spinner";
@@ -323,6 +340,7 @@ float ldirtfactor
 	string UIName = "Dirt Factor";
 	string UIWidget = "Spinner";
 > = {1.5};
+
 
 /* gaussian blur matrices */
 /* radius: 4, std dev: 1.5 */
@@ -337,7 +355,7 @@ static const float gauss8[8] =
 	0.055335, 0.033562, 0.018216, 0.008847
 };
 /* radius: 40, std dev: 15 */
-static const float gauss40[40] =
+/*static const float gauss40[40] =
 {
 	0.026823, 0.026763, 0.026585, 0.026291,
 	0.025886, 0.025373, 0.024760, 0.024055,
@@ -349,9 +367,9 @@ static const float gauss40[40] =
 	0.004697, 0.004139, 0.003630, 0.003170,
 	0.002756, 0.002385, 0.002055, 0.001763,
 	0.001506, 0.001280, 0.001084, 0.000913
-};
+};*/
 /* radius: 80, std dev: 30 */
-/*static const float gauss80[80] =
+static const float gauss80[80] =
 {
 	0.013406, 0.013398, 0.013376, 0.013339, 0.013287, 0.013221,
 	0.013140, 0.013046, 0.012938, 0.012816, 0.012681, 0.012534,
@@ -367,7 +385,9 @@ static const float gauss40[40] =
 	0.001192, 0.001107, 0.001027, 0.000952, 0.000881, 0.000815,
 	0.000753, 0.000694, 0.000640, 0.000589, 0.000542, 0.000497,
 	0.000456, 0.000418
-};*/
+};
+/* mathematical constants */
+static const float pi = 3.1415926535898;
 
 float4 ScreenSize;
 float ENightDayFactor;
@@ -498,7 +518,6 @@ float4 PS_Downsize( VS_OUTPUT_POST IN, float4 v0 : SV_Position0,
 
 /*
    Anamorphic bloom step. Secondary bloom stretched along an axis.
-   Currently horizontal only, but directional options will be added eventually.
 
    I've seen that some ENBs do something almost-maybe-possibly-slightly-similar
    they call "anamorphic lens flare", which has an ass-backwards-retarded
@@ -515,11 +534,13 @@ float4 Anamorphic( float2 coord, Texture2D intex, float insz )
 	int i;
 	float sum = 0.0;
 	float2 pp;
-	[unroll] for ( i=-39; i<=39; i++ )
+	float2 dir = float2(cos(bloomtheta*2*pi),sin(bloomtheta*2*pi))
+		*flen/insz;
+	[unroll] for ( i=-79; i<=79; i++ )
 	{
-		pp = coord+(float2(i,0.0)/insz)*flen;
-		res += gauss40[abs(i)]*intex.Sample(Sampler,pp);
-		sum += ((pp.x>=0.0)&&(pp.x<1.0))?gauss40[abs(i)]:0.0;
+		pp = coord+dir*i;
+		res += gauss80[abs(i)]*intex.Sample(Sampler,pp);
+		sum += ((pp.x>=0.0)&&(pp.x<1.0))?gauss80[abs(i)]:0.0;
 	}
 	res *= 1.0/sum;
 	float3 flu = tod_ind(flu);
@@ -542,9 +563,11 @@ float4 PS_HorizontalBlur( VS_OUTPUT_POST IN, float4 v0 : SV_Position0,
 	int i;
 	float sum = 0.0;
 	float2 pp;
+	float2 dir = float2(cos(bloomtheta*2*pi),sin(bloomtheta*2*pi))
+		*bloomradiusx/insz;
 	[unroll] for ( i=-7; i<=7; i++ )
 	{
-		pp = coord+float2(i*bloomradiusx,0.0)/(insz*ScreenSize.z);
+		pp = coord+dir*i;
 		res += gauss8[abs(i)]*intex.Sample(Sampler,pp);
 		sum += ((pp.x>=0.0)&&(pp.x<1.0))?gauss8[abs(i)]:0.0;
 	}
@@ -566,9 +589,11 @@ float4 PS_VerticalBlur( VS_OUTPUT_POST IN, float4 v0 : SV_Position0,
 	int i;
 	float sum = 0.0;
 	float2 pp;
+	float2 dir = float2(sin(bloomtheta*2*pi),-cos(bloomtheta*2*pi))
+		*bloomradiusy/insz;
 	[unroll] for ( i=-7; i<=7; i++ )
 	{
-		pp = coord+float2(0.0,i*bloomradiusy)/insz;
+		pp = coord+dir*i;
 		res += gauss8[abs(i)]*intex.Sample(Sampler,pp);
 		sum += ((pp.y>=0.0)&&(pp.y<1.0))?gauss8[abs(i)]:0.0;
 	}
@@ -611,7 +636,10 @@ float4 PS_PostPass( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	mud += dirtmix5*RenderTarget64.Sample(Sampler2,coord);
 	mud += dirtmix6*RenderTarget32.Sample(Sampler2,coord);
 	mud.rgb /= 6.0;
-	mud.rgb = clamp(mud.rgb,0.0,32768.0);
+	float3 hsv = rgb2hsv(mud.rgb);
+	hsv.y = clamp(hsv.y*dirtsaturation,0.0,1.0);
+	mud.rgb = clamp(hsv2rgb(hsv),0.0,32768.0);
+	mud.rgb = pow(mud.rgb,dirtpow);
 	float mudmax = luminance(mud.rgb);
 	float mudn = max(mudmax/(1.0+mudmax),0.0);
 	mudn = pow(mudn,max(ldirtpow-crap.a,0.0));
@@ -635,7 +663,10 @@ float4 PS_SPostPass( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 #endif
 	float4 crap = TextureLens.Sample(SamplerLens,ccoord);
 	float4 mud = dirtmixs*RenderTarget32.Sample(Sampler2,coord);
-	mud.rgb = clamp(mud.rgb,0.0,32768.0);
+	mud.rgb = pow(mud.rgb,dirtpow);
+	float3 hsv = rgb2hsv(mud.rgb);
+	hsv.y = clamp(hsv.y*dirtsaturation,0.0,1.0);
+	mud.rgb = clamp(hsv2rgb(hsv),0.0,32768.0);
 	float mudmax = luminance(mud.rgb);
 	float mudn = max(mudmax/(1.0+mudmax),0.0);
 	mudn = pow(mudn,max(ldirtpow-crap.a,0.0));

@@ -88,11 +88,3 @@ DLCCoast
 56378	FXWthrWindowNoGlow01				.
 56638	DLC03_ClearWeatherFastBackup			WARM
 5D0C4	dlc03_radmistweatherFast			COLD
-
-TrueStormsFO4
-
-859	TrueStormsRadStormRainHeavy	COLD
-85A	TrueStormsRadStormRainLight	COLD
-862	TrueStormsRainLight		COLD
-864	TrueStormsMistyRainyLight	COLD
-865	TrueStormsFoggyLight		COLD
