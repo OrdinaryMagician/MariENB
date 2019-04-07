@@ -40,6 +40,7 @@ float4 Timer;
 float ENightDayFactor;
 float EInteriorFactor;
 float EBloomAmount;
+float4 WeatherAndTime;
 /* samplers and textures */
 texture2D texs0;
 texture2D texs1;

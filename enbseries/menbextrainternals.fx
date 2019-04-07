@@ -4,6 +4,12 @@
 	Part of MariENB, the personal ENB of Marisa.
 	Released under the GNU GPLv3 (or later).
 */
+/* gaussian blur matrices */
+/* radius: 4, std dev: 1.5 */
+static const float gauss4[4] =
+{
+	0.270682, 0.216745, 0.111281, 0.036633
+};
 /*
    dithering threshold maps
    don't touch unless you know what you're doing
@@ -51,6 +57,14 @@ texture2D texEGA
 texture2D texVGA
 <
 	string ResourceName = "menbvgalut.png";
+>;
+texture2D texVignette
+<
+#ifdef VIGNETTE_DDS
+	string ResourceName = "menbvignette.dds";
+#else
+	string ResourceName = "menbvignette.png";
+#endif
 >;
 sampler2D SamplerColor = sampler_state
 {
@@ -119,6 +133,18 @@ sampler2D SamplerVGA = sampler_state
 	MagFilter = POINT;
 	MipFilter = NONE;
 	AddressU = Wrap;
+	AddressV = Clamp;
+	SRGBTexture = FALSE;
+	MaxMipLevel = 0;
+	MipMapLodBias = 0;
+};
+sampler2D SamplerVignette = sampler_state
+{
+	Texture = <texVignette>;
+	MinFilter = LINEAR;
+	MagFilter = LINEAR;
+	MipFilter = NONE;
+	AddressU = Clamp;
 	AddressV = Clamp;
 	SRGBTexture = FALSE;
 	MaxMipLevel = 0;
