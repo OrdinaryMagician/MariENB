@@ -418,19 +418,6 @@ bool vgradeenable
 	string UIName = "Enable Vanilla Imagespace";
 	string UIWidget = "Checkbox";
 > = {true};
-string str_dither = "Dithering";
-bool dodither
-<
-	string UIName = "Enable Post Dither";
-	string UIWidget = "Checkbox";
-> = {true};
-int dither
-<
-	string UIName = "Dither Pattern";
-	string UIWidget = "Spinner";
-	int UIMin = 0;
-	int UIMax = 4;
-> = {4};
 string str_debug = "Debugging";
 bool bloomdebug
 <
@@ -442,53 +429,6 @@ bool adaptdebug
 	string UIName = "Display Adaptation";
 	string UIWidget = "Checkbox";
 > = {false};
-
-/*
-   dithering threshold maps
-   don't touch unless you know what you're doing
-*/
-static const float checkers[4] =
-{
-	1.0,0.0,
-	0.0,1.0
-};
-#define d(x) x/4.0
-static const float ordered2[4] =
-{
-	d(0),d(2),
-	d(4),d(2)
-};
-#undef d
-#define d(x) x/9.0
-static const float ordered3[9] =
-{
-	d(2),d(6),d(3),
-	d(5),d(0),d(8),
-	d(1),d(7),d(4)
-};
-#undef d
-#define d(x) x/16.0
-static const float ordered4[16] =
-{
-	d( 0),d( 8),d( 2),d(10),
-	d(12),d( 4),d(14),d( 6),
-	d( 3),d(11),d( 1),d( 9),
-	d(15),d( 7),d(13),d( 5)
-};
-#undef d
-#define d(x) x/64.0
-static const float ordered8[64] =
-{
-	d( 0),d(48),d(12),d(60),d( 3),d(51),d(15),d(63),
-	d(32),d(16),d(44),d(28),d(35),d(19),d(47),d(31),
-	d( 8),d(56),d( 4),d(52),d(11),d(59),d( 7),d(55),
-	d(40),d(24),d(36),d(20),d(43),d(27),d(39),d(23),
-	d( 2),d(50),d(14),d(62),d( 1),d(49),d(13),d(61),
-	d(34),d(18),d(46),d(30),d(33),d(17),d(45),d(29),
-	d(10),d(58),d( 6),d(54),d( 9),d(57),d( 5),d(53),
-	d(42),d(26),d(38),d(22),d(41),d(25),d(37),d(21)
-};
-#undef d
 
 float4 Timer;
 float4 ScreenSize;
@@ -698,24 +638,6 @@ float3 Technicolor( float3 res )
 	float3 tint = float3(green*blue,red*blue,red*green)*res;
 	return lerp(res,res+0.5*(tint-res),techblend);
 }
-/* post-pass dithering, something apparently only my ENB does */
-float3 Dither( float3 res, float2 coord )
-{
-	float2 rcoord = coord*float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
-	float3 col = res;
-	float dml = (1.0/256.0);
-	if ( dither == 1 )
-		col += ordered2[int(rcoord.x%2)+2*int(rcoord.y%2)]*dml-0.5*dml;
-	else if ( dither == 2 )
-		col += ordered3[int(rcoord.x%3)+3*int(rcoord.y%3)]*dml-0.5*dml;
-	else if ( dither == 3 )
-		col += ordered4[int(rcoord.x%4)+4*int(rcoord.y%4)]*dml-0.5*dml;
-	else if ( dither == 4 )
-		col += ordered8[int(rcoord.x%8)+8*int(rcoord.y%8)]*dml-0.5*dml;
-	else col += checkers[int(rcoord.x%2)+2*int(rcoord.y%2)]*dml-0.5*dml;
-	col = (trunc(col*256.0)/256.0);
-	return col;
-}
 /* Fuzzy */
 float3 FilmGrain( float3 res, float2 coord )
 {
@@ -867,7 +789,6 @@ float4 PS_Draw( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	res.rgb = Params01[5].rgb*Params01[5].a+res.rgb*(1.0-Params01[5].a);
 	if ( adaptdebug	) res.rgb = TextureAdaptation.Sample(Sampler1,coord).x;
 	res.rgb = max(0,res.rgb);
-	if ( dodither ) res.rgb = Dither(res.rgb,coord);
 	res.a = 1.0;
 	return res;
 }
