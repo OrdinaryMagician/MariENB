@@ -400,6 +400,99 @@ float4 PS_DoFPrepass( VS_OUTPUT_POST IN, float2 vPos : VPOS ) : COLOR
    This method skips blurring areas that are perfectly in focus. The
    performance gain is negligible in most cases, though.
 */
+#ifdef USE_BOKEH
+/* gather blur pass */
+float4 PS_DoFBlurH( VS_OUTPUT_POST IN, float2 vPos : VPOS) : COLOR
+{
+	float2 coord = IN.txcoord.xy;
+	if ( dofdisable ) return tex2D(SamplerColor,coord);
+	float dfc = tex2D(SamplerColor,coord).a;
+	if ( dofdebug ) return tex2D(SamplerDepth,coord).x;
+	if ( dfcdebug ) return dfc;
+	float2 bresl;
+	if ( (fixedx > 0) && (fixedy > 0) ) bresl = float2(fixedx,fixedy);
+	else bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
+	float2 bof = 1.0/bresl;
+	float4 res = tex2D(SamplerColor,coord);
+	float4 ccol = res;
+	if ( dfc > 0.0 )
+	{
+		res *= 0;
+		float dep = tex2D(SamplerDepth,coord).x;
+		float sd, ds, sw, tw = 0;
+		float2 bsz = bof*dofpradius*dfc;
+		float4 sc;
+		[unroll] for ( int i=0; i<16; i++ )
+		{
+			sc = tex2Dlod(SamplerColor,float4(coord.x
+				+poisson16[i].x*bsz.x,coord.y+poisson16[i].y
+				*bsz.y,0.0,dfc));
+			ds = tex2D(SamplerDepth,coord+poisson16[i]*bsz).x;
+			sd = tex2D(SamplerColor,coord+poisson16[i]*bsz).a;
+			sw = (ds>dep)?1.0:sd;
+			tw += sw;
+			res += sc*sw;
+		}
+		res /= tw;
+	}
+	/* check if bokeh point */
+	const float2 pts[9] =
+	{
+		float2(-1.5,-1.5),float2( 0.5,-1.5),float2( 1.5,-1.5),
+		float2(-1.5, 0.5),float2( 0.5, 0.5),float2( 1.5, 1.5),
+		float2(-1.5, 1.5),float2( 0.5, 1.5),float2( 1.5, 1.5)
+	};
+	float4 col = float4(0,0,0,0);
+	[unroll] for ( int i=0; i<9; i++ )
+		col += tex2D(SamplerColor,coord+pts[i]*bof);
+	col /= 9.0;
+	float lum = luminance(col), clum = luminance(ccol);
+	if ( (max(clum-lum,0.0) > bokthr) && (dfc > bokbthr) )
+		col.a = min(clum*dfc,1.0);
+	else col.a = 0.0;
+	res.a = col.a;
+	return res;
+}
+/* bokeh pass */
+float4 PS_DoFBlurV( VS_OUTPUT_POST IN, float2 vPos : VPOS) : COLOR
+{
+	float2 coord = IN.txcoord.xy;
+	if ( dofdisable ) return tex2D(SamplerColor,coord);
+	float dfc = tex2D(SamplerColor,coord).a;
+	if ( dofdebug ) return tex2D(SamplerDepth,coord).x;
+	if ( dfcdebug ) return dfc;
+	float2 bresl;
+	if ( (fixedx > 0) && (fixedy > 0) ) bresl = float2(fixedx,fixedy);
+	else bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
+	float2 bof = (1.0/bresl);
+	float4 res = tex2D(SamplerColor,coord);
+	// It's bokeh time
+	float2 rcoord;
+	int rsmp;
+	float rstep, bsmp, bft, tw = 0;
+	float4 bcol = float4(0,0,0,0);
+	[unroll] for ( int r=1; r<=5; r++ )
+	{
+		rsmp = r*3;
+		[loop] for ( int s=0; s<rsmp; s++ )
+		{
+			rstep = pi*2.0/float(rsmp);
+			rcoord.x = (cos(float(s)*rstep)*float(r));
+			rcoord.y = (sin(float(s)*rstep)*float(r));
+			bsmp = tex2D(SamplerBokeh,0.5+rcoord/10.0).x;
+			bft = tex2D(SamplerColor,coord+(rcoord/5.0)*bof
+				*boksiz).a;
+			bcol += tex2D(SamplerColor,coord+(rcoord/5.0)*bof
+				*boksiz)*bft*bsmp;
+			tw += bsmp;
+		}
+	}
+	bcol /= tw;
+	res = res+bcol;
+	res.a = 1.0;
+	return res;
+}
+#else
 float4 PS_DoFBlurH( VS_OUTPUT_POST IN, float2 vPos : VPOS) : COLOR
 {
 	float2 coord = IN.txcoord.xy;
@@ -464,6 +557,7 @@ float4 PS_DoFBlurV( VS_OUTPUT_POST IN, float2 vPos : VPOS) : COLOR
 	res.a = 1.0;
 	return res;
 }
+#endif
 /* Screen frost shader. Not very realistic either, but looks fine too. */
 float2 ScreenFrost( float2 coord )
 {

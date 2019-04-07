@@ -58,9 +58,9 @@
 #define LUTMODE_64
 /* some textures can be provided as DDS rather than PNG to save space */
 //#define HEAT_DDS
-#define LENSDIRT_DDS
+//#define LENSDIRT_DDS
 //#define FROST_DDS
 //#define FROSTBUMP_DDS
 /* experimental features (TODO) */
-//#define USE_BOKEH
+#define USE_BOKEH
 //#define MULTIPASS_RMAO

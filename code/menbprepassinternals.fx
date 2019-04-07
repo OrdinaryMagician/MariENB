@@ -81,6 +81,20 @@ static const float3 ssao_samples_hq[64] =
 	float3(-0.7190, 0.1767, 0.4489),float3(-0.5617, 0.5845,-0.4116),
 	float3(-0.8919,-0.0384, 0.3360),float3(-0.0144, 0.9775,-0.2105)
 };
+/* For high quality DOF */
+#ifdef USE_BOKEH
+static const float2 poisson16[16] =
+{
+	float2( 0.20698410, 0.22452690),float2( 0.52580800,-0.23108170),
+	float2( 0.13839430, 0.90561220),float2( 0.66330090, 0.51298430),
+	float2(-0.40027920, 0.37270580),float2( 0.07912822,-0.65129210),
+	float2(-0.77260670,-0.51512170),float2(-0.38431930,-0.14941320),
+	float2(-0.91077820, 0.25006330),float2( 0.69401530,-0.70989270),
+	float2(-0.19646690,-0.37938900),float2(-0.47692860, 0.18408630),
+	float2(-0.24732800,-0.87984590),float2( 0.42065410,-0.71477200),
+	float2( 0.58293480,-0.09794202),float2( 0.36918380, 0.41406420)
+};
+#endif
 /* standard stuff */
 float4 ScreenSize;
 float ENightDayFactor;
@@ -122,6 +136,12 @@ texture2D texFrostBump
 	string ResourceName = "menbfrostbump.png";
 #endif
 >;
+#ifdef USE_BOKEH
+texture2D texBokeh
+<
+	string ResourceName = "menbbokeh.png";
+>;
+#endif
 texture2D texFocus;
 texture2D texCurr;
 texture2D texPrev;
@@ -197,6 +217,20 @@ sampler2D SamplerFrostBump = sampler_state
 	MaxMipLevel = 0;
 	MipMapLodBias = 0;
 };
+#ifdef USE_BOKEH
+sampler2D SamplerBokeh = sampler_state
+{
+	Texture = <texBokeh>;
+	MinFilter = LINEAR;
+	MagFilter = LINEAR;
+	MipFilter = NONE;
+	AddressU = Border;
+	AddressV = Border;
+	SRGBTexture = FALSE;
+	MaxMipLevel = 0;
+	MipMapLodBias = 0;
+};
+#endif
 sampler2D SamplerFocus = sampler_state
 {
 	Texture = <texFocus>;

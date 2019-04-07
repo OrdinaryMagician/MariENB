@@ -62,5 +62,5 @@
 //#define FROST_DDS
 //#define FROSTBUMP_DDS
 /* experimental features (TODO) */
-//#define USE_BOKEH
+#define USE_BOKEH
 //#define MULTIPASS_RMAO

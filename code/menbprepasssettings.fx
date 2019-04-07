@@ -619,6 +619,7 @@ bool dofdisable
 	string UIName = "Disable DOF";
 	string UIWidget = "Checkbox";
 > = {false};
+#ifndef USE_BOKEH
 float dofbfact
 <
 	string UIName = "DOF Bilateral Factor";
@@ -630,6 +631,14 @@ float dofbradius
 	string UIWidget = "Spinner";
 	float UIMin = 0.0;
 > = {1.0};
+#else
+float dofpradius
+<
+	string UIName = "DOF Gather Blur Radius";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {6.0};
+#endif
 #ifndef FALLOUT
 bool dofrelfov
 <
@@ -663,6 +672,26 @@ float relfovfactor_id
 	string UIName = "DOF Relative Factor Interior Day";
 	string UIWidget = "Spinner";
 > = {2.0};
+#endif
+#ifdef USE_BOKEH
+float bokthr
+<
+	string UIName = "Bokeh Threshold";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float bokbthr
+<
+	string UIName = "Bokeh Blur Threshold";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {0.5};
+float boksiz
+<
+	string UIName = "Bokeh Size";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {8.0};
 #endif
 bool dofdebug
 <
