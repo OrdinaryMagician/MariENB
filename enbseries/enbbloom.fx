@@ -285,8 +285,17 @@ static const float gauss4[4] =
 	0.134598, 0.127325, 0.107778, 0.081638,
 	0.055335, 0.033562, 0.018216, 0.008847
 };*/
+/* radius: 20, std dev: 7.5 */
+static const float gauss20[20] =
+{
+	0.053690, 0.053215, 0.051815, 0.049562,
+	0.046572, 0.042992, 0.038987, 0.034732,
+	0.030397, 0.026134, 0.022073, 0.018314,
+	0.014928, 0.011953, 0.009403, 0.007266,
+	0.005516, 0.004114, 0.003014, 0.002169
+};
 /* radius: 40, std dev: 15 */
-static const float gauss40[40] =
+/*static const float gauss40[40] =
 {
 	0.026823, 0.026763, 0.026585, 0.026291,
 	0.025886, 0.025373, 0.024760, 0.024055,
@@ -298,7 +307,7 @@ static const float gauss40[40] =
 	0.004697, 0.004139, 0.003630, 0.003170,
 	0.002756, 0.002385, 0.002055, 0.001763,
 	0.001506, 0.001280, 0.001084, 0.000913
-};
+};*/
 /* radius: 80, std dev: 30 */
 /*static const float gauss80[80] =
 {
@@ -448,11 +457,11 @@ float4 Anamorphic( float2 coord, Texture2D intex, float insz )
 	float sum = 0.0;
 	float inc = flen/insz;
 	float2 pp;
-	[unroll] for ( i=-39; i<=39; i++ )
+	[unroll] for ( i=-19; i<=19; i++ )
 	{
 		pp = coord+float2(i,0)*inc;
-		res += gauss40[abs(i)]*intex.Sample(Sampler,pp);
-		sum += ((pp.x>=0.0)&&(pp.x<1.0))?gauss40[abs(i)]:0.0;
+		res += gauss20[abs(i)]*intex.Sample(Sampler,pp);
+		sum += ((pp.x>=0.0)&&(pp.x<1.0))?gauss20[abs(i)]:0.0;
 	}
 	res *= 1.0/sum;
 	float3 flu = tod_ind(flu);
