@@ -400,16 +400,12 @@ SamplerState Sampler
 	Filter = MIN_MAG_MIP_LINEAR;
 	AddressU = Border;
 	AddressV = Border;
-	MaxLOD = 0;
-	MinLOD = 0;
 };
 SamplerState Sampler2
 {
 	Filter = MIN_MAG_MIP_LINEAR;
 	AddressU = Clamp;
 	AddressV = Clamp;
-	MaxLOD = 0;
-	MinLOD = 0;
 };
 
 SamplerState SamplerLens
@@ -417,8 +413,6 @@ SamplerState SamplerLens
 	Filter = MIN_MAG_MIP_LINEAR;
 	AddressU = Mirror;
 	AddressV = Mirror;
-	MaxLOD = 0;
-	MinLOD = 0;
 };
 
 struct VS_INPUT_POST
@@ -472,7 +466,7 @@ float4 PS_PrePass( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	float bloomintensity = tod_ind(bloomintensity);
 	float4 res = TextureDownsampled.Sample(Sampler2,coord);
 	float3 hsv = rgb2hsv(res.rgb);
-	if ( hsv.z > bloomcap ) hsv.z = bloomcap;
+	hsv.z = min(hsv.z,bloomcap);
 	res.rgb = hsv2rgb(hsv);
 	res = max(res+bloombump,0.0);
 	hsv = rgb2hsv(res.rgb);
@@ -493,8 +487,8 @@ float4 PS_Downsize( VS_OUTPUT_POST IN, float4 v0 : SV_Position0,
 {
 	float2 coord = IN.txcoord0.xy;
 	float2 ssz;
-	if ( insz > 0.0 ) ssz = float2(1.0/insz,1.0/insz);
-	else return intex.Sample(Sampler2,coord);
+	if ( insz <= 0.0 ) return intex.Sample(Sampler2,coord);
+	ssz = float2(1.0/insz,1.0/insz);
 	float4 res = 0.25*(intex.Sample(Sampler2,coord)
 		+intex.Sample(Sampler2,coord+float2(ssz.x,0.0))
 		+intex.Sample(Sampler2,coord+float2(0.0,ssz.y))
@@ -591,43 +585,56 @@ float4 PS_VerticalBlur( VS_OUTPUT_POST IN, float4 v0 : SV_Position0,
 }
 
 /* end pass, mix it all up */
-float4 PS_PostPass( VS_OUTPUT_POST IN, float4 v0 : SV_Position0,
-	uniform bool simple) : SV_Target
+float4 PS_PostPass( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 {
 	float2 coord = IN.txcoord0.xy;
-	float4 res = float4(0.0,0.0,0.0,0.0);
-	if ( simple ) res += bloommixs*RenderTarget32.Sample(Sampler2,coord);
-	else
-	{
-		res += bloommix1*RenderTarget1024.Sample(Sampler2,coord);
-		res += bloommix2*RenderTarget512.Sample(Sampler2,coord);
-		res += bloommix3*RenderTarget256.Sample(Sampler2,coord);
-		res += bloommix4*RenderTarget128.Sample(Sampler2,coord);
-		res += bloommix5*RenderTarget64.Sample(Sampler2,coord);
-		res += bloommix6*RenderTarget32.Sample(Sampler2,coord);
-		res.rgb /= 6.0;
-	}
+	float4 res = bloommix1*RenderTarget1024.Sample(Sampler2,coord);
+	res += bloommix2*RenderTarget512.Sample(Sampler2,coord);
+	res += bloommix3*RenderTarget256.Sample(Sampler2,coord);
+	res += bloommix4*RenderTarget128.Sample(Sampler2,coord);
+	res += bloommix5*RenderTarget64.Sample(Sampler2,coord);
+	res += bloommix6*RenderTarget32.Sample(Sampler2,coord);
+	res.rgb /= 6.0;
 	res.rgb = clamp(res.rgb,0.0,32768.0);
 	res.a = 1.0;
 	if ( !dirtenable ) return res;
 	/* crappy lens filter, useful when playing characters with glasses */
-	float4 mud = float4(0.0,0.0,0.0,0.0);
 	float2 ccoord = coord;
 #ifdef ASPECT_LENSDIRT
 	ccoord.y = (coord.y-0.5)*ScreenSize.w+0.5;
 #endif
 	float4 crap = TextureLens.Sample(SamplerLens,ccoord);
-	if ( simple ) mud += dirtmixs*RenderTarget32.Sample(Sampler2,coord);
-	else
-	{
-		mud += dirtmix1*RenderTarget1024.Sample(Sampler2,coord);
-		mud += dirtmix2*RenderTarget512.Sample(Sampler2,coord);
-		mud += dirtmix3*RenderTarget256.Sample(Sampler2,coord);
-		mud += dirtmix4*RenderTarget128.Sample(Sampler2,coord);
-		mud += dirtmix5*RenderTarget64.Sample(Sampler2,coord);
-		mud += dirtmix6*RenderTarget32.Sample(Sampler2,coord);
-		mud.rgb /= 6.0;
-	}
+	float4 mud = dirtmix1*RenderTarget1024.Sample(Sampler2,coord);
+	mud += dirtmix2*RenderTarget512.Sample(Sampler2,coord);
+	mud += dirtmix3*RenderTarget256.Sample(Sampler2,coord);
+	mud += dirtmix4*RenderTarget128.Sample(Sampler2,coord);
+	mud += dirtmix5*RenderTarget64.Sample(Sampler2,coord);
+	mud += dirtmix6*RenderTarget32.Sample(Sampler2,coord);
+	mud.rgb /= 6.0;
+	mud.rgb = clamp(mud.rgb,0.0,32768.0);
+	float mudmax = luminance(mud.rgb);
+	float mudn = max(mudmax/(1.0+mudmax),0.0);
+	mudn = pow(mudn,max(ldirtpow-crap.a,0.0));
+	mud.rgb *= mudn*ldirtfactor*crap.rgb;
+	res += max(mud,0.0);
+	res.a = 1.0;
+	return res;
+}
+
+float4 PS_SPostPass( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
+{
+	float2 coord = IN.txcoord0.xy;
+	float4 res = bloommixs*RenderTarget32.Sample(Sampler2,coord);
+	res.rgb = clamp(res.rgb,0.0,32768.0);
+	res.a = 1.0;
+	if ( !dirtenable ) return res;
+	/* crappy lens filter, useful when playing characters with glasses */
+	float2 ccoord = coord;
+#ifdef ASPECT_LENSDIRT
+	ccoord.y = (coord.y-0.5)*ScreenSize.w+0.5;
+#endif
+	float4 crap = TextureLens.Sample(SamplerLens,ccoord);
+	float4 mud = dirtmixs*RenderTarget32.Sample(Sampler2,coord);
 	mud.rgb = clamp(mud.rgb,0.0,32768.0);
 	float mudmax = luminance(mud.rgb);
 	float mudn = max(mudmax/(1.0+mudmax),0.0);
@@ -718,7 +725,7 @@ technique11 BloomSimplePass9
 	pass p0
 	{
 		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
-		SetPixelShader(CompileShader(ps_5_0,PS_PostPass(true)));
+		SetPixelShader(CompileShader(ps_5_0,PS_SPostPass()));
 	}
 }
 
@@ -887,6 +894,6 @@ technique11 BloomPass19
 	pass p0
 	{
 		SetVertexShader(CompileShader(vs_5_0,VS_Quad()));
-		SetPixelShader(CompileShader(ps_5_0,PS_PostPass(false)));
+		SetPixelShader(CompileShader(ps_5_0,PS_PostPass()));
 	}
 }

@@ -486,16 +486,12 @@ SamplerState Sampler0
 	Filter = MIN_MAG_MIP_POINT;
 	AddressU = Clamp;
 	AddressV = Clamp;
-	MaxLOD = 0;
-	MinLOD = 0;
 };
 SamplerState Sampler1
 {
 	Filter = MIN_MAG_MIP_LINEAR;
 	AddressU = Clamp;
 	AddressV = Clamp;
-	MaxLOD = 0;
-	MinLOD = 0;
 };
 SamplerState SamplerLUT
 {

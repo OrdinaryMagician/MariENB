@@ -930,24 +930,18 @@ SamplerState Sampler0
 	Filter = MIN_MAG_MIP_POINT;
 	AddressU = Clamp;
 	AddressV = Clamp;
-	MinLod = 0;
-	MaxLod = 0;
 };
 SamplerState Sampler1
 {
 	Filter = MIN_MAG_MIP_LINEAR;
 	AddressU = Clamp;
 	AddressV = Clamp;
-	MinLod = 0;
-	MaxLod = 0;
 };
 SamplerState Sampler2
 {
 	Filter = MIN_MAG_MIP_LINEAR;
 	AddressU = Wrap;
 	AddressV = Wrap;
-	MinLod = 0;
-	MaxLod = 0;
 };
 
 struct VS_INPUT_POST
@@ -1282,18 +1276,16 @@ float4 PS_Distortion( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	if ( heatenable ) ofs = DistantHeat(ofs);
 	ofs -= coord;
 	float4 res;
-	if ( (distcha != 0.0) && (length(ofs) != 0) )
-	{
-		float2 ofr, ofg, ofb;
-		ofr = ofs*(1.0-distcha*0.01);
-		ofg = ofs;
-		ofb = ofs*(1.0+distcha*0.01);
-		res = float4(TextureColor.Sample(Sampler1,coord+ofr).r,
-			TextureColor.Sample(Sampler1,coord+ofg).g,
-			TextureColor.Sample(Sampler1,coord+ofb).b,
-			TextureColor.Sample(Sampler1,coord+ofs).a);
-	}
-	else res = TextureColor.Sample(Sampler1,coord+ofs);
+	if ( (distcha == 0.0) || (length(ofs) == 0.0) )
+		return TextureColor.Sample(Sampler1,coord+ofs);
+	float2 ofr, ofg, ofb;
+	ofr = ofs*(1.0-distcha*0.01);
+	ofg = ofs;
+	ofb = ofs*(1.0+distcha*0.01);
+	res = float4(TextureColor.Sample(Sampler1,coord+ofr).r,
+		TextureColor.Sample(Sampler1,coord+ofg).g,
+		TextureColor.Sample(Sampler1,coord+ofb).b,
+		TextureColor.Sample(Sampler1,coord+ofs).a);
 	return res;
 }
 
@@ -1374,29 +1366,26 @@ float4 PS_DoFBlur( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	if ( (fixed.x > 0) && (fixed.y > 0) ) bresl = fixed;
 	else bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
 	float2 bof = 1.0/bresl;
-	if ( dfc > dofminblur )
+	if ( dfc <= dofminblur ) return TextureColor.Sample(Sampler1,coord);
+	float4 res = float4(0,0,0,0);
+	float dep = TextureDepth.Sample(Sampler1,coord).x;
+	float sd, ds, sw, tw = 0;
+	float2 bsz = bof*dofpradius*dfc;
+	float4 sc;
+	[unroll] for ( int i=0; i<32; i++ )
 	{
-		float4 res = float4(0,0,0,0);
-		float dep = TextureDepth.Sample(Sampler1,coord).x;
-		float sd, ds, sw, tw = 0;
-		float2 bsz = bof*dofpradius*dfc;
-		float4 sc;
-		[unroll] for ( int i=0; i<32; i++ )
-		{
-			sc = TextureColor.Sample(Sampler1,coord+poisson32[i]
-				*bsz);
-			ds = TextureDepth.Sample(Sampler1,coord+poisson32[i]
-				*bsz).x;
-			sd = RenderTargetR32F.Sample(Sampler1,coord
-				+poisson32[i]*bsz).x;
-			sw = (ds>dep)?1.0:sd;
-			tw += sw;
-			res += sc*sw;
-		}
-		res /= tw;
-		return res;
+		sc = TextureColor.SampleLevel(Sampler1,coord+poisson32[i]*bsz,
+			dfc*4.0);
+		ds = TextureDepth.Sample(Sampler1,coord+poisson32[i]*bsz).x;
+		sd = RenderTargetR32F.Sample(Sampler1,coord+poisson32[i]
+			*bsz).x;
+		sw = (ds>dep)?1.0:sd;
+		tw += sw;
+		res += sc*sw;
 	}
-	else return TextureColor.Sample(Sampler1,coord);
+	res /= tw;
+	return res;
+	
 }
 
 /* simple gaussian / bilateral blur */
@@ -1483,23 +1472,22 @@ float4 PS_FrostPass( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	float2 bresl;
 	if ( (fixed.x > 0) && (fixed.y > 0) ) bresl = fixed;
 	else bresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
-	float2 ofs = coord;
-	if ( frostenable ) ofs = ScreenFrost(ofs);
-	ofs -= coord;
 	float4 res;
-	if ( (distcha != 0.0) && (length(ofs) != 0.0) )
-	{
-		float2 ofr, ofg, ofb;
-		ofr = ofs*(1.0-distcha*0.01);
-		ofg = ofs;
-		ofb = ofs*(1.0+distcha*0.01);
-		res = float4(TextureColor.Sample(Sampler1,coord+ofr).r,
-			TextureColor.Sample(Sampler1,coord+ofg).g,
-			TextureColor.Sample(Sampler1,coord+ofb).b,1.0);
-	}
-	else res = TextureColor.Sample(Sampler1,coord+ofs);
 	if ( frostenable )
 	{
+		float2 ofs = ScreenFrost(coord);
+		ofs -= coord;
+		if ( (distcha != 0.0) && (length(ofs) != 0.0) )
+		{
+			float2 ofr, ofg, ofb;
+			ofr = ofs*(1.0-distcha*0.01);
+			ofg = ofs;
+			ofb = ofs*(1.0+distcha*0.01);
+			res = float4(TextureColor.Sample(Sampler1,coord+ofr).r,
+				TextureColor.Sample(Sampler1,coord+ofg).g,
+				TextureColor.Sample(Sampler1,coord+ofb).b,1.0);
+		}
+		else res = TextureColor.Sample(Sampler1,coord+ofs);
 		float2 nc = coord*(bresl/FROSTSIZE)*frostsize;
 		float bmp = pow(TextureFrost.Sample(Sampler2,nc).x,frostbpow);
 		float dist = distance(coord,float2(0.5,0.5))*2.0;
@@ -1512,6 +1500,7 @@ float4 PS_FrostPass( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 		else dist *= todpow;
 		res.rgb *= 1.0+bmp*dist;
 	}
+	else res = TextureColor.Sample(Sampler1,coord);
 	if ( !focusdisplay ) return res;
 	if ( distance(coord,focuscenter) < 0.01 ) res.rgb = float3(1,0,0);
 	float cstep = (1.0/3.0);
