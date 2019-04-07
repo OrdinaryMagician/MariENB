@@ -99,117 +99,290 @@ bool aenable
 	string UIWidget = "Checkbox";
 > = {false};
 /* tone mapping */
-string str_tonemap = "Filmic Tone Mapping";
-bool tmapenable
+string str_tonemap = "Tone Mapping";
+/*
+   algorithms:
+    -1 : Disabled
+     0 : Vanilla
+     1 : Linear
+     2 : Reinhard
+     3 : Uncharted 2
+     4 : Hejl Dawson
+     5 : Haarm-Peter Duiker
+     6 : SweetFX
+*/
+int tmapenable
 <
-	string UIName = "Enable Tonemapping";
-	string UIWidget = "Checkbox";
-> = {false};
+	string UIName = "Tonemapping Method";
+	string UIWidget = "Spinner";
+	int UIMin = -1;
+	int UIMax = 6;
+> = {3};
+float tmapexposure_n
+<
+	string UIName = "Tonemap Exposure Night";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float tmapexposure_d
+<
+	string UIName = "Tonemap Exposure Day";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float tmapexposure_i
+<
+	string UIName = "Tonemap Exposure Interior";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float tmapblend_n
+<
+	string UIName = "Tonemap Blend Night";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {1.0};
+float tmapblend_d
+<
+	string UIName = "Tonemap Blend Day";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {1.0};
+float tmapblend_i
+<
+	string UIName = "Tonemap Blend Interior";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {1.0};
 float unA_n
 <
-	string UIName = "Tonemap Shoulder Strength Night";
+	string UIName = "Uncharted2 Shoulder Strength Night";
 	string UIWidget = "Spinner";
 > = {0.5};
 float unA_d
 <
-	string UIName = "Tonemap Shoulder Strength Day";
+	string UIName = "Uncharted2 Shoulder Strength Day";
 	string UIWidget = "Spinner";
 > = {0.5};
 float unA_i
 <
-	string UIName = "Tonemap Shoulder Strength Interior";
+	string UIName = "Uncharted2 Shoulder Strength Interior";
 	string UIWidget = "Spinner";
 > = {0.5};
 float unB_n
 <
-	string UIName = "Tonemap Linear Strength Night";
+	string UIName = "Uncharted2 Linear Strength Night";
 	string UIWidget = "Spinner";
 > = {1.0};
 float unB_d
 <
-	string UIName = "Tonemap Linear Strength Day";
+	string UIName = "Uncharted2 Linear Strength Day";
 	string UIWidget = "Spinner";
 > = {1.0};
 float unB_i
 <
-	string UIName = "Tonemap Linear Strength Interior";
+	string UIName = "Uncharted2 Linear Strength Interior";
 	string UIWidget = "Spinner";
 > = {1.0};
 float unC_n
 <
-	string UIName = "Tonemap Linear Angle Night";
+	string UIName = "Uncharted2 Linear Angle Night";
 	string UIWidget = "Spinner";
 > = {0.2};
 float unC_d
 <
-	string UIName = "Tonemap Linear Angle Day";
+	string UIName = "Uncharted2 Linear Angle Day";
 	string UIWidget = "Spinner";
 > = {0.2};
 float unC_i
 <
-	string UIName = "Tonemap Linear Angle Interior";
+	string UIName = "Uncharted2 Linear Angle Interior";
 	string UIWidget = "Spinner";
 > = {0.2};
 float unD_n
 <
-	string UIName = "Tonemap Toe Strength Night";
+	string UIName = "Uncharted2 Toe Strength Night";
 	string UIWidget = "Spinner";
 > = {0.75};
 float unD_d
 <
-	string UIName = "Tonemap Toe Strength Day";
+	string UIName = "Uncharted2 Toe Strength Day";
 	string UIWidget = "Spinner";
 > = {0.75};
 float unD_i
 <
-	string UIName = "Tonemap Toe Strength Interior";
+	string UIName = "Uncharted2 Toe Strength Interior";
 	string UIWidget = "Spinner";
 > = {0.75};
 float unE_n
 <
-	string UIName = "Tonemap Toe Numerator Night";
+	string UIName = "Uncharted2 Toe Numerator Night";
 	string UIWidget = "Spinner";
 > = {0.02};
 float unE_d
 <
-	string UIName = "Tonemap Toe Numerator Day";
+	string UIName = "Uncharted2 Toe Numerator Day";
 	string UIWidget = "Spinner";
 > = {0.02};
 float unE_i
 <
-	string UIName = "Tonemap Toe Numerator Interior";
+	string UIName = "Uncharted2 Toe Numerator Interior";
 	string UIWidget = "Spinner";
 > = {0.02};
 float unF_n
 <
-	string UIName = "Tonemap Toe Denominator Night";
+	string UIName = "Uncharted2 Toe Denominator Night";
 	string UIWidget = "Spinner";
 > = {0.30};
 float unF_d
 <
-	string UIName = "Tonemap Toe Denominator Day";
+	string UIName = "Uncharted2 Toe Denominator Day";
 	string UIWidget = "Spinner";
 > = {0.30};
 float unF_i
 <
-	string UIName = "Tonemap Toe Denominator Interior";
+	string UIName = "Uncharted2 Toe Denominator Interior";
 	string UIWidget = "Spinner";
 > = {0.30};
 float unW_n
 <
-	string UIName = "Tonemap Linear White Night";
+	string UIName = "Uncharted2 Linear White Night";
 	string UIWidget = "Spinner";
 > = {10.0};
 float unW_d
 <
-	string UIName = "Tonemap Linear White Day";
+	string UIName = "Uncharted2 Linear White Day";
 	string UIWidget = "Spinner";
 > = {10.0};
 float unW_i
 <
-	string UIName = "Tonemap Linear White Interior";
+	string UIName = "Uncharted2 Linear White Interior";
 	string UIWidget = "Spinner";
 > = {10.0};
+float sfxgamma_n
+<
+	string UIName = "SweetFX Gamma Night";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 2.0;
+> = {1.0};
+float sfxgamma_d
+<
+	string UIName = "SweetFX Gamma Day";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 2.0;
+> = {1.0};
+float sfxgamma_i
+<
+	string UIName = "SweetFX Gamma Interior";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 2.0;
+> = {1.0};
+float sfxexposure_n
+<
+	string UIName = "SweetFX Exposure Night";
+	string UIWidget = "Spinner";
+	float UIMin = -1.0;
+	float UIMax = 1.0;
+> = {0.0};
+float sfxexposure_d
+<
+	string UIName = "SweetFX Exposure Day";
+	string UIWidget = "Spinner";
+	float UIMin = -1.0;
+	float UIMax = 1.0;
+> = {0.0};
+float sfxexposure_i
+<
+	string UIName = "SweetFX Exposure Interior";
+	string UIWidget = "Spinner";
+	float UIMin = -1.0;
+	float UIMax = 1.0;
+> = {0.0};
+float sfxsaturation_n
+<
+	string UIName = "SweetFX Saturation Night";
+	string UIWidget = "Spinner";
+	float UIMin = -1.0;
+	float UIMax = 1.0;
+> = {0.0};
+float sfxsaturation_d
+<
+	string UIName = "SweetFX Saturation Day";
+	string UIWidget = "Spinner";
+	float UIMin = -1.0;
+	float UIMax = 1.0;
+> = {0.0};
+float sfxsaturation_i
+<
+	string UIName = "SweetFX Saturation Interior";
+	string UIWidget = "Spinner";
+	float UIMin = -1.0;
+	float UIMax = 1.0;
+> = {0.0};
+float sfxbleach_n
+<
+	string UIName = "SweetFX Bleach Night";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {0.0};
+float sfxbleach_d
+<
+	string UIName = "SweetFX Bleach Day";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {0.0};
+float sfxbleach_i
+<
+	string UIName = "SweetFX Bleach Interior";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {0.0};
+float sfxdefog_n
+<
+	string UIName = "SweetFX Defog Night";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {0.0};
+float sfxdefog_d
+<
+	string UIName = "SweetFX Defog Day";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {0.0};
+float sfxdefog_i
+<
+	string UIName = "SweetFX Defog Interior";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+	float UIMax = 1.0;
+> = {0.0};
+float3 sfxfogcolor_n
+<
+	string UIName = "SweetFX Defog Color Night";
+	string UIWidget = "Color";
+> = {0.0,0.0,1.0};
+float3 sfxfogcolor_d
+<
+	string UIName = "SweetFX Defog Color Day";
+	string UIWidget = "Color";
+> = {0.0,0.0,1.0};
+float3 sfxfogcolor_i
+<
+	string UIName = "SweetFX Defog Color Interior";
+	string UIWidget = "Color";
+> = {0.0,0.0,1.0};
+
 /* Color grading */
 string str_grade = "Color Grading Suite";
 bool gradeenable1
@@ -408,11 +581,6 @@ float techblend
 > = {1.0};
 /* vanilla */
 string str_vanilla = "Vanilla Processing";
-bool vtmapenable
-<
-	string UIName = "Enable Vanilla Tone Mapping";
-	string UIWidget = "Checkbox";
-> = {false};
 bool vgradeenable
 <
 	string UIName = "Enable Vanilla Imagespace";
@@ -512,6 +680,10 @@ Texture2D TextureLUT
 	string ResourceName = "menblut64.png";
 #endif
 >;
+Texture2D TextureTonemap
+<
+	string ResourceName = "menbfilmlut.png";
+>;
 
 SamplerState Sampler0
 {
@@ -594,7 +766,7 @@ float3 hsv2rgb( float3 c )
 	return c.z*lerp(K.x,saturate(p-K.x),c.y);
 }
 
-/* "uncharted 2" filmic tone mapping */
+/* Uncharted 2 tone mapping */
 float3 Uch( float3 res )
 {
 	float A = tod_ind(unA);
@@ -605,12 +777,108 @@ float3 Uch( float3 res )
 	float F = tod_ind(unF);
 	return ((res*(A*res+C*B)+D*E)/(res*(A*res+B)+D*F))-E/F;
 }
-float3 Tonemap( float3 res )
+float3 TonemapUC2( float3 res )
 {
 	float W = tod_ind(unW);
 	float3 ucol = Uch(res);
 	float3 uwhite = Uch(W);
-	return max(ucol/uwhite,0.0);
+	return pow(max(ucol/uwhite,0.0),1.0/2.2);
+}
+/* Vanilla tonemap is weird */
+float3 TonemapGame( float3 res )
+{
+#ifdef SKYRIMSE
+	return pow(max(res,0.0),1.0/2.2);
+#else
+	float3 wat = res*2.0;
+	float3 huh = res*0.3+0.05;
+	float2 weh = float2(0.2,3.333333)*Params01[1].w;
+	huh = wat*huh+weh.x;
+	float3 ehh = wat*0.3+0.5;
+	ehh = ehh*0.3+0.5;
+	ehh = wat*ehh+0.06;
+	ehh = huh/ehh;
+	ehh = -Params01[1].w*3.333333+ehh;
+	wat.x = Params01[1].w*0.2+19.376;
+	wat.x = wat.x*0.0408564-weh.y;
+	return pow(max(ehh/wat.x,0.0),1.0/2.2);
+#endif
+}
+/* Ugly old Reinhard tone mapping */
+float3 TonemapReinhard( float3 res )
+{
+	float3 tcol = res/(1+res);
+	return pow(max(tcol,0.0),1.0/2.2);
+}
+/* That thing used in watch_dogs */
+float3 TonemapHaarmPeterDuiker( float3 res )
+{
+	float3 ld = 0.002;
+	float linReference = 0.18;
+	float logReference = 444;
+	float logGamma = 0.45;
+	float3 LogColor;
+	LogColor.rgb = (log10(0.4*res/linReference)/ld*logGamma+logReference)/1023.f;
+	LogColor.rgb = saturate(LogColor.rgb);
+	float FilmLutWidth = 256;
+	float Padding = .5/FilmLutWidth;
+	float3 retColor;
+	retColor.r = TextureTonemap.Sample(Sampler1,float2(lerp(Padding,1-Padding,LogColor.r),.5)).x;
+	retColor.g = TextureTonemap.Sample(Sampler1,float2(lerp(Padding,1-Padding,LogColor.g),.5)).x;
+	retColor.b = TextureTonemap.Sample(Sampler1,float2(lerp(Padding,1-Padding,LogColor.b),.5)).x;
+	return retColor;
+}
+/* Practically nothing */
+float3 TonemapLinear( float3 res )
+{
+	return pow(max(res,0.0),1.0/2.2);
+}
+/* People somehow call this one realistic */
+float3 TonemapHejlDawson( float3 res )
+{
+	float3 x = max(0.0,res-0.004);
+	return (x*(6.2*x+.5))/(x*(6.2*x+1.7)+0.06);
+}
+/* The standard tonemap from sweetfx */
+float3 TonemapSFX( float3 res )
+{
+	float Gamma = tod_ind(sfxgamma);
+	float Exposure = tod_ind(sfxexposure);
+	float Saturation = tod_ind(sfxsaturation);
+	float Bleach = tod_ind(sfxbleach);
+	float Defog = tod_ind(sfxdefog);
+	float3 FogColor = tod_ind(sfxfogcolor);
+	float3 tcol = res;
+	tcol = saturate(tcol-Defog*FogColor*2.55);
+	tcol *= pow(2.0,Exposure);
+	tcol = pow(tcol,Gamma);
+	float lum = luminance(tcol);
+	float L = saturate(1.0*(lum-0.45));
+	float3 A2 = Bleach*tcol;
+	float3 res1 = 2.0*tcol*lum;
+	float3 res2 = 1.0-2.0*(1.0-lum)*(1.0-tcol);
+	float3 newc = lerp(res1,res2,L);
+	float3 mixrgb = A2*newc;
+	tcol += (1.0-A2)*mixrgb;
+	float3 gray = dot(tcol,1.0/3.0);
+	float3 diff = tcol-gray;
+	return (tcol+diff*Saturation)/(1+(diff*Saturation));
+}
+float3 Tonemap( float3 res )
+{
+	float3 tcol = pow(max(res,0.0),1.0/2.2);
+	if ( tmapenable == -1 ) return tcol;
+	res *= tod_ind(tmapexposure);
+	float tblend = tod_ind(tmapblend);
+	float3 mapped;
+	if ( tmapenable == 6 ) mapped = TonemapSFX(res);
+	else if ( tmapenable == 5 ) mapped = TonemapHaarmPeterDuiker(res);
+	else if ( tmapenable == 4 ) mapped = TonemapHejlDawson(res);
+	else if ( tmapenable == 3 ) mapped = TonemapUC2(res);
+	else if ( tmapenable == 2 ) mapped = TonemapReinhard(res);
+	else if ( tmapenable == 1 ) mapped = TonemapLinear(res);
+	else if ( tmapenable == 0 ) mapped = TonemapGame(res);
+	return lerp(tcol,mapped,tblend);
 }
 /* colour grading passes */
 float3 GradingRGB( float3 res )
@@ -767,28 +1035,6 @@ float3 GradingGame( float3 res, float adapt )
 	tcol = brtv*tcol+adapt;
 	return lerp(res,tcol,vconblend);
 }
-
-/* Vanilla tonemap is weird */
-float3 TonemapGame( float3 res )
-{
-#ifdef SKYRIMSE
-	return res;
-#else
-	float3 wat = res*2.0;
-	float3 huh = res*0.3+0.05;
-	float2 weh = float2(0.2,3.333333)*Params01[1].w;
-	huh = wat*huh+weh.x;
-	float3 ehh = wat*0.3+0.5;
-	ehh = ehh*0.3+0.5;
-	ehh = wat*ehh+0.06;
-	ehh = huh/ehh;
-	ehh = -Params01[1].w*3.333333+ehh;
-	wat.x = Params01[1].w*0.2+19.376;
-	wat.x = wat.x*0.0408564-weh.y;
-	return ehh/wat.x;
-#endif
-}
-
 /* Skyrim SE version is blatantly incomplete and will glitch out */
 float2 Adaptation( float2 coord )
 {
@@ -822,12 +1068,8 @@ float4 PS_Draw( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	res.rgb += bcol;
 	if ( aenable ) res.rgb *= adapt.x;
 	if ( nbt && ne ) res.rgb = FilmGrain(res.rgb,coord);
-	if ( vtmapenable ) res.rgb = TonemapGame(res.rgb);
+	res.rgb = Tonemap(res.rgb);
 	if ( vgradeenable ) res.rgb = GradingGame(res.rgb,adapt.y);
-#ifndef SKYRIMSE
-	res.rgb = pow(max(res.rgb,0.0),1.0/2.2);
-#endif
-	if ( tmapenable ) res.rgb = Tonemap(res.rgb);
 	if ( gradeenable1 ) res.rgb = GradingRGB(res.rgb);
 	if ( colorizeafterhsv )
 	{
