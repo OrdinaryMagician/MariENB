@@ -1,6 +1,6 @@
 /*
 	enbeffect.fx : MariENB3 base shader.
-	(C)2016-2017 Marisa Kirisame, UnSX Team.
+	(C)2016-2019 Marisa Kirisame, UnSX Team.
 	Part of MariENB3, the personal ENB of Marisa for Fallout 4.
 	Released under the GNU GPLv3 (or later).
 */
@@ -1201,7 +1201,7 @@ float4 PS_DrawOriginal( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Targe
 	r1.x = r1.x*0.0408564-r3.y;
 	r1.xyz = r0.xyz/r1.x;
 	r0.x = dot(r1.xyz,float3(0.2125,0.7154,0.0721));
-	r1.xyz = r1.xyz-r0.x;      
+	r1.xyz = r1.xyz-r0.x;
 	r1.xyz = Params01[2].x*r1.xyz+r0.x;
 	r2.xyz = r0.x*Params01[3].xyz-r1.xyz;
 	r1.xyz = Params01[3].w*r2.xyz+r1.xyz;

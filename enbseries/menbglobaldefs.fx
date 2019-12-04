@@ -1,6 +1,6 @@
 /*
 	menbglobaldefs.fx : MariENB3 global shared code.
-	(C)2016-2017 Marisa Kirisame, UnSX Team.
+	(C)2016-2019 Marisa Kirisame, UnSX Team.
 	Part of MariENB3, the personal ENB of Marisa for Fallout 4.
 	Released under the GNU GPLv3 (or later).
 */
@@ -9,7 +9,7 @@
 /* [New in 3.5.1] increase the quality of bloom by using larger matrices */
 //#define HQBLOOM
 /* [New in 3.5.1] compiles in SMAA support */
-//#define WITH_SMAA
+#define WITH_SMAA
 /* time of day and interior interpolation */
 #define ndfact clamp(0.5+(TimeOfDay1.z+(TimeOfDay1.y+TimeOfDay1.w)*0.5)*0.5\
 	-(TimeOfDay2.y+(TimeOfDay1.x+TimeOfDay2.x)*0.5)*0.5,0.0,1.0)
@@ -70,7 +70,7 @@
 /* asset definitions */
 /* texture sizes */
 #define NOISESIZE 256.0
-#define HEATSIZE 1024.0
+#define HEATSIZE 512.0
 #define FROSTSIZE 1024.0
 /* some textures can be provided as DDS rather than PNG to save space */
 //#define HEAT_DDS

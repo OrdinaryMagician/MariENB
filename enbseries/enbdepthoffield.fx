@@ -1,6 +1,6 @@
 /*
 	enbdepthoffield.fx : MariENB3 prepass shaders.
-	(C)2016-2017 Marisa Kirisame, UnSX Team.
+	(C)2016-2019 Marisa Kirisame, UnSX Team.
 	Part of MariENB3, the personal ENB of Marisa for Fallout 4.
 	Released under the GNU GPLv3 (or later).
 */
@@ -1673,13 +1673,13 @@ float4 PS_DoFPostBlur( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	{
 		float2(1.0,1.0), float2(-1.0,-1.0),
 		float2(-1.0,1.0), float2(1.0,-1.0),
-		
+
 		float2(1.0,0.0), float2(-1.0,0.0),
 		float2(0.0,1.0), float2(0.0,-1.0),
-		
+
 		float2(1.41,0.0), float2(-1.41,0.0),
 		float2(0.0,1.41), float2(0.0,-1.41),
-		
+
 		float2(1.41,1.41), float2(-1.41,-1.41),
 		float2(-1.41,1.41), float2(1.41,-1.41)
 	};

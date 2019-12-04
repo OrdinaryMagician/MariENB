@@ -1,6 +1,6 @@
 /*
 	enbeffectpostpass.fx : MariENB3 extra shader.
-	(C)2016-2017 Marisa Kirisame, UnSX Team.
+	(C)2016-2019 Marisa Kirisame, UnSX Team.
 	Part of MariENB3, the personal ENB of Marisa for Fallout 4.
 	Released under the GNU GPLv3 (or later).
 */
@@ -527,7 +527,7 @@ float4 PS_Vignette( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 		vigdata.rgb = vigcolor;
 	}
 	else if ( vigshape == 1 )
-	{	
+	{
 		/* box vignette */
 		float2 uv = coord.xy*(1.0-coord.yx)*4.0;
 		vigdata.a = 1.0-(uv.x*uv.y);
