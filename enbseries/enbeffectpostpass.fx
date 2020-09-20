@@ -1,6 +1,6 @@
 /*
 	enbeffectpostpass.fx : MariENB3 extra shader.
-	(C)2016-2019 Marisa Kirisame, UnSX Team.
+	(C)2016-2020 Marisa Kirisame, UnSX Team.
 	Part of MariENB3, the personal ENB of Marisa for Fallout 4.
 	Released under the GNU GPLv3 (or later).
 */
@@ -401,7 +401,87 @@ float hsval_m
 	float UIMin = -1.0;
 	float UIMax = 1.0;
 > = {0.0};
-/* colour balance */
+/* retrofx */
+string str_b = "RetroFX";
+bool benable
+<
+	string UIName = "Enable RetroFX";
+	string UIWidget = "Checkbox";
+> = {false};
+float bresx
+<
+	string UIName = "RetroFX Emulted Width";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {0.0};
+float bresy
+<
+	string UIName = "RetroFX Emulted Height";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {0.0};
+float bsaturation
+<
+	string UIName = "RetroFX Saturation Modifier";
+	string UIWidget = "Spinner";
+> = {1.0};
+float bgamma
+<
+	string UIName = "RetroFX Contrast Modifier";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {1.0};
+float bdbump_r
+<
+	string UIName = "RetroFX Dither Offset Red";
+	string UIWidget = "Spinner";
+> = {0.0};
+float bdbump_g
+<
+	string UIName = "RetroFX Dither Offset Green";
+	string UIWidget = "Spinner";
+> = {0.0};
+float bdbump_b
+<
+	string UIName = "RetroFX Dither Offset Blue";
+	string UIWidget = "Spinner";
+> = {0.0};
+float bdmult_r
+<
+	string UIName = "RetroFX Dither Range Red";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {0.0};
+float bdmult_g
+<
+	string UIName = "RetroFX Dither Range Green";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {0.0};
+float bdmult_b
+<
+	string UIName = "RetroFX Dither Range Blue";
+	string UIWidget = "Spinner";
+	float UIMin = 0.0;
+> = {0.0};
+int bpal
+<
+	string UIName = "RetroFX Palette";
+	string UIWidget = "Spinner";
+	int UIMin = 0;
+	int UIMax = 34;
+> = {0};
+/* needed so people know which palette is which because this stupid thing has no combo widget like Reshade */
+bool bpaldebug
+<
+	string UIName = "RetroFX Display Palette Label";
+	string UIWidget = "Checkbox";
+> = {false};
+bool mwatermark
+<
+	string UIName = "Show MariENB Watermark";
+	string UIWidget = "Checkbox";
+> = {false};
 
 /* gaussian blur matrices */
 /* radius: 4, std dev: 1.5 */
@@ -422,7 +502,22 @@ Texture2D TextureVignette
 	string ResourceName = "menbvignette.png";
 #endif
 >;
-
+Texture2D TextureLogo
+<
+	string ResourceName = "menblogo.png";
+>;
+Texture2D TexturePAL
+<
+	string ResourceName = "menbpal.png";
+>;
+Texture2D TexturePALNames
+<
+	string ResourceName = "menbpaltext.png";
+>;
+Texture2D TextureDither
+<
+	string ResourceName = "menbdither.png";
+>;
 SamplerState Sampler
 {
 	Filter = MIN_MAG_MIP_LINEAR;
@@ -435,6 +530,13 @@ SamplerState SamplerB
 	Filter = MIN_MAG_MIP_LINEAR;
 	AddressU = Border;
 	AddressV = Border;
+	MaxLOD = 0;
+};
+SamplerState SamplerN
+{
+	Filter = MIN_MAG_MIP_POINT;
+	AddressU = Wrap;
+	AddressV = Wrap;
 	MaxLOD = 0;
 };
 
@@ -690,6 +792,75 @@ float4 PS_Cinematic( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
 	return res;
 }
 
+/* RetroFX */
+float4 ReducePrepass( in float4 col, in float2 coord )
+{
+	float3 hsv = rgb2hsv(col.rgb);
+	hsv.y = clamp(hsv.y*bsaturation,0.0,1.0);
+	hsv.z = pow(max(hsv.z,0.0),bgamma);
+	col.rgb = hsv2rgb(saturate(hsv));
+	col.rgb += float3(bdbump_r,bdbump_g,bdbump_b)
+		+TextureDither.Sample(SamplerN,coord/8.0).x
+		*float3(bdmult_r,bdmult_g,bdmult_b);
+	col.rgb = saturate(col.rgb);
+	return col;
+}
+
+float4 ReducePAL( in float4 color, in float2 coord )
+{
+	float4 dac = clamp(ReducePrepass(color,coord),0.0,63.0/64.0);
+	float2 lc = float2((dac.r+bpal)/64.0,dac.g/64.0+floor(dac.b*64.0)/64.0);
+	return TexturePAL.Sample(SamplerN,lc);
+}
+
+float4 PS_RetroRockets( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 )
+	: SV_Target
+{
+	float2 coord = IN.txcoord.xy;
+	float4 res = TextureColor.Sample(Sampler,coord);
+	if ( !benable ) return res;
+	float2 rresl = float2(ScreenSize.x,ScreenSize.x*ScreenSize.w);
+	float2 bresl = rresl;
+	if ( (bresx <= 0.0) || (bresy <= 0.0) ) bresl = rresl;
+	else
+	{
+		if ( bresx <= 1.0 ) bresl.x = rresl.x*bresx;
+		else bresl.x = bresx;
+		if ( bresy <= 1.0 ) bresl.y = rresl.y*bresy;
+		else bresl.y = bresy;
+	}
+	float2 sresl = rresl/bresl;
+	float2 ncoord = coord;
+	ncoord = floor(ncoord*bresl)/bresl;
+	if ( (bresx <= 0.0) || (bresy <= 0.0) ) ncoord = coord;
+	res = TextureColor.Sample(Sampler,ncoord);
+	res = ReducePAL(res,(coord*rresl)/sresl);
+	res.a = 1.0;
+	if ( !bpaldebug ) return res;
+	float2 scl = rresl/float2(256,1024);
+	float2 ocrd = (coord*scl)*.25;
+	if ( (ocrd.x < 1.0) && (ocrd.y < 1.0/64.0) )
+	{
+		float4 label = TexturePALNames.Sample(SamplerN,ocrd+float2(0.0,bpal/64.0));
+		res.rgb = lerp(res.rgb,label.rgb,label.a);
+	}
+	return res;
+}
+
+/* Logo */
+float4 PS_Watermark( VS_OUTPUT_POST IN, float4 v0 : SV_Position0 ) : SV_Target
+{
+	float2 coord = IN.txcoord.xy;
+	float4 res = TextureColor.Sample(Sampler,coord);
+	if ( !mwatermark ) return res;
+	float2 wscale;
+	wscale.x = 2.0;
+	wscale.y = 4.0*ScreenSize.w;
+	float4 logo = TextureLogo.Sample(Sampler,coord*wscale-float2(0.49,0.51)*wscale);
+	res.rgb = lerp(res.rgb,logo.rgb,logo.a);
+	return res;
+}
+
 #ifdef WITH_SMAA
 /* begin SMAA integration code */
 
@@ -874,6 +1045,22 @@ technique11 ExtraFilters8
 		SetPixelShader(CompileShader(ps_5_0,PS_Cinematic()));
 	}
 }
+technique11 ExtraFilters9
+{
+	pass p0
+	{
+		SetVertexShader(CompileShader(vs_5_0,VS_PostProcess()));
+		SetPixelShader(CompileShader(ps_5_0,PS_RetroRockets()));
+	}
+}
+technique11 ExtraFilters10
+{
+	pass p0
+	{
+		SetVertexShader(CompileShader(vs_5_0,VS_PostProcess()));
+		SetPixelShader(CompileShader(ps_5_0,PS_Watermark()));
+	}
+}
 #else
 technique11 ExtraFilters <string UIName="MariENB";>
 {
@@ -913,6 +1100,22 @@ technique11 ExtraFilters4
 	{
 		SetVertexShader(CompileShader(vs_5_0,VS_PostProcess()));
 		SetPixelShader(CompileShader(ps_5_0,PS_Cinematic()));
+	}
+}
+technique11 ExtraFilters5
+{
+	pass p0
+	{
+		SetVertexShader(CompileShader(vs_5_0,VS_PostProcess()));
+		SetPixelShader(CompileShader(ps_5_0,PS_RetroRockets()));
+	}
+}
+technique11 ExtraFilters6
+{
+	pass p0
+	{
+		SetVertexShader(CompileShader(vs_5_0,VS_PostProcess()));
+		SetPixelShader(CompileShader(ps_5_0,PS_Watermark()));
 	}
 }
 #endif
